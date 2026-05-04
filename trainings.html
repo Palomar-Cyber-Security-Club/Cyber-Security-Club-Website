@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trainings | Palomar CSC</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .training-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  .training-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: all 0.25s;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .training-card:hover {
+    border-color: var(--green);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(57,255,20,0.1);
+  }
+
+  .training-card-header {
+    background: linear-gradient(135deg, rgba(0,200,255,0.08), rgba(57,255,20,0.05));
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .training-icon {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+  }
+
+  .training-meta {}
+
+  .training-tag {
+    display: inline-block;
+    background: var(--green-dim);
+    color: var(--green);
+    border: 1px solid var(--border-g);
+    border-radius: 4px;
+    padding: 0.1rem 0.5rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.4rem;
+  }
+
+  .training-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    line-height: 1.2;
+  }
+
+  .training-body {
+    padding: 1.25rem 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .training-desc {
+    font-size: 0.88rem;
+    color: var(--text);
+    opacity: 0.82;
+    line-height: 1.6;
+  }
+
+  .training-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: auto;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .detail-pill {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 0.2rem 0.6rem;
+  }
+
+  .training-btn {
+    display: block;
+    margin: 0 1.5rem 1.5rem;
+    padding: 0.65rem;
+    text-align: center;
+    background: var(--blue-dim);
+    color: var(--blue);
+    border: 1px solid rgba(0,200,255,0.3);
+    border-radius: var(--radius);
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+
+  .training-btn:hover {
+    background: rgba(0,200,255,0.2);
+    box-shadow: 0 0 16px var(--blue-glow);
+  }
+
+  .template-box {
+    background: #070a12;
+    border: 1px dashed rgba(57,255,20,0.3);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin-top: 3rem;
+  }
+
+  .template-box h3 {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--green);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .template-box p {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+
+  .template-code {
+    background: #0a0d18;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.25rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text);
+    white-space: pre;
+    overflow-x: auto;
+    line-height: 1.6;
+  }
+
+  .template-code .c-green { color: var(--green); }
+  .template-code .c-blue  { color: var(--blue); }
+  .template-code .c-muted { color: var(--muted); }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-brand">
+    <img src="logo.png" alt="CSC Logo" class="nav-logo">
+    <span class="nav-title">Palomar <span class="accent-blue">CSC</span></span>
+  </div>
+  <button class="hamburger" id="hamburger">&#9776;</button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="tools.html">Hack Tools</a></li>
+    <li><a href="events.html">Events</a></li>
+    <li><a href="resources.html">Resources</a></li>
+    <li><a href="trainings.html" class="active">Trainings</a></li>
+    <li><a href="https://discord.gg/CkEZXuCzK" target="_blank" class="nav-discord">Discord</a></li>
+  </ul>
+</nav>
+
+<div class="page-hero">
+  <p class="section-label accent-blue" style="justify-content:center;display:flex;">// hands-on labs</p>
+  <h1 class="page-hero-title">Trainings &amp; <span class="accent-green">Simulators</span></h1>
+  <p class="page-hero-sub">Interactive tools and simulators built for the club — launch and learn</p>
+</div>
+
+<main class="section">
+  <div class="container">
+
+    <div class="section-label accent-green">// club-built tools</div>
+    <h2 class="section-title" style="margin-bottom:1rem;">Our <span class="accent-blue">Simulators</span></h2>
+    <p style="font-family:'Share Tech Mono',monospace;font-size:0.82rem;color:var(--muted);margin-bottom:2rem;">
+      These interactive tools were built specifically for Palomar CSC training sessions. Click Launch to open in your browser.
+    </p>
+
+    <div class="training-grid">
+
+      <!-- ═══════════════════════════════════════════════
+           TRAINING CARD — COPY THIS BLOCK TO ADD MORE
+           ═══════════════════════════════════════════════ -->
+      <div class="training-card fade-up">
+        <div class="training-card-header">
+          <div class="training-icon">🔍</div>
+          <div class="training-meta">
+            <div class="training-tag">Reconnaissance</div>
+            <div class="training-title">Recon Methodology Simulator</div>
+          </div>
+        </div>
+        <div class="training-body">
+          <p class="training-desc">
+            Step-by-step passive and active reconnaissance simulator. Practice OSINT gathering, DNS enumeration, and footprinting techniques in a guided environment.
+          </p>
+          <div class="training-details">
+            <span class="detail-pill">⏱ 30–60 min</span>
+            <span class="detail-pill">🎯 Beginner–Intermediate</span>
+            <span class="detail-pill">🖥 Browser-based</span>
+          </div>
+        </div>
+        <a href="#" class="training-btn">&#9654; Launch Simulator</a>
+      </div>
+      <!-- ═══════════════════════════════════════════════
+           END TRAINING CARD
+           ═══════════════════════════════════════════════ -->
+
+      <!-- ADD MORE CARDS BELOW — PASTE THE BLOCK ABOVE -->
+
+    </div>
+
+    <!-- HOW TO ADD MORE TRAININGS -->
+    <div class="template-box">
+      <h3>&#128736; How to Add a New Training Card</h3>
+      <p>Copy the HTML block below and paste it inside the training-grid div above. Replace the placeholder text with your training details.</p>
+      <div class="template-code"><span class="c-muted">&lt;!-- PASTE THIS BLOCK INSIDE THE training-grid div --&gt;</span>
+<span class="c-blue">&lt;div</span> class=<span class="c-green">"training-card fade-up"</span><span class="c-blue">&gt;</span>
+  <span class="c-blue">&lt;div</span> class=<span class="c-green">"training-card-header"</span><span class="c-blue">&gt;</span>
+    <span class="c-blue">&lt;div</span> class=<span class="c-green">"training-icon"</span><span class="c-blue">&gt;</span>🔒<span class="c-blue">&lt;/div&gt;</span>  <span class="c-muted">&lt;!-- change emoji --&gt;</span>
+    <span class="c-blue">&lt;div</span> class=<span class="c-green">"training-meta"</span><span class="c-blue">&gt;</span>
+      <span class="c-blue">&lt;div</span> class=<span class="c-green">"training-tag"</span><span class="c-blue">&gt;</span>Category Name<span class="c-blue">&lt;/div&gt;</span>
+      <span class="c-blue">&lt;div</span> class=<span class="c-green">"training-title"</span><span class="c-blue">&gt;</span>Your Training Title<span class="c-blue">&lt;/div&gt;</span>
+    <span class="c-blue">&lt;/div&gt;</span>
+  <span class="c-blue">&lt;/div&gt;</span>
+  <span class="c-blue">&lt;div</span> class=<span class="c-green">"training-body"</span><span class="c-blue">&gt;</span>
+    <span class="c-blue">&lt;p</span> class=<span class="c-green">"training-desc"</span><span class="c-blue">&gt;</span>
+      Describe what this training covers and what the student will learn or practice.
+    <span class="c-blue">&lt;/p&gt;</span>
+    <span class="c-blue">&lt;div</span> class=<span class="c-green">"training-details"</span><span class="c-blue">&gt;</span>
+      <span class="c-blue">&lt;span</span> class=<span class="c-green">"detail-pill"</span><span class="c-blue">&gt;</span>⏱ 30–60 min<span class="c-blue">&lt;/span&gt;</span>
+      <span class="c-blue">&lt;span</span> class=<span class="c-green">"detail-pill"</span><span class="c-blue">&gt;</span>🎯 Beginner<span class="c-blue">&lt;/span&gt;</span>
+      <span class="c-blue">&lt;span</span> class=<span class="c-green">"detail-pill"</span><span class="c-blue">&gt;</span>🖥 Browser-based<span class="c-blue">&lt;/span&gt;</span>
+    <span class="c-blue">&lt;/div&gt;</span>
+  <span class="c-blue">&lt;/div&gt;</span>
+  <span class="c-blue">&lt;a</span> href=<span class="c-green">"YOUR-SIMULATOR-FILE.html"</span> class=<span class="c-green">"training-btn"</span><span class="c-blue">&gt;</span>&#9654; Launch Simulator<span class="c-blue">&lt;/a&gt;</span>
+<span class="c-blue">&lt;/div&gt;</span>
+<span class="c-muted">&lt;!-- END CARD --&gt;</span></div>
+    </div>
+
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <img src="logo.png" alt="CSC Logo" class="footer-logo">
+    <div class="footer-text">
+      <p class="footer-name">Palomar Cyber Security Club</p>
+      <p class="footer-copy">&copy; 2026 &bull; <a href="https://www.palomar.edu" target="_blank" style="color:var(--blue);text-decoration:none;">Palomar College</a> &bull; San Marcos, CA</p>
+    </div>
+    <nav class="footer-nav">
+      <a href="index.html">Home</a>
+      <a href="tools.html">Hack Tools</a>
+      <a href="events.html">Events</a>
+      <a href="resources.html">Resources</a>
+      <a href="trainings.html">Trainings</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>
