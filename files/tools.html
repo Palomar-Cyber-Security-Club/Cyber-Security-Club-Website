@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hack Tools | Palomar CSC</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-brand">
+    <img src="logo.png" alt="CSC Logo" class="nav-logo">
+    <span class="nav-title">Palomar <span class="accent-blue">CSC</span></span>
+  </div>
+  <button class="hamburger" id="hamburger">&#9776;</button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="tools.html" class="active">Hack Tools</a></li>
+    <li><a href="events.html">Events</a></li>
+    <li><a href="resources.html">Resources</a></li>
+    <li><a href="https://discord.gg/CkEZXuCzK" target="_blank" class="nav-discord">Discord</a></li>
+  </ul>
+</nav>
+
+<div class="page-hero">
+  <p class="section-label accent-green" style="justify-content:center;display:flex;">// arsenal</p>
+  <h1 class="page-hero-title">Hack <span class="accent-blue">Tools</span></h1>
+  <p class="page-hero-sub">Tools we use in meetings, labs, and CTF competitions</p>
+</div>
+
+<main class="section">
+  <div class="container">
+
+    <p style="font-family:'Share Tech Mono',monospace;font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">
+      ⚠ These tools are for educational and authorized use only. Always get permission before scanning or testing any system you don't own.
+    </p>
+
+    <div class="category-label">Reconnaissance</div>
+    <div class="tools-grid">
+
+      <div class="tool-card fade-up">
+        <span class="tool-tag">Network Scanner</span>
+        <h3><a href="https://nmap.org" target="_blank">Nmap</a></h3>
+        <p>The gold standard for network discovery and security auditing. Scan hosts, detect open ports, identify services and OS versions.</p>
+      </div>
+
+      <div class="tool-card fade-up">
+        <span class="tool-tag">OSINT</span>
+        <h3><a href="https://www.shodan.io" target="_blank">Shodan</a></h3>
+        <p>Search engine for internet-connected devices. Discover exposed servers, webcams, routers, and more across the public internet.</p>
+      </div>
+
+      <div class="tool-card fade-up">
+        <span class="tool-tag">DNS Recon</span>
+        <h3><a href="https://github.com/darkoperator/dnsrecon" target="_blank">DNSRecon</a></h3>
+        <p>DNS enumeration tool for gathering DNS records, performing zone transfers, and identifying subdomains.</p>
+      </div>
+
+      <div class="tool-card fade-up">
+        <span class="tool-tag">Subdomain Enum</span>
+        <h3><a href="https://github.com/aboul3la/Sublist3r" target="_blank">Sublist3r</a></h3>
+        <p>Fast subdomain enumeration tool using OSINT sources like Google, Bing, VirusTotal, and more.</p>
+      </div>
+
+    </div>
+
+    <div class="category-label">Vulnerability Scanning</div>
+    <div class="tools-grid">
+
+      <div class="tool-card fade-up">
+        <span class="tool-tag">Vuln Scanner</span>
+        <h3><a href="https://www.tenable.com/products/nessus" target="_blank">Nessus</a></h3>
+        <p>Industry-leading vulnerability scanner. Identifies vulnerabilities, misconfigurations, and compliance issues across systems.</p>
+      </div>
+
+      <div class="tool-card fade-up">
+        <span class="tool-tag">Web App Scanner</span>
+        <h3><a href="https://www.zaproxy.org" target="_blank">OWASP ZAP</a></h3>
+        <p>Free web application security scanner. Great for finding XSS, SQL injection, and other OWASP Top 10 vulnerabilities.</p>
+      </div>
+
+      <div class="tool-card fade-up">
+        <span class="tool-tag">Web Fuzzer</span>
+        <h3><a href="https://github.com/ffuf/ffuf" target="_blank">ffuf</a></h3>
+        <p>Fast web fuzzer written in Go. Use it for directory and file brute-forcing, parameter fuzzing, and more.</p>
+      </div>
+
+      <div class="tool-card fade-up">
+        <span class="tool-tag">Port Scanner</span>
+        <h3><a href="https://github.com/RustScan/RustScan" target="_blank">RustScan</a></h3>
+        <p>The modern port scanner. Scans all 65,535 ports in under 3 seconds then hands off to Nmap for deeper analysis.</p>
+      </div>
+
+    </div>
+
+    <div class="category-label">Exploitation</div>
+    <div class="tools-grid">
+
+      <div class="tool-card fade-up">
+        <span class="tool-tag">Exploit Framework</span>
+        <h3><a href="https://www.metasploit.com" target="_blank">Metasploit</a></h3>
+        <p>The world's most used penetration testing framework. Contains hundreds of exploits, payloads, and auxiliary modules.</p>
+      </div>
+
+      <div class="tool-card fade-up">
+        <span class="tool-tag">SQL Injection</span>
+        <h3><a href="https://sqlmap.org" target="_blank">sqlmap</a></h3>
+        <p>Automatic SQL injection and database takeover tool. Supports MySQL, Oracle, PostgreSQL, MSSQL, and more.</p>
+      </div>
+
+      <div class="tool-card fade-up">
+        <span class="tool-tag">Password Cracking</span>
+        <h3><a href="https://hashcat.net" target="_blank">Hashcat</a></h3>
+        <p>World's fastest and most advanced password recovery tool. Supports 300+ hash types with GPU acceleration.</p>
+      </div>
+
+      <div class="tool-card fade-up">
+        <span class="tool-tag">Wordlists</span>
+        <h3><a href="https://github.com/danielmiessler/SecLists" target="_blank">SecLists</a></h3>
+        <p>Collection of multiple types of lists used during security assessments — usernames, passwords, URLs, fuzzing payloads, and more.</p>
+      </div>
+
+    </div>
+
+    <div class="category-label">Traffic Analysis</div>
+    <div class="tools-grid">
+
+      <div class="tool-card fade-up">
+        <span class="tool-tag">Packet Analyzer</span>
+        <h3><a href="https://www.wireshark.org" target="_blank">Wireshark</a></h3>
+        <p>The world's foremost network protocol analyzer. Capture and interactively analyze network traffic in real time.</p>
+      </div>
+
+      <div class="tool-card fade-up">
+        <span class="tool-tag">Proxy</span>
+        <h3><a href="https://portswigger.net/burp" target="_blank">Burp Suite</a></h3>
+        <p>The leading web security testing platform. Intercept, inspect, and modify HTTP/S traffic between browser and server.</p>
+      </div>
+
+      <div class="tool-card fade-up">
+        <span class="tool-tag">CLI Sniffer</span>
+        <h3><a href="https://www.tcpdump.org" target="_blank">tcpdump</a></h3>
+        <p>Powerful command-line packet analyzer. Lightweight alternative to Wireshark for terminal-based analysis.</p>
+      </div>
+
+    </div>
+
+    <div class="category-label">Practice Platforms</div>
+    <div class="tools-grid">
+
+      <div class="tool-card fade-up">
+        <span class="tool-tag">CTF / Labs</span>
+        <h3><a href="https://tryhackme.com" target="_blank">TryHackMe</a></h3>
+        <p>Beginner-friendly cybersecurity training platform with guided rooms, learning paths, and CTF-style challenges.</p>
+      </div>
+
+      <div class="tool-card fade-up">
+        <span class="tool-tag">CTF / Labs</span>
+        <h3><a href="https://hackthebox.com" target="_blank">Hack The Box</a></h3>
+        <p>Advanced penetration testing labs. Hack real machines in a safe, legal environment and earn rankings.</p>
+      </div>
+
+      <div class="tool-card fade-up">
+        <span class="tool-tag">Web Security</span>
+        <h3><a href="https://portswigger.net/web-security" target="_blank">PortSwigger Web Academy</a></h3>
+        <p>Free, world-class web security training from the makers of Burp Suite. Covers all OWASP Top 10 and beyond.</p>
+      </div>
+
+      <div class="tool-card fade-up">
+        <span class="tool-tag">CTF Archive</span>
+        <h3><a href="https://picoctf.org" target="_blank">picoCTF</a></h3>
+        <p>Free computer security game targeted at middle and high school students. Great starting point for beginners.</p>
+      </div>
+
+    </div>
+
+    <div class="category-label">Virtualization & Labs</div>
+    <div class="tools-grid">
+
+      <div class="tool-card fade-up">
+        <span class="tool-tag">Hypervisor</span>
+        <h3><a href="https://www.proxmox.com" target="_blank">Proxmox VE</a></h3>
+        <p>Open-source server virtualization platform we use for building our own lab infrastructure and server environments.</p>
+      </div>
+
+      <div class="tool-card fade-up">
+        <span class="tool-tag">Pen Test OS</span>
+        <h3><a href="https://www.kali.org" target="_blank">Kali Linux</a></h3>
+        <p>Debian-based Linux distribution designed for digital forensics and penetration testing. Comes pre-loaded with 600+ tools.</p>
+      </div>
+
+      <div class="tool-card fade-up">
+        <span class="tool-tag">VM Platform</span>
+        <h3><a href="https://www.virtualbox.org" target="_blank">VirtualBox</a></h3>
+        <p>Free and open-source virtualization software. Run Kali Linux, Windows, or any OS safely inside your main machine.</p>
+      </div>
+
+    </div>
+
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <img src="logo.png" alt="CSC Logo" class="footer-logo">
+    <div class="footer-text">
+      <p class="footer-name">Palomar Cyber Security Club</p>
+      <p class="footer-copy">&copy; 2025 &bull; Palomar College &bull; San Marcos, CA</p>
+    </div>
+    <nav class="footer-nav">
+      <a href="index.html">Home</a>
+      <a href="tools.html">Hack Tools</a>
+      <a href="events.html">Events</a>
+      <a href="resources.html">Resources</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>

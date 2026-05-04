@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palomar Cyber Security Club</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="navbar">
+  <div class="nav-brand">
+    <img src="logo.png" alt="CSC Logo" class="nav-logo">
+    <span class="nav-title">Palomar <span class="accent-blue">CSC</span></span>
+  </div>
+  <button class="hamburger" id="hamburger">&#9776;</button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html" class="active">Home</a></li>
+    <li><a href="tools.html">Hack Tools</a></li>
+    <li><a href="events.html">Events</a></li>
+    <li><a href="resources.html">Resources</a></li>
+    <li><a href="https://discord.gg/CkEZXuCzK" target="_blank" class="nav-discord">Discord</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <canvas id="comets"></canvas>
+  <div class="hero-grid-overlay"></div>
+  <div class="hero-content">
+    <img src="logo.png" alt="CSC Logo" class="hero-logo">
+    <h1 class="hero-title">PALOMAR<br><span class="accent-green">CYBER SECURITY</span><br>CLUB</h1>
+    <p class="hero-sub">Palomar College &bull; San Marcos, CA</p>
+    <p class="hero-tagline">Open to ALL students &mdash; No experience required</p>
+    <div class="hero-btns">
+      <a href="https://discord.gg/CkEZXuCzK" target="_blank" class="btn btn-primary">Join Discord</a>
+      <a href="#schedule" class="btn btn-outline">Meeting Schedule</a>
+    </div>
+  </div>
+  <div class="hero-scroll-hint">&#8595; scroll</div>
+</section>
+
+<!-- ABOUT -->
+<section class="section" id="about">
+  <div class="container">
+    <div class="section-label accent-blue">// about us</div>
+    <h2 class="section-title">Our <span class="accent-green">Mission</span></h2>
+    <div class="about-grid">
+      <div class="about-text">
+        <p>The Palomar Cyber Security Club is a student-led organization dedicated to building real-world cybersecurity skills in a collaborative, hands-on environment. We believe security knowledge should be accessible to everyone — whether you're a complete beginner or an experienced practitioner.</p>
+        <p>From vulnerability scanning and penetration testing to networking labs and CTF competitions, we train the next generation of security professionals right here at Palomar College.</p>
+      </div>
+      <div class="about-stats">
+        <div class="stat-card">
+          <span class="stat-num accent-blue">3x</span>
+          <span class="stat-label">Weekly Sessions</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num accent-green">CTF</span>
+          <span class="stat-label">Competitions</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num accent-blue">0</span>
+          <span class="stat-label">Exp. Required</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num accent-green">FREE</span>
+          <span class="stat-label">To Join</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCHEDULE -->
+<section class="section section-dark" id="schedule">
+  <div class="container">
+    <div class="section-label accent-green">// when & where</div>
+    <h2 class="section-title">Meeting <span class="accent-blue">Schedule</span></h2>
+    <p class="schedule-note">&#128204; Check Discord weekly for exact room numbers</p>
+    <div class="schedule-grid">
+
+      <div class="schedule-card wednesday">
+        <div class="day-header">
+          <span class="day-dot wed-dot"></span>
+          <span class="day-name">Wednesday</span>
+        </div>
+        <div class="day-time">4:00 PM – 5:00 PM</div>
+        <div class="day-location">
+          <div class="loc-name">Rancho Bernardo Center</div>
+          <div class="loc-detail">Room 416 &bull; 11111 Rancho Bernardo Rd, San Diego</div>
+        </div>
+        <ul class="day-activities">
+          <li>Club meeting — 1 hour</li>
+          <li>Planning, guest talks, announcements</li>
+        </ul>
+      </div>
+
+      <div class="schedule-card thursday">
+        <div class="day-header">
+          <span class="day-dot thu-dot"></span>
+          <span class="day-name">Thursday</span>
+        </div>
+        <div class="day-time">1:00 PM – 6:00 PM</div>
+        <div class="day-location">
+          <div class="loc-name">Main Campus Library</div>
+          <div class="loc-detail">4th Floor &bull; Room # on Discord weekly</div>
+        </div>
+        <ul class="day-activities">
+          <li>Vuln scanning &bull; Nmap &bull; Nessus &bull; Metasploit</li>
+          <li>Proxmox / server builds / CTF practice</li>
+        </ul>
+      </div>
+
+      <div class="schedule-card friday">
+        <div class="day-header">
+          <span class="day-dot fri-dot"></span>
+          <span class="day-name">Friday</span>
+        </div>
+        <div class="day-time">1:00 PM – 6:00 PM</div>
+        <div class="day-location">
+          <div class="loc-name">Main Campus Computer Lab Study Room</div>
+          <div class="loc-detail">San Marcos &bull; Room # on Discord weekly</div>
+        </div>
+        <ul class="day-activities">
+          <li>Hardware hacking &amp; networking labs</li>
+          <li>Smaller group — deeper technical dives</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- OFFICERS -->
+<section class="section" id="officers">
+  <div class="container">
+    <div class="section-label accent-blue">// leadership</div>
+    <h2 class="section-title">Club <span class="accent-green">Officers</span></h2>
+    <p class="officers-note">Officer roster will be updated soon. Reach out on Discord for current contacts.</p>
+    <div class="officers-grid">
+      <div class="officer-card">
+        <div class="officer-icon">&#128100;</div>
+        <div class="officer-role accent-blue">Student Advisor</div>
+        <div class="officer-name">TBD</div>
+      </div>
+      <div class="officer-card">
+        <div class="officer-icon">&#128081;</div>
+        <div class="officer-role accent-green">President</div>
+        <div class="officer-name">TBD</div>
+      </div>
+      <div class="officer-card">
+        <div class="officer-icon">&#9878;</div>
+        <div class="officer-role accent-blue">Vice President</div>
+        <div class="officer-name">TBD</div>
+      </div>
+      <div class="officer-card">
+        <div class="officer-icon">&#128221;</div>
+        <div class="officer-role accent-green">Secretary</div>
+        <div class="officer-name">TBD</div>
+      </div>
+      <div class="officer-card">
+        <div class="officer-icon">&#128181;</div>
+        <div class="officer-role accent-blue">Treasurer</div>
+        <div class="officer-name">TBD</div>
+      </div>
+      <div class="officer-card">
+        <div class="officer-icon">&#128279;</div>
+        <div class="officer-role accent-green">ICC Representative</div>
+        <div class="officer-name">TBD</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="section section-dark" id="contact">
+  <div class="container contact-container">
+    <div class="section-label accent-green">// connect</div>
+    <h2 class="section-title">Get In <span class="accent-blue">Touch</span></h2>
+    <div class="contact-grid">
+      <a href="mailto:palomarcyberclub42@gmail.com" class="contact-card">
+        <span class="contact-icon">&#9993;</span>
+        <span class="contact-label">Email</span>
+        <span class="contact-value">palomarcyberclub42@gmail.com</span>
+      </a>
+      <a href="https://discord.gg/CkEZXuCzK" target="_blank" class="contact-card">
+        <span class="contact-icon">&#128172;</span>
+        <span class="contact-label">Discord</span>
+        <span class="contact-value">Join our server</span>
+      </a>
+      <a href="https://www.instagram.com/palomar.cybersecurity.club" target="_blank" class="contact-card">
+        <span class="contact-icon">&#128247;</span>
+        <span class="contact-label">Instagram</span>
+        <span class="contact-value">@palomar.cybersecurity.club</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <img src="logo.png" alt="CSC Logo" class="footer-logo">
+    <div class="footer-text">
+      <p class="footer-name">Palomar Cyber Security Club</p>
+      <p class="footer-copy">&copy; 2025 &bull; Palomar College &bull; San Marcos, CA</p>
+    </div>
+    <nav class="footer-nav">
+      <a href="index.html">Home</a>
+      <a href="tools.html">Hack Tools</a>
+      <a href="events.html">Events</a>
+      <a href="resources.html">Resources</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>
