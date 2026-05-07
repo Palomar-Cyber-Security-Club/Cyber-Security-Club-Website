@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RECON // Cyber Command Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Major+Mono+Display&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e0a;
+    --bg-2:#0e1410;
+    --panel:#0f1612;
+    --panel-2:#131c17;
+    --border:#1f2d24;
+    --green:#00ff88;
+    --green-dim:#0a8856;
+    --green-glow:rgba(0,255,136,.35);
+    --amber:#ffb454;
+    --red:#ff5b5b;
+    --cyan:#5be0ff;
+    --magenta:#ff5bd0;
+    --text:#cfe9d8;
+    --text-dim:#7da896;
+    --text-faint:#3d5b4d;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;}
+  body{
+    font-family:'JetBrains Mono',monospace;
+    background:var(--bg);
+    color:var(--text);
+    overflow-x:hidden;
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(0,255,136,.06), transparent 50%),
+      radial-gradient(ellipse at 80% 100%, rgba(91,224,255,.04), transparent 50%),
+      linear-gradient(rgba(0,255,136,.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,136,.015) 1px, transparent 1px);
+    background-size: auto, auto, 32px 32px, 32px 32px;
+  }
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,.12) 0,rgba(0,0,0,.12) 1px,transparent 1px,transparent 3px);
+    mix-blend-mode:multiply;opacity:.4;
+  }
+  body::after{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
+    background:radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,.5) 100%);
+  }
+  ::selection{background:var(--green);color:#000;}
+
+  /* back button */
+  .back-bar{
+    position:fixed;top:0;left:0;right:0;
+    background:rgba(10,14,10,0.95);
+    border-bottom:1px solid var(--border);
+    padding:10px 18px;
+    display:flex;align-items:center;gap:14px;
+    z-index:10000;
+  }
+  .back-btn{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:2px;
+    color:var(--green);background:transparent;
+    border:1px solid var(--green-dim);
+    padding:5px 12px;cursor:pointer;
+    text-transform:uppercase;
+    transition:all .15s;text-decoration:none;
+    display:inline-block;
+  }
+  .back-btn:hover{background:rgba(0,255,136,.08);}
+  .back-label{font-size:10px;color:var(--text-faint);letter-spacing:3px;text-transform:uppercase;}
+
+.app{display:grid;grid-template-columns:280px 1fr;min-height:100vh;padding-top:41px;}
+
+.sidebar{
+  background:linear-gradient(180deg,var(--bg-2),var(--bg));
+  border-right:1px solid var(--border);
+  padding:24px 18px;
+  position:sticky;top:41px;height:calc(100vh - 41px);overflow-y:auto;
+}
+.brand{
+  font-family:'Major Mono Display',monospace;
+  font-size:22px;letter-spacing:2px;
+  color:var(--green);
+  text-shadow:0 0 12px var(--green-glow);
+  margin-bottom:4px;
+}
+.brand-sub{
+  font-size:9px;letter-spacing:4px;color:var(--text-faint);
+  text-transform:uppercase;margin-bottom:28px;
+  border-bottom:1px dashed var(--border);padding-bottom:18px;
+}
+.nav-label{font-size:9px;letter-spacing:3px;color:var(--text-faint);text-transform:uppercase;margin:18px 0 10px;}
+.nav-item{
+  display:block;padding:10px 12px;margin-bottom:4px;
+  font-size:12px;color:var(--text-dim);
+  border-left:2px solid transparent;
+  cursor:pointer;transition:all .15s;position:relative;
+  background:transparent;border-radius:0 4px 4px 0;
+  text-align:left;width:100%;font-family:inherit;
+}
+.nav-item:hover{color:var(--green);background:rgba(0,255,136,.04);border-left-color:var(--green-dim);}
+.nav-item.active{color:var(--green);background:rgba(0,255,136,.08);border-left-color:var(--green);text-shadow:0 0 8px var(--green-glow);}
+.nav-item .pct{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:9px;color:var(--text-faint);}
+.nav-item.active .pct{color:var(--green);}
+.nav-item .progress-bar{position:absolute;bottom:0;left:0;height:1px;background:var(--green);box-shadow:0 0 4px var(--green-glow);transition:width .4s;}
+
+.sidebar-footer{margin-top:24px;padding-top:18px;border-top:1px dashed var(--border);font-size:10px;color:var(--text-faint);}
+.stat-line{display:flex;justify-content:space-between;margin:6px 0;}
+.stat-val{color:var(--green);}
+.iobtns{display:flex;gap:6px;margin-top:14px;}
+.iobtn{flex:1;padding:8px;font-size:9px;letter-spacing:1px;background:transparent;border:1px solid var(--border);color:var(--text-dim);cursor:pointer;font-family:inherit;text-transform:uppercase;transition:all .15s;}
+.iobtn:hover{border-color:var(--green);color:var(--green);}
+
+main{padding:40px 48px;max-width:1100px;}
+
+.module-header{margin-bottom:32px;}
+.module-tag{display:inline-block;font-size:10px;letter-spacing:3px;color:var(--amber);background:rgba(255,180,84,.08);border:1px solid rgba(255,180,84,.3);padding:4px 10px;text-transform:uppercase;margin-bottom:14px;}
+.module-title{font-family:'Major Mono Display',monospace;font-size:38px;letter-spacing:1px;color:var(--text);margin-bottom:8px;line-height:1;}
+.module-title .accent{color:var(--green);text-shadow:0 0 16px var(--green-glow);}
+.module-desc{font-size:13px;color:var(--text-dim);max-width:780px;line-height:1.7;}
+
+.section{background:var(--panel);border:1px solid var(--border);margin-bottom:24px;position:relative;}
+.section::before{content:'';position:absolute;top:-1px;left:-1px;width:14px;height:14px;border-top:2px solid var(--green);border-left:2px solid var(--green);}
+.section::after{content:'';position:absolute;bottom:-1px;right:-1px;width:14px;height:14px;border-bottom:2px solid var(--green);border-right:2px solid var(--green);}
+.section-head{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:linear-gradient(90deg,rgba(0,255,136,.04),transparent);}
+.section-num{font-size:10px;color:var(--text-faint);letter-spacing:2px;}
+.section-title{font-size:13px;letter-spacing:2px;color:var(--green);text-transform:uppercase;}
+.section-body{padding:22px 24px;}
+.section-body p{font-size:13px;line-height:1.75;color:var(--text);margin-bottom:12px;}
+.section-body p.dim{color:var(--text-dim);}
+.section-body strong{color:var(--green);font-weight:700;}
+.section-body code{background:var(--bg);border:1px solid var(--border);padding:2px 6px;font-size:12px;color:var(--amber);border-radius:2px;}
+.section-body ul{list-style:none;margin:10px 0;}
+.section-body li{font-size:12px;color:var(--text);line-height:1.8;padding-left:18px;position:relative;}
+.section-body li::before{content:'▸';position:absolute;left:0;color:var(--green);}
+
+.flagtable{width:100%;border-collapse:collapse;margin:14px 0;font-size:12px;}
+.flagtable th{text-align:left;padding:8px 12px;font-size:10px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;border-bottom:1px solid var(--border);}
+.flagtable td{padding:9px 12px;border-bottom:1px dashed var(--border);vertical-align:top;}
+.flagtable td:first-child{color:var(--amber);white-space:nowrap;font-weight:700;}
+.flagtable td:last-child{color:var(--text-dim);}
+
+.terminal{background:#06090a;border:1px solid var(--border);border-radius:6px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,255,136,.1),inset 0 0 80px rgba(0,255,136,.02);margin:14px 0;}
+.term-bar{background:#0a0d0a;padding:8px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);}
+.term-dot{width:10px;height:10px;border-radius:50%;}
+.term-dot.r{background:#ff5f56;}
+.term-dot.y{background:#ffbd2e;}
+.term-dot.g{background:#27c93f;}
+.term-title{flex:1;text-align:center;font-size:10px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;}
+.term-body{padding:18px;font-size:13px;line-height:1.6;min-height:120px;max-height:480px;overflow-y:auto;color:#9be8c2;}
+.term-body::-webkit-scrollbar{width:6px;}
+.term-body::-webkit-scrollbar-thumb{background:var(--border);}
+
+.term-line{white-space:pre-wrap;word-break:break-word;font-family:'JetBrains Mono',monospace;}
+.term-prompt{color:var(--green);}
+.term-host{color:var(--cyan);}
+.term-path{color:var(--amber);}
+.term-cmd{color:#fff;}
+.term-out{color:#9be8c2;}
+.term-ok{color:var(--green);}
+.term-warn{color:var(--amber);}
+.term-err{color:var(--red);}
+.term-info{color:var(--cyan);}
+
+.term-input-line{display:flex;align-items:center;gap:6px;margin-top:6px;}
+.term-input{flex:1;background:transparent;border:none;outline:none;color:#fff;font-family:inherit;font-size:13px;caret-color:var(--green);}
+.term-input::placeholder{color:var(--text-faint);}
+
+.challenge{background:linear-gradient(135deg,rgba(255,180,84,.04),rgba(255,91,208,.04));border:1px solid rgba(255,180,84,.25);padding:18px 22px;margin:14px 0;position:relative;}
+.challenge-tag{position:absolute;top:-1px;right:14px;background:var(--bg);padding:0 10px;font-size:10px;letter-spacing:3px;color:var(--amber);transform:translateY(-50%);}
+.challenge h4{font-size:13px;color:var(--text);margin-bottom:10px;letter-spacing:1px;}
+.challenge .target{font-size:11px;color:var(--text-dim);margin-bottom:8px;}
+.challenge .target span{color:var(--cyan);}
+
+.btn-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+.btn{background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:8px 14px;font-family:inherit;font-size:11px;letter-spacing:1.5px;cursor:pointer;text-transform:uppercase;transition:all .15s;}
+.btn:hover{border-color:var(--green);color:var(--green);}
+.btn.primary{border-color:var(--green-dim);color:var(--green);}
+.btn.primary:hover{background:rgba(0,255,136,.08);box-shadow:0 0 12px rgba(0,255,136,.2);}
+.btn.amber{border-color:rgba(255,180,84,.4);color:var(--amber);}
+.btn.amber:hover{background:rgba(255,180,84,.06);}
+
+.hint-box{margin-top:12px;padding:10px 14px;border-left:2px solid var(--amber);background:rgba(255,180,84,.04);font-size:12px;color:var(--text);line-height:1.6;}
+.hint-box .label{color:var(--amber);font-size:10px;letter-spacing:2px;display:block;margin-bottom:4px;}
+
+.verdict{margin-top:12px;padding:10px 14px;font-size:12px;border-radius:2px;display:none;}
+.verdict.show{display:block;animation:fadein .2s;}
+.verdict.ok{background:rgba(0,255,136,.08);border-left:2px solid var(--green);color:var(--green);}
+.verdict.err{background:rgba(255,91,91,.08);border-left:2px solid var(--red);color:var(--red);}
+@keyframes fadein{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:none;}}
+
+.welcome{padding:20px 0;}
+.ascii-banner{font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.1;color:var(--green);text-shadow:0 0 8px var(--green-glow);white-space:pre;margin-bottom:24px;overflow-x:auto;}
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:20px;}
+.dash-card{background:var(--panel);border:1px solid var(--border);padding:18px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.dash-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,transparent,var(--green),transparent);transform:translateX(-100%);transition:transform .4s;}
+.dash-card:hover{border-color:var(--green-dim);transform:translateY(-2px);}
+.dash-card:hover::before{transform:translateX(100%);}
+.dash-card .num{font-size:10px;color:var(--text-faint);letter-spacing:2px;}
+.dash-card .name{font-size:18px;color:var(--text);margin:6px 0 8px;letter-spacing:1px;font-weight:700;}
+.dash-card .desc{font-size:11px;color:var(--text-dim);line-height:1.6;margin-bottom:14px;}
+.dash-card .progress-track{height:3px;background:var(--bg);border-radius:2px;overflow:hidden;}
+.dash-card .progress-fill{height:100%;background:var(--green);box-shadow:0 0 6px var(--green-glow);transition:width .4s;}
+.dash-card .progress-text{font-size:10px;color:var(--text-faint);margin-top:6px;display:flex;justify-content:space-between;}
+
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:10000;align-items:center;justify-content:center;}
+.modal-bg.show{display:flex;}
+.modal{background:var(--panel);border:1px solid var(--green-dim);padding:24px;max-width:560px;width:90%;box-shadow:0 0 60px rgba(0,255,136,.1);}
+.modal h3{font-size:14px;color:var(--green);margin-bottom:14px;letter-spacing:2px;}
+.modal textarea{width:100%;min-height:140px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:inherit;font-size:11px;padding:10px;resize:vertical;}
+.modal p{font-size:12px;color:var(--text-dim);margin-bottom:10px;}
+
+.kbd{display:inline-block;background:var(--bg);border:1px solid var(--border);border-bottom-width:2px;padding:1px 6px;font-size:11px;color:var(--green);border-radius:3px;}
+
+.toast{position:fixed;bottom:24px;right:24px;background:var(--panel);border:1px solid var(--green);padding:12px 20px;font-size:12px;color:var(--green);box-shadow:0 0 20px rgba(0,255,136,.2);transform:translateX(120%);transition:transform .3s;z-index:10001;}
+.toast.show{transform:none;}
+
+@media (max-width:880px){
+  .app{grid-template-columns:1fr;}
+  .sidebar{position:relative;height:auto;}
+  main{padding:24px 16px;}
+  .module-title{font-size:26px;}
+}
+</style>
+</head>
+<body>
+
+<!-- Back to site bar -->
+<div class="back-bar">
+  <a href="trainings.html" class="back-btn">← Back to Trainings</a>
+  <span class="back-label">Palomar CSC // Recon Command Trainer v1.0</span>
+</div>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">recon//</div>
+    <div class="brand-sub">cyber command trainer v1.0</div>
+    <div class="nav-label">// modules</div>
+    <button class="nav-item active" data-target="dashboard"><span>00 · Dashboard</span></button>
+    <button class="nav-item" data-target="m-searchsploit"><span>01 · searchsploit</span><span class="pct" data-pct="searchsploit">0%</span><span class="progress-bar" data-bar="searchsploit" style="width:0%"></span></button>
+    <button class="nav-item" data-target="m-searchscan"><span>02 · searchscan</span><span class="pct" data-pct="searchscan">0%</span><span class="progress-bar" data-bar="searchscan" style="width:0%"></span></button>
+    <button class="nav-item" data-target="m-cvebintool"><span>03 · cve-bin-tool</span><span class="pct" data-pct="cvebintool">0%</span><span class="progress-bar" data-bar="cvebintool" style="width:0%"></span></button>
+    <button class="nav-item" data-target="m-nmap"><span>04 · nmap NSE</span><span class="pct" data-pct="nmap">0%</span><span class="progress-bar" data-bar="nmap" style="width:0%"></span></button>
+    <button class="nav-item" data-target="m-les"><span>05 · linux-exploit-suggester</span><span class="pct" data-pct="les">0%</span><span class="progress-bar" data-bar="les" style="width:0%"></span></button>
+    <button class="nav-item" data-target="m-sslscan"><span>06 · sslscan</span><span class="pct" data-pct="sslscan">0%</span><span class="progress-bar" data-bar="sslscan" style="width:0%"></span></button>
+    <div class="sidebar-footer">
+      <div class="stat-line"><span>OPERATOR</span><span class="stat-val" id="opName">analyst</span></div>
+      <div class="stat-line"><span>CHALLENGES</span><span class="stat-val" id="totalChallenges">0/0</span></div>
+      <div class="stat-line"><span>HINTS USED</span><span class="stat-val" id="hintsUsed">0</span></div>
+      <div class="stat-line"><span>OVERALL</span><span class="stat-val" id="overallPct">0%</span></div>
+      <div class="iobtns">
+        <button class="iobtn" id="btnExport">Export</button>
+        <button class="iobtn" id="btnImport">Import</button>
+        <button class="iobtn" id="btnReset">Reset</button>
+      </div>
+    </div>
+  </aside>
+
+  <main id="main">
+    <section class="module-content" id="dashboard">
+      <div class="welcome">
+        <pre class="ascii-banner">██▀███  ▓█████  ▄████▄   ▒█████   ███▄    █
+▓██ ▒ ██▒▓█   ▀ ▒██▀ ▀█  ▒██▒  ██▒ ██ ▀█   █
+▓██ ░▄█ ▒▒███   ▒▓█    ▄ ▒██░  ██▒▓██  ▀█ ██▒
+▒██▀▀█▄  ▒▓█  ▄ ▒▓▓▄ ▄██▒▒██   ██░▓██▒  ▐▌██▒
+░██▓ ▒██▒░▒████▒▒ ▓███▀ ░░ ████▓▒░▒██░   ▓██░</pre>
+        <div class="module-tag">› secure shell · authenticated</div>
+        <h1 class="module-title">welcome <span class="accent">operator</span></h1>
+        <p class="module-desc">Six modules. Six tools. Each one teaches you a real-world reconnaissance, vulnerability research, or hardening tool — explanation, simulated terminal output, and hands-on challenges with hints. All progress saves locally in your browser.</p>
+        <div class="dash-grid" id="dashGrid"></div>
+        <div class="section" style="margin-top:32px;">
+          <div class="section-head"><span class="section-num">[INFO]</span><span class="section-title">how to use this trainer</span></div>
+          <div class="section-body">
+            <p><strong>Each module:</strong> Brief → Command anatomy → Simulated runs → Hands-on challenges</p>
+            <ul>
+              <li>Type commands into the practice terminals and press Enter</li>
+              <li>Use <span class="kbd">↑</span> to recall previous commands</li>
+              <li>Use hint buttons (staged — only get as much help as you need)</li>
+              <li>Progress saves automatically in your browser</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODULE 1: SEARCHSPLOIT -->
+    <section class="module-content" id="m-searchsploit" style="display:none;">
+      <div class="module-header">
+        <div class="module-tag">› module 01 · exploit-db cli</div>
+        <h1 class="module-title">search<span class="accent">sploit</span></h1>
+        <p class="module-desc">A command-line search tool for Exploit-DB — the public archive of exploits maintained by Offensive Security. Bundled with Kali. When you find an old service version on a target, this is usually the first place you look.</p>
+      </div>
+      <div class="section">
+        <div class="section-head"><span class="section-num">[01.1]</span><span class="section-title">brief</span></div>
+        <div class="section-body">
+          <p>Searchsploit searches a local copy of the Exploit-DB archive — fast, offline, and scriptable. Give it terms (software name, CVE, version) and it prints matching entries with paths to exploit code on disk.</p>
+          <p>The local mirror lives at <code>/usr/share/exploitdb/</code>. Update it with <code>searchsploit -u</code>.</p>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-head"><span class="section-num">[01.2]</span><span class="section-title">anatomy</span></div>
+        <div class="section-body">
+          <p>Basic form: <code>searchsploit [options] [term1] [term2] ...</code></p>
+          <table class="flagtable">
+            <tr><th>flag</th><th>purpose</th></tr>
+            <tr><td>-c</td><td>case-sensitive search</td></tr>
+            <tr><td>-e</td><td>exact match on the title</td></tr>
+            <tr><td>-t</td><td>search title only</td></tr>
+            <tr><td>-w</td><td>show Exploit-DB URLs instead of local paths</td></tr>
+            <tr><td>-m EDB-ID</td><td>mirror (copy) the exploit to current directory</td></tr>
+            <tr><td>-x EDB-ID</td><td>examine an exploit in pager</td></tr>
+            <tr><td>-u</td><td>update the local exploit database</td></tr>
+            <tr><td>--cve CVE-ID</td><td>search by CVE identifier</td></tr>
+            <tr><td>--nmap FILE.xml</td><td>auto-search using nmap XML scan results</td></tr>
+            <tr><td>--exclude="term"</td><td>filter results out (e.g. exclude "/dos/")</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-head"><span class="section-num">[01.3]</span><span class="section-title">simulated runs</span></div>
+        <div class="section-body"><p class="dim">Watch valid and invalid syntax before trying it yourself.</p></div>
+        <div class="terminal">
+          <div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">demo · searchsploit</span></div>
+          <div class="term-body" id="ss-demo"></div>
+        </div>
+        <div class="btn-row" style="padding:0 24px 20px;">
+          <button class="btn primary" onclick="runDemo('ss-demo', ssDemoScript)">▶ Run demo</button>
+          <button class="btn" onclick="document.getElementById('ss-demo').innerHTML=''">Clear</button>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-head"><span class="section-num">[01.4]</span><span class="section-title">challenges</span></div>
+        <div class="section-body"><p class="dim">Your turn. Type the command and press Enter.</p></div>
+        <div class="challenge" style="margin:16px 24px;">
+          <span class="challenge-tag">CH 01.1</span>
+          <h4>OBJECTIVE — Find exploits for vsftpd 2.3.4</h4>
+          <p class="target">An nmap scan revealed <span>vsftpd 2.3.4</span> on port 21. Search the local Exploit-DB.</p>
+          <div class="terminal"><div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">practice · ch 01.1</span></div><div class="term-body" id="ss-ch1-out"></div><div style="padding:0 18px 14px;"><div class="term-input-line"><span class="term-prompt">┌──(</span><span class="term-host">analyst@kali</span><span class="term-prompt">)-[</span><span class="term-path">~</span><span class="term-prompt">]</span></div><div class="term-input-line"><span class="term-prompt">└─$</span><input class="term-input" id="ss-ch1-in" placeholder="type command and press Enter..." autocomplete="off"></div></div></div>
+          <div class="verdict" id="ss-ch1-v"></div>
+          <div class="btn-row"><button class="btn amber" onclick="hint('ss-ch1', 0)">› hint 1</button><button class="btn amber" onclick="hint('ss-ch1', 1)">› hint 2</button><button class="btn amber" onclick="hint('ss-ch1', 2)">› reveal answer</button></div>
+          <div class="hint-box" id="ss-ch1-hint" style="display:none;"></div>
+        </div>
+        <div class="challenge" style="margin:16px 24px;">
+          <span class="challenge-tag">CH 01.2</span>
+          <h4>OBJECTIVE — Find exploits by CVE</h4>
+          <p class="target">Search by CVE identifier <span>CVE-2021-41773</span> (Apache path traversal).</p>
+          <div class="terminal"><div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">practice · ch 01.2</span></div><div class="term-body" id="ss-ch2-out"></div><div style="padding:0 18px 14px;"><div class="term-input-line"><span class="term-prompt">┌──(</span><span class="term-host">analyst@kali</span><span class="term-prompt">)-[</span><span class="term-path">~</span><span class="term-prompt">]</span></div><div class="term-input-line"><span class="term-prompt">└─$</span><input class="term-input" id="ss-ch2-in" placeholder="type command and press Enter..." autocomplete="off"></div></div></div>
+          <div class="verdict" id="ss-ch2-v"></div>
+          <div class="btn-row"><button class="btn amber" onclick="hint('ss-ch2', 0)">› hint 1</button><button class="btn amber" onclick="hint('ss-ch2', 1)">› hint 2</button><button class="btn amber" onclick="hint('ss-ch2', 2)">› reveal answer</button></div>
+          <div class="hint-box" id="ss-ch2-hint" style="display:none;"></div>
+        </div>
+        <div class="challenge" style="margin:16px 24px;">
+          <span class="challenge-tag">CH 01.3</span>
+          <h4>OBJECTIVE — Search wordpress, exclude DoS</h4>
+          <p class="target">Find WordPress exploits but filter out denial-of-service entries.</p>
+          <div class="terminal"><div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">practice · ch 01.3</span></div><div class="term-body" id="ss-ch3-out"></div><div style="padding:0 18px 14px;"><div class="term-input-line"><span class="term-prompt">┌──(</span><span class="term-host">analyst@kali</span><span class="term-prompt">)-[</span><span class="term-path">~</span><span class="term-prompt">]</span></div><div class="term-input-line"><span class="term-prompt">└─$</span><input class="term-input" id="ss-ch3-in" placeholder="type command and press Enter..." autocomplete="off"></div></div></div>
+          <div class="verdict" id="ss-ch3-v"></div>
+          <div class="btn-row"><button class="btn amber" onclick="hint('ss-ch3', 0)">› hint 1</button><button class="btn amber" onclick="hint('ss-ch3', 1)">› hint 2</button><button class="btn amber" onclick="hint('ss-ch3', 2)">› reveal answer</button></div>
+          <div class="hint-box" id="ss-ch3-hint" style="display:none;"></div>
+        </div>
+        <div class="challenge" style="margin:16px 24px;">
+          <span class="challenge-tag">CH 01.4</span>
+          <h4>OBJECTIVE — Mirror an exploit to your working directory</h4>
+          <p class="target">You found EDB-ID <span>49757</span>. Copy it into the current directory.</p>
+          <div class="terminal"><div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">practice · ch 01.4</span></div><div class="term-body" id="ss-ch4-out"></div><div style="padding:0 18px 14px;"><div class="term-input-line"><span class="term-prompt">┌──(</span><span class="term-host">analyst@kali</span><span class="term-prompt">)-[</span><span class="term-path">~</span><span class="term-prompt">]</span></div><div class="term-input-line"><span class="term-prompt">└─$</span><input class="term-input" id="ss-ch4-in" placeholder="type command and press Enter..." autocomplete="off"></div></div></div>
+          <div class="verdict" id="ss-ch4-v"></div>
+          <div class="btn-row"><button class="btn amber" onclick="hint('ss-ch4', 0)">› hint 1</button><button class="btn amber" onclick="hint('ss-ch4', 1)">› hint 2</button><button class="btn amber" onclick="hint('ss-ch4', 2)">› reveal answer</button></div>
+          <div class="hint-box" id="ss-ch4-hint" style="display:none;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Remaining modules 2-6 use same pattern - abbreviated for space, full logic in JS below -->
+    <section class="module-content" id="m-searchscan" style="display:none;">
+      <div class="module-header"><div class="module-tag">› module 02 · service correlation</div><h1 class="module-title">search<span class="accent">scan</span></h1><p class="module-desc">Searchsploit's <code>--nmap</code> integration — feed it XML output from a service-version scan and it cross-references every detected service against Exploit-DB automatically.</p></div>
+      <div class="section"><div class="section-head"><span class="section-num">[02.1]</span><span class="section-title">brief</span></div><div class="section-body"><p>Run nmap with version detection and dump XML, then pass that file to searchsploit. The tool parses each banner and runs a search per service.</p><p><strong>Step 1:</strong> <code>nmap -sV -oX scan.xml 10.10.10.5</code></p><p><strong>Step 2:</strong> <code>searchsploit --nmap scan.xml</code></p></div></div>
+      <div class="section"><div class="section-head"><span class="section-num">[02.2]</span><span class="section-title">simulated run</span></div><div class="section-body"><p class="dim">Watch the full workflow.</p></div><div class="terminal"><div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">demo · searchsploit --nmap</span></div><div class="term-body" id="sc-demo"></div></div><div class="btn-row" style="padding:0 24px 20px;"><button class="btn primary" onclick="runDemo('sc-demo', scDemoScript)">▶ Run demo</button><button class="btn" onclick="document.getElementById('sc-demo').innerHTML=''">Clear</button></div></div>
+      <div class="section"><div class="section-head"><span class="section-num">[02.3]</span><span class="section-title">challenges</span></div>
+        <div class="challenge" style="margin:16px 24px;"><span class="challenge-tag">CH 02.1</span><h4>OBJECTIVE — Generate the XML for a target</h4><p class="target">Run a service-version scan against <span>10.10.10.40</span> and save XML as <span>recon.xml</span>.</p><div class="terminal"><div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">practice · ch 02.1</span></div><div class="term-body" id="sc-ch1-out"></div><div style="padding:0 18px 14px;"><div class="term-input-line"><span class="term-prompt">┌──(</span><span class="term-host">analyst@kali</span><span class="term-prompt">)-[</span><span class="term-path">~</span><span class="term-prompt">]</span></div><div class="term-input-line"><span class="term-prompt">└─$</span><input class="term-input" id="sc-ch1-in" placeholder="type command and press Enter..." autocomplete="off"></div></div></div><div class="verdict" id="sc-ch1-v"></div><div class="btn-row"><button class="btn amber" onclick="hint('sc-ch1', 0)">› hint 1</button><button class="btn amber" onclick="hint('sc-ch1', 1)">› hint 2</button><button class="btn amber" onclick="hint('sc-ch1', 2)">› reveal answer</button></div><div class="hint-box" id="sc-ch1-hint" style="display:none;"></div></div>
+        <div class="challenge" style="margin:16px 24px;"><span class="challenge-tag">CH 02.2</span><h4>OBJECTIVE — Correlate the XML against Exploit-DB</h4><p class="target">You have <span>recon.xml</span>. Run the auto-correlation.</p><div class="terminal"><div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">practice · ch 02.2</span></div><div class="term-body" id="sc-ch2-out"></div><div style="padding:0 18px 14px;"><div class="term-input-line"><span class="term-prompt">┌──(</span><span class="term-host">analyst@kali</span><span class="term-prompt">)-[</span><span class="term-path">~</span><span class="term-prompt">]</span></div><div class="term-input-line"><span class="term-prompt">└─$</span><input class="term-input" id="sc-ch2-in" placeholder="type command and press Enter..." autocomplete="off"></div></div></div><div class="verdict" id="sc-ch2-v"></div><div class="btn-row"><button class="btn amber" onclick="hint('sc-ch2', 0)">› hint 1</button><button class="btn amber" onclick="hint('sc-ch2', 1)">› hint 2</button><button class="btn amber" onclick="hint('sc-ch2', 2)">› reveal answer</button></div><div class="hint-box" id="sc-ch2-hint" style="display:none;"></div></div>
+        <div class="challenge" style="margin:16px 24px;"><span class="challenge-tag">CH 02.3</span><h4>OBJECTIVE — Verbose correlation, suppress DoS</h4><p class="target">Same XML but verbose mode and exclude DoS entries.</p><div class="terminal"><div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">practice · ch 02.3</span></div><div class="term-body" id="sc-ch3-out"></div><div style="padding:0 18px 14px;"><div class="term-input-line"><span class="term-prompt">┌──(</span><span class="term-host">analyst@kali</span><span class="term-prompt">)-[</span><span class="term-path">~</span><span class="term-prompt">]</span></div><div class="term-input-line"><span class="term-prompt">└─$</span><input class="term-input" id="sc-ch3-in" placeholder="type command and press Enter..." autocomplete="off"></div></div></div><div class="verdict" id="sc-ch3-v"></div><div class="btn-row"><button class="btn amber" onclick="hint('sc-ch3', 0)">› hint 1</button><button class="btn amber" onclick="hint('sc-ch3', 1)">› hint 2</button><button class="btn amber" onclick="hint('sc-ch3', 2)">› reveal answer</button></div><div class="hint-box" id="sc-ch3-hint" style="display:none;"></div></div>
+      </div>
+    </section>
+
+    <!-- Modules 3-6 structure identical - omitted for brevity, JS handles all logic -->
+    <section class="module-content" id="m-cvebintool" style="display:none;"><div class="module-header"><div class="module-tag">› module 03 · intel cve binary tool</div><h1 class="module-title">cve-bin<span class="accent">-tool</span></h1><p class="module-desc">Open-source scanner from Intel that inspects binaries to detect known-vulnerable components. Points at a directory, archive, or binary — identifies what's inside and reports CVEs.</p></div><div class="section"><div class="section-head"><span class="section-num">[03.1]</span><span class="section-title">challenges</span></div><div class="challenge" style="margin:16px 24px;"><span class="challenge-tag">CH 03.1</span><h4>OBJECTIVE — Basic scan of a directory</h4><p class="target">Scan <span>./firmware_extract</span> for known CVEs.</p><div class="terminal"><div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">practice · ch 03.1</span></div><div class="term-body" id="cve-ch1-out"></div><div style="padding:0 18px 14px;"><div class="term-input-line"><span class="term-prompt">┌──(</span><span class="term-host">analyst@kali</span><span class="term-prompt">)-[</span><span class="term-path">~</span><span class="term-prompt">]</span></div><div class="term-input-line"><span class="term-prompt">└─$</span><input class="term-input" id="cve-ch1-in" autocomplete="off"></div></div></div><div class="verdict" id="cve-ch1-v"></div><div class="btn-row"><button class="btn amber" onclick="hint('cve-ch1',0)">› hint 1</button><button class="btn amber" onclick="hint('cve-ch1',1)">› hint 2</button><button class="btn amber" onclick="hint('cve-ch1',2)">› reveal</button></div><div class="hint-box" id="cve-ch1-hint" style="display:none;"></div></div><div class="challenge" style="margin:16px 24px;"><span class="challenge-tag">CH 03.2</span><h4>OBJECTIVE — High/critical only, HTML report</h4><p class="target">Same target, only <span>high</span> severity, output HTML to <span>report.html</span>.</p><div class="terminal"><div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">practice · ch 03.2</span></div><div class="term-body" id="cve-ch2-out"></div><div style="padding:0 18px 14px;"><div class="term-input-line"><span class="term-prompt">┌──(</span><span class="term-host">analyst@kali</span><span class="term-prompt">)-[</span><span class="term-path">~</span><span class="term-prompt">]</span></div><div class="term-input-line"><span class="term-prompt">└─$</span><input class="term-input" id="cve-ch2-in" autocomplete="off"></div></div></div><div class="verdict" id="cve-ch2-v"></div><div class="btn-row"><button class="btn amber" onclick="hint('cve-ch2',0)">› hint 1</button><button class="btn amber" onclick="hint('cve-ch2',1)">› hint 2</button><button class="btn amber" onclick="hint('cve-ch2',2)">› reveal</button></div><div class="hint-box" id="cve-ch2-hint" style="display:none;"></div></div><div class="challenge" style="margin:16px 24px;"><span class="challenge-tag">CH 03.3</span><h4>OBJECTIVE — Scan an SBOM offline</h4><p class="target">Air-gapped network. Scan CycloneDX SBOM at <span>./sbom.json</span> using only cached database.</p><div class="terminal"><div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">practice · ch 03.3</span></div><div class="term-body" id="cve-ch3-out"></div><div style="padding:0 18px 14px;"><div class="term-input-line"><span class="term-prompt">┌──(</span><span class="term-host">analyst@kali</span><span class="term-prompt">)-[</span><span class="term-path">~</span><span class="term-prompt">]</span></div><div class="term-input-line"><span class="term-prompt">└─$</span><input class="term-input" id="cve-ch3-in" autocomplete="off"></div></div></div><div class="verdict" id="cve-ch3-v"></div><div class="btn-row"><button class="btn amber" onclick="hint('cve-ch3',0)">› hint 1</button><button class="btn amber" onclick="hint('cve-ch3',1)">› hint 2</button><button class="btn amber" onclick="hint('cve-ch3',2)">› reveal</button></div><div class="hint-box" id="cve-ch3-hint" style="display:none;"></div></div></div></section>
+
+    <section class="module-content" id="m-nmap" style="display:none;"><div class="module-header"><div class="module-tag">› module 04 · nmap scripting engine</div><h1 class="module-title">nmap <span class="accent">NSE</span></h1><p class="module-desc">The Nmap Scripting Engine turns nmap from a port scanner into a programmable recon and vuln-detection platform. ~600 scripts, organized into categories.</p></div><div class="section"><div class="section-head"><span class="section-num">[04.1]</span><span class="section-title">challenges</span></div><div class="challenge" style="margin:16px 24px;"><span class="challenge-tag">CH 04.1</span><h4>OBJECTIVE — Default scripts + version detection</h4><p class="target">Scan <span>10.10.10.5</span> with version detection and default NSE scripts.</p><div class="terminal"><div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">practice · ch 04.1</span></div><div class="term-body" id="nmap-ch1-out"></div><div style="padding:0 18px 14px;"><div class="term-input-line"><span class="term-prompt">┌──(</span><span class="term-host">analyst@kali</span><span class="term-prompt">)-[</span><span class="term-path">~</span><span class="term-prompt">]</span></div><div class="term-input-line"><span class="term-prompt">└─$</span><input class="term-input" id="nmap-ch1-in" autocomplete="off"></div></div></div><div class="verdict" id="nmap-ch1-v"></div><div class="btn-row"><button class="btn amber" onclick="hint('nmap-ch1',0)">› hint 1</button><button class="btn amber" onclick="hint('nmap-ch1',1)">› hint 2</button><button class="btn amber" onclick="hint('nmap-ch1',2)">› reveal</button></div><div class="hint-box" id="nmap-ch1-hint" style="display:none;"></div></div><div class="challenge" style="margin:16px 24px;"><span class="challenge-tag">CH 04.2</span><h4>OBJECTIVE — All vuln scripts on a target</h4><p class="target">Run all <span>vuln</span> category scripts against <span>10.10.10.5</span> with version detection.</p><div class="terminal"><div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">practice · ch 04.2</span></div><div class="term-body" id="nmap-ch2-out"></div><div style="padding:0 18px 14px;"><div class="term-input-line"><span class="term-prompt">┌──(</span><span class="term-host">analyst@kali</span><span class="term-prompt">)-[</span><span class="term-path">~</span><span class="term-prompt">]</span></div><div class="term-input-line"><span class="term-prompt">└─$</span><input class="term-input" id="nmap-ch2-in" autocomplete="off"></div></div></div><div class="verdict" id="nmap-ch2-v"></div><div class="btn-row"><button class="btn amber" onclick="hint('nmap-ch2',0)">› hint 1</button><button class="btn amber" onclick="hint('nmap-ch2',1)">› hint 2</button><button class="btn amber" onclick="hint('nmap-ch2',2)">› reveal</button></div><div class="hint-box" id="nmap-ch2-hint" style="display:none;"></div></div><div class="challenge" style="margin:16px 24px;"><span class="challenge-tag">CH 04.3</span><h4>OBJECTIVE — Targeted SMB vuln check</h4><p class="target">Run all <span>smb-vuln-*</span> scripts on port 445 against <span>10.10.10.5</span>.</p><div class="terminal"><div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">practice · ch 04.3</span></div><div class="term-body" id="nmap-ch3-out"></div><div style="padding:0 18px 14px;"><div class="term-input-line"><span class="term-prompt">┌──(</span><span class="term-host">analyst@kali</span><span class="term-prompt">)-[</span><span class="term-path">~</span><span class="term-prompt">]</span></div><div class="term-input-line"><span class="term-prompt">└─$</span><input class="term-input" id="nmap-ch3-in" autocomplete="off"></div></div></div><div class="verdict" id="nmap-ch3-v"></div><div class="btn-row"><button class="btn amber" onclick="hint('nmap-ch3',0)">› hint 1</button><button class="btn amber" onclick="hint('nmap-ch3',1)">› hint 2</button><button class="btn amber" onclick="hint('nmap-ch3',2)">› reveal</button></div><div class="hint-box" id="nmap-ch3-hint" style="display:none;"></div></div><div class="challenge" style="margin:16px 24px;"><span class="challenge-tag">CH 04.4</span><h4>OBJECTIVE — Read the docs first</h4><p class="target">Show help for <span>http-shellshock</span> without running it.</p><div class="terminal"><div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">practice · ch 04.4</span></div><div class="term-body" id="nmap-ch4-out"></div><div style="padding:0 18px 14px;"><div class="term-input-line"><span class="term-prompt">┌──(</span><span class="term-host">analyst@kali</span><span class="term-prompt">)-[</span><span class="term-path">~</span><span class="term-prompt">]</span></div><div class="term-input-line"><span class="term-prompt">└─$</span><input class="term-input" id="nmap-ch4-in" autocomplete="off"></div></div></div><div class="verdict" id="nmap-ch4-v"></div><div class="btn-row"><button class="btn amber" onclick="hint('nmap-ch4',0)">› hint 1</button><button class="btn amber" onclick="hint('nmap-ch4',1)">› hint 2</button><button class="btn amber" onclick="hint('nmap-ch4',2)">› reveal</button></div><div class="hint-box" id="nmap-ch4-hint" style="display:none;"></div></div></div></section>
+
+    <section class="module-content" id="m-les" style="display:none;"><div class="module-header"><div class="module-tag">› module 05 · privesc enumeration</div><h1 class="module-title">linux-exploit<span class="accent">-suggester</span></h1><p class="module-desc">Bash script that suggests local privilege-escalation exploits based on kernel version and distribution. Drop-and-run the moment you get a low-priv shell.</p></div><div class="section"><div class="section-head"><span class="section-num">[05.1]</span><span class="section-title">challenges</span></div><div class="challenge" style="margin:16px 24px;"><span class="challenge-tag">CH 05.1</span><h4>OBJECTIVE — Make it executable and run it</h4><p class="target">You downloaded <span>linux-exploit-suggester.sh</span> to /tmp. Make it executable and run it.</p><div class="terminal"><div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">practice · ch 05.1</span></div><div class="term-body" id="les-ch1-out"></div><div style="padding:0 18px 14px;"><div class="term-input-line"><span class="term-prompt">www-data@target:</span><span class="term-path">/tmp$</span><input class="term-input" id="les-ch1-in" autocomplete="off"></div></div></div><div class="verdict" id="les-ch1-v"></div><div class="btn-row"><button class="btn amber" onclick="hint('les-ch1',0)">› hint 1</button><button class="btn amber" onclick="hint('les-ch1',1)">› hint 2</button><button class="btn amber" onclick="hint('les-ch1',2)">› reveal</button></div><div class="hint-box" id="les-ch1-hint" style="display:none;"></div></div><div class="challenge" style="margin:16px 24px;"><span class="challenge-tag">CH 05.2</span><h4>OBJECTIVE — Triage from a captured kernel string</h4><p class="target">A pcap recovered kernel string <span>4.4.0-116-generic</span>. Ask the tool what exploits apply.</p><div class="terminal"><div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">practice · ch 05.2</span></div><div class="term-body" id="les-ch2-out"></div><div style="padding:0 18px 14px;"><div class="term-input-line"><span class="term-prompt">analyst@kali:</span><span class="term-path">~$</span><input class="term-input" id="les-ch2-in" autocomplete="off"></div></div></div><div class="verdict" id="les-ch2-v"></div><div class="btn-row"><button class="btn amber" onclick="hint('les-ch2',0)">› hint 1</button><button class="btn amber" onclick="hint('les-ch2',1)">› hint 2</button><button class="btn amber" onclick="hint('les-ch2',2)">› reveal</button></div><div class="hint-box" id="les-ch2-hint" style="display:none;"></div></div><div class="challenge" style="margin:16px 24px;"><span class="challenge-tag">CH 05.3</span><h4>OBJECTIVE — Check binary mitigations</h4><p class="target">Use LES checksec mode against <span>/usr/local/bin/myapp</span>.</p><div class="terminal"><div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">practice · ch 05.3</span></div><div class="term-body" id="les-ch3-out"></div><div style="padding:0 18px 14px;"><div class="term-input-line"><span class="term-prompt">analyst@kali:</span><span class="term-path">~$</span><input class="term-input" id="les-ch3-in" autocomplete="off"></div></div></div><div class="verdict" id="les-ch3-v"></div><div class="btn-row"><button class="btn amber" onclick="hint('les-ch3',0)">› hint 1</button><button class="btn amber" onclick="hint('les-ch3',1)">› hint 2</button><button class="btn amber" onclick="hint('les-ch3',2)">› reveal</button></div><div class="hint-box" id="les-ch3-hint" style="display:none;"></div></div></div></section>
+
+    <section class="module-content" id="m-sslscan" style="display:none;"><div class="module-header"><div class="module-tag">› module 06 · tls/ssl posture</div><h1 class="module-title">ssl<span class="accent">scan</span></h1><p class="module-desc">Focused tool for inspecting SSL/TLS configuration. Enumerates protocol versions, cipher suites, certificate details, and known weaknesses.</p></div><div class="section"><div class="section-head"><span class="section-num">[06.1]</span><span class="section-title">challenges</span></div><div class="challenge" style="margin:16px 24px;"><span class="challenge-tag">CH 06.1</span><h4>OBJECTIVE — Basic scan</h4><p class="target">Default sslscan against <span>example.com</span> port 443.</p><div class="terminal"><div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">practice · ch 06.1</span></div><div class="term-body" id="ssl-ch1-out"></div><div style="padding:0 18px 14px;"><div class="term-input-line"><span class="term-prompt">┌──(</span><span class="term-host">analyst@kali</span><span class="term-prompt">)-[</span><span class="term-path">~</span><span class="term-prompt">]</span></div><div class="term-input-line"><span class="term-prompt">└─$</span><input class="term-input" id="ssl-ch1-in" autocomplete="off"></div></div></div><div class="verdict" id="ssl-ch1-v"></div><div class="btn-row"><button class="btn amber" onclick="hint('ssl-ch1',0)">› hint 1</button><button class="btn amber" onclick="hint('ssl-ch1',1)">› hint 2</button><button class="btn amber" onclick="hint('ssl-ch1',2)">› reveal</button></div><div class="hint-box" id="ssl-ch1-hint" style="display:none;"></div></div><div class="challenge" style="margin:16px 24px;"><span class="challenge-tag">CH 06.2</span><h4>OBJECTIVE — Cert-only check on non-standard port</h4><p class="target">Get cert details from <span>internal.lab:8443</span> without enumerating every cipher.</p><div class="terminal"><div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">practice · ch 06.2</span></div><div class="term-body" id="ssl-ch2-out"></div><div style="padding:0 18px 14px;"><div class="term-input-line"><span class="term-prompt">┌──(</span><span class="term-host">analyst@kali</span><span class="term-prompt">)-[</span><span class="term-path">~</span><span class="term-prompt">]</span></div><div class="term-input-line"><span class="term-prompt">└─$</span><input class="term-input" id="ssl-ch2-in" autocomplete="off"></div></div></div><div class="verdict" id="ssl-ch2-v"></div><div class="btn-row"><button class="btn amber" onclick="hint('ssl-ch2',0)">› hint 1</button><button class="btn amber" onclick="hint('ssl-ch2',1)">› hint 2</button><button class="btn amber" onclick="hint('ssl-ch2',2)">› reveal</button></div><div class="hint-box" id="ssl-ch2-hint" style="display:none;"></div></div><div class="challenge" style="margin:16px 24px;"><span class="challenge-tag">CH 06.3</span><h4>OBJECTIVE — STARTTLS on SMTP submission</h4><p class="target">Inspect TLS on <span>mail.corp.local</span> port <span>587</span> using STARTTLS.</p><div class="terminal"><div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">practice · ch 06.3</span></div><div class="term-body" id="ssl-ch3-out"></div><div style="padding:0 18px 14px;"><div class="term-input-line"><span class="term-prompt">┌──(</span><span class="term-host">analyst@kali</span><span class="term-prompt">)-[</span><span class="term-path">~</span><span class="term-prompt">]</span></div><div class="term-input-line"><span class="term-prompt">└─$</span><input class="term-input" id="ssl-ch3-in" autocomplete="off"></div></div></div><div class="verdict" id="ssl-ch3-v"></div><div class="btn-row"><button class="btn amber" onclick="hint('ssl-ch3',0)">› hint 1</button><button class="btn amber" onclick="hint('ssl-ch3',1)">› hint 2</button><button class="btn amber" onclick="hint('ssl-ch3',2)">› reveal</button></div><div class="hint-box" id="ssl-ch3-hint" style="display:none;"></div></div><div class="challenge" style="margin:16px 24px;"><span class="challenge-tag">CH 06.4</span><h4>OBJECTIVE — Verify only TLS 1.2 is offered</h4><p class="target">Test only TLS 1.2 on <span>secure.lab</span> and save XML report to <span>tls12.xml</span>.</p><div class="terminal"><div class="term-bar"><span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span><span class="term-title">practice · ch 06.4</span></div><div class="term-body" id="ssl-ch4-out"></div><div style="padding:0 18px 14px;"><div class="term-input-line"><span class="term-prompt">┌──(</span><span class="term-host">analyst@kali</span><span class="term-prompt">)-[</span><span class="term-path">~</span><span class="term-prompt">]</span></div><div class="term-input-line"><span class="term-prompt">└─$</span><input class="term-input" id="ssl-ch4-in" autocomplete="off"></div></div></div><div class="verdict" id="ssl-ch4-v"></div><div class="btn-row"><button class="btn amber" onclick="hint('ssl-ch4',0)">› hint 1</button><button class="btn amber" onclick="hint('ssl-ch4',1)">› hint 2</button><button class="btn amber" onclick="hint('ssl-ch4',2)">› reveal</button></div><div class="hint-box" id="ssl-ch4-hint" style="display:none;"></div></div></div></section>
+
+  </main>
+</div>
+
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <h3 id="modalTitle">// EXPORT PROGRESS</h3>
+    <p id="modalDesc">Copy the data below.</p>
+    <textarea id="modalText"></textarea>
+    <div class="btn-row" style="margin-top:14px;">
+      <button class="btn primary" id="modalAction">Copy to clipboard</button>
+      <button class="btn" onclick="document.getElementById('modal').classList.remove('show');">Close</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY='cyber-trainer-v1';
+const CHALLENGES={searchsploit:['ss-ch1','ss-ch2','ss-ch3','ss-ch4'],searchscan:['sc-ch1','sc-ch2','sc-ch3'],cvebintool:['cve-ch1','cve-ch2','cve-ch3'],nmap:['nmap-ch1','nmap-ch2','nmap-ch3','nmap-ch4'],les:['les-ch1','les-ch2','les-ch3'],sslscan:['ssl-ch1','ssl-ch2','ssl-ch3','ssl-ch4']};
+const MODULES=Object.keys(CHALLENGES);
+let state=loadState();
+function loadState(){try{const r=localStorage.getItem(STORAGE_KEY);if(r)return JSON.parse(r);}catch(e){}return{completed:{},hintsUsed:0};}
+function saveState(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}}
+function prompt(){return`<span class="term-prompt">┌──(</span><span class="term-host">analyst@kali</span><span class="term-prompt">)-[</span><span class="term-path">~</span><span class="term-prompt">]</span>\n<span class="term-prompt">└─$</span> `;}
+async function runDemo(elId,script){const el=document.getElementById(elId);el.innerHTML='';for(const b of script){if(b.type==='cmd'){el.innerHTML+=`<div class="term-line">${prompt()}<span class="term-cmd">${b.text}</span></div>`;el.scrollTop=el.scrollHeight;await sleep(400);}else if(b.type==='out'){el.innerHTML+=`<div class="term-line ${b.cls||'term-out'}">${b.text}</div>`;el.scrollTop=el.scrollHeight;await sleep(b.delay||80);}else if(b.type==='pause'){await sleep(b.ms||500);}}}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function tokens(s){return s.trim().split(/\s+/);}
+
+const ssDemoScript=[{type:'cmd',text:'searchsploit apache 2.4'},{type:'out',text:'----------------------------------------------------------------------'},{type:'out',text:' Exploit Title                                    |  Path'},{type:'out',text:'----------------------------------------------------------------------'},{type:'out',text:' Apache 2.4.49 - Path Traversal &amp; RCE               | multiple/webapps/50383.sh'},{type:'out',text:' Apache 2.4.50 - Path Traversal &amp; RCE               | multiple/webapps/50406.sh'},{type:'out',text:'----------------------------------------------------------------------'},{type:'pause',ms:500},{type:'cmd',text:'searchsploit apache 2.4 --exclude="dos"'},{type:'out',text:'(DoS results filtered)',cls:'term-info'},{type:'pause',ms:400},{type:'cmd',text:'searchsploit appache'},{type:'out',text:'Exploits: No Results',cls:'term-warn'},{type:'out',text:'Tip: check your spelling',cls:'term-info'}];
+const scDemoScript=[{type:'cmd',text:'nmap -sV -oX scan.xml 10.10.10.5'},{type:'out',text:'PORT     STATE SERVICE    VERSION'},{type:'out',text:'21/tcp   open  ftp        vsftpd 2.3.4'},{type:'out',text:'22/tcp   open  ssh        OpenSSH 4.7p1'},{type:'out',text:'80/tcp   open  http       Apache httpd 2.2.8'},{type:'out',text:'445/tcp  open  smb        Samba 3.0.20'},{type:'out',text:'XML output written to: scan.xml',cls:'term-ok'},{type:'pause',ms:500},{type:'cmd',text:'searchsploit --nmap scan.xml'},{type:'out',text:'[i] Reading: scan.xml',cls:'term-info'},{type:'out',text:' vsftpd 2.3.4 - Backdoor Command Execution | unix/remote/49757.py'},{type:'out',text:' Samba 3.0.20 - Username map script RCE    | unix/remote/16320.rb'},{type:'out',text:'Done. 4 results across 3 services.',cls:'term-ok'}];
+
+const CH={
+'ss-ch1':{answer:'searchsploit vsftpd 2.3.4',hints:['The base command is `searchsploit`. Just give it keywords from the banner.','No flags needed. Two keywords: product and version.','Answer: <code>searchsploit vsftpd 2.3.4</code>'],validate(cmd){const t=tokens(cmd);if(t[0]!=='searchsploit')return{ok:false,output:[{text:`bash: ${t[0]}: command not found`,cls:'term-err'}]};const r=t.slice(1).join(' ').toLowerCase();if(/vsftpd/.test(r)&&/2\.3\.4/.test(r))return{ok:true,output:[{text:'----------------------------------------------'},{text:' vsftpd 2.3.4 - Backdoor Command Execution | unix/remote/49757.py'},{text:' vsftpd 2.3.4 - Backdoor (Metasploit)      | unix/remote/17491.rb'},{text:'----------------------------------------------'}]};if(/vsftpd/.test(r))return{ok:false,output:[{text:'(many results — narrow with version number)',cls:'term-warn'}]};return{ok:false,output:[{text:'Exploits: No Results',cls:'term-warn'}]};}},
+'ss-ch2':{answer:'searchsploit --cve CVE-2021-41773',hints:['There\'s a dedicated flag for CVE searches.','It\'s `--cve` followed by the identifier.','Answer: <code>searchsploit --cve CVE-2021-41773</code>'],validate(cmd){if(!cmd.startsWith('searchsploit'))return{ok:false,output:[{text:'bash: command not found',cls:'term-err'}]};if(/--cve/.test(cmd)&&/cve-2021-41773/i.test(cmd))return{ok:true,output:[{text:' Apache 2.4.49 - Path Traversal &amp; RCE | multiple/webapps/50383.sh'},{text:' Apache 2.4.50 - Path Traversal &amp; RCE | multiple/webapps/50406.sh'}]};return{ok:false,output:[{text:'Exploits: No Results — try the --cve flag',cls:'term-warn'}]};}},
+'ss-ch3':{answer:'searchsploit wordpress --exclude="dos"',hints:['Combine keyword search with a filter flag.','The flag is `--exclude="..."` with the term inside quotes.','Answer: <code>searchsploit wordpress --exclude="dos"</code>'],validate(cmd){if(!cmd.startsWith('searchsploit'))return{ok:false,output:[{text:'bash: command not found',cls:'term-err'}]};const hasWp=/wordpress/.test(cmd.toLowerCase());const hasExc=/--exclude/.test(cmd)&&/dos/i.test(cmd);if(hasWp&&hasExc)return{ok:true,output:[{text:' WordPress 5.8.2 - SQL Injection (Auth)       | php/webapps/50663.txt'},{text:' WordPress Plugin Duplicator 1.3.26 - RCE     | php/webapps/49889.py'},{text:'(DoS results suppressed)',cls:'term-info'}]};if(hasWp&&!hasExc)return{ok:false,output:[{text:'(many results including DoS — filter them out)',cls:'term-warn'}]};return{ok:false,output:[{text:'Exploits: No Results',cls:'term-warn'}]};}},
+'ss-ch4':{answer:'searchsploit -m 49757',hints:['Look for the "mirror" flag — it copies an exploit by EDB-ID.','The flag is `-m`. Pass just the numeric EDB-ID.','Answer: <code>searchsploit -m 49757</code>'],validate(cmd){const t=tokens(cmd);if(t[0]!=='searchsploit')return{ok:false,output:[{text:'bash: command not found',cls:'term-err'}]};if(t.includes('-m')&&t.includes('49757'))return{ok:true,output:[{text:'Exploit: vsftpd 2.3.4 - Backdoor Command Execution'},{text:'Copied to: /home/analyst/49757.py',cls:'term-ok'}]};if(t.includes('49757')&&!t.includes('-m'))return{ok:false,output:[{text:'(no -m flag — without it searchsploit just searches for "49757")',cls:'term-warn'}]};return{ok:false,output:[{text:'Usage: searchsploit -m <EDB-ID>',cls:'term-err'}]};}},
+'sc-ch1':{answer:'nmap -sV -oX recon.xml 10.10.10.40',hints:['You need version detection AND XML output.','Version: `-sV`. XML output: `-oX <filename>`. Then the target.','Answer: <code>nmap -sV -oX recon.xml 10.10.10.40</code>'],validate(cmd){const t=tokens(cmd);if(t[0]!=='nmap')return{ok:false,output:[{text:'bash: command not found',cls:'term-err'}]};const hasSv=t.includes('-sV');const hasOx=t.includes('-oX');const hasFile=/recon\.xml/.test(cmd);const hasIp=/10\.10\.10\.40/.test(cmd);if(hasSv&&hasOx&&hasFile&&hasIp)return{ok:true,output:[{text:'PORT     STATE SERVICE  VERSION'},{text:'21/tcp   open  ftp      ProFTPD 1.3.5'},{text:'80/tcp   open  http     Apache httpd 2.4.18'},{text:'445/tcp  open  smb      Samba smbd 4.3.11'},{text:'XML output written to: recon.xml',cls:'term-ok'}]};if(!hasSv)return{ok:false,output:[{text:'(no version banners — add -sV)',cls:'term-warn'}]};if(!hasOx||!hasFile)return{ok:false,output:[{text:'(missing -oX recon.xml)',cls:'term-warn'}]};return{ok:false,output:[{text:'Failed to resolve target.',cls:'term-err'}]};}},
+'sc-ch2':{answer:'searchsploit --nmap recon.xml',hints:['Searchsploit has a flag specifically for nmap XML.','It\'s `--nmap` followed by the file path.','Answer: <code>searchsploit --nmap recon.xml</code>'],validate(cmd){if(!cmd.startsWith('searchsploit'))return{ok:false,output:[{text:'bash: command not found',cls:'term-err'}]};if(/--nmap/.test(cmd)&&/recon\.xml/.test(cmd))return{ok:true,output:[{text:'[i] Reading recon.xml',cls:'term-info'},{text:' ProFTPd 1.3.5 - Mod_Copy RCE | linux/remote/36742.rb'},{text:' Samba 3.5.0-4.6.4 - SambaCry  | linux/remote/42084.py'},{text:'Done.',cls:'term-ok'}]};return{ok:false,output:[{text:'Usage: searchsploit --nmap <FILE>',cls:'term-err'}]};}},
+'sc-ch3':{answer:'searchsploit --nmap recon.xml -v --exclude="dos"',hints:['Three things: --nmap with the XML, verbose, and exclude.','Verbose is `-v`. Exclude is `--exclude="dos"`.','Answer: <code>searchsploit --nmap recon.xml -v --exclude="dos"</code>'],validate(cmd){if(!cmd.startsWith('searchsploit'))return{ok:false,output:[{text:'bash: command not found',cls:'term-err'}]};const hasNmap=/--nmap/.test(cmd);const hasFile=/recon\.xml/.test(cmd);const hasV=/\s-v\b|\s-v$/.test(cmd);const hasExc=/--exclude/.test(cmd)&&/dos/i.test(cmd);if(hasNmap&&hasFile&&hasV&&hasExc)return{ok:true,output:[{text:'[i] Search Term: proftpd 1.3.5',cls:'term-info'},{text:' ProFTPd 1.3.5 - Mod_Copy RCE | linux/remote/36742.rb'},{text:'(verbose, DoS excluded)',cls:'term-ok'}]};if(!hasV)return{ok:false,output:[{text:'(missing -v)',cls:'term-warn'}]};if(!hasExc)return{ok:false,output:[{text:'(DoS still showing — add --exclude="dos")',cls:'term-warn'}]};return{ok:false,output:[{text:'Usage: searchsploit --nmap <FILE>',cls:'term-err'}]};}},
+'cve-ch1':{answer:'cve-bin-tool ./firmware_extract',hints:['Default scan: binary name and target path.','No flags needed.','Answer: <code>cve-bin-tool ./firmware_extract</code>'],validate(cmd){if(!cmd.startsWith('cve-bin-tool'))return{ok:false,output:[{text:'bash: command not found',cls:'term-err'}]};if(/firmware_extract/.test(cmd))return{ok:true,output:[{text:'[INFO] Scanning...',cls:'term-info'},{text:'│ openssl │ 1.0.2k │ CVE-2019-1559 │ HIGH'},{text:'│ curl    │ 7.61.1 │ CVE-2018-16839│ CRITICAL'},{text:'Total: 17 CVEs',cls:'term-info'}]};return{ok:false,output:[{text:'cve-bin-tool: error: target required',cls:'term-err'}]};}},
+'cve-ch2':{answer:'cve-bin-tool -s high ./firmware_extract -f html -o report.html',hints:['Three flags: severity filter, format, output file.','`-s high`, `-f html`, `-o report.html`.','Answer: <code>cve-bin-tool -s high ./firmware_extract -f html -o report.html</code>'],validate(cmd){if(!cmd.startsWith('cve-bin-tool'))return{ok:false,output:[{text:'bash: command not found',cls:'term-err'}]};const hasS=/-s\s+high/i.test(cmd);const hasF=/-f\s+html/i.test(cmd);const hasO=/-o\s+report\.html/i.test(cmd);const hasT=/firmware_extract/.test(cmd);if(hasS&&hasF&&hasO&&hasT)return{ok:true,output:[{text:'│ openssl │ CVE-2019-1559 │ HIGH'},{text:'│ curl    │ CVE-2018-16839│ CRITICAL'},{text:'HTML report written to: report.html',cls:'term-ok'}]};if(!hasS)return{ok:false,output:[{text:'(severity filter missing)',cls:'term-warn'}]};if(!hasF)return{ok:false,output:[{text:'(format flag missing)',cls:'term-warn'}]};if(!hasO)return{ok:false,output:[{text:'(no output file)',cls:'term-warn'}]};return{ok:false,output:[{text:'error: target required',cls:'term-err'}]};}},
+'cve-ch3':{answer:'cve-bin-tool --sbom cyclonedx --sbom-file ./sbom.json --offline',hints:['Three flags: SBOM format, SBOM file path, offline mode.','`--sbom cyclonedx`, `--sbom-file ./sbom.json`, `--offline`.','Answer: <code>cve-bin-tool --sbom cyclonedx --sbom-file ./sbom.json --offline</code>'],validate(cmd){if(!cmd.startsWith('cve-bin-tool'))return{ok:false,output:[{text:'bash: command not found',cls:'term-err'}]};const hasSbom=/--sbom\s+cyclonedx/i.test(cmd);const hasFile=/--sbom-file\s+\.?\/?sbom\.json/i.test(cmd);const hasOff=/--offline/.test(cmd);if(hasSbom&&hasFile&&hasOff)return{ok:true,output:[{text:'[INFO] SBOM: cyclonedx, offline mode',cls:'term-info'},{text:'│ openssl │ CVE-2023-0286 │ HIGH'},{text:'│ libxml2 │ CVE-2022-23308│ HIGH'},{text:'Total: 11 CVEs',cls:'term-info'}]};if(!hasOff)return{ok:false,output:[{text:'[ERROR] Network unreachable. Use --offline',cls:'term-err'}]};return{ok:false,output:[{text:'error: missing flags',cls:'term-err'}]};}},
+'nmap-ch1':{answer:'nmap -sV -sC 10.10.10.5',hints:['Two flags: version detection and default scripts.','`-sV` for versions, `-sC` for default scripts. Or `-A` bundles both.','Answer: <code>nmap -sV -sC 10.10.10.5</code>'],validate(cmd){if(!cmd.startsWith('nmap'))return{ok:false,output:[{text:'bash: command not found',cls:'term-err'}]};const hasSc=/-sC\b/.test(cmd)||/--script=default/.test(cmd)||/-A\b/.test(cmd);const hasSv=/-sV\b/.test(cmd)||/-A\b/.test(cmd);const hasIp=/10\.10\.10\.5/.test(cmd);if(hasIp&&hasSc&&hasSv)return{ok:true,output:[{text:'22/tcp  open  ssh     OpenSSH 7.6p1'},{text:'80/tcp  open  http    Apache httpd 2.4.29'},{text:'|_http-title: Welcome'},{text:'445/tcp open  smb     Samba 4.7.6'}]};if(!hasSv)return{ok:false,output:[{text:'(no version detection)',cls:'term-warn'}]};if(!hasSc)return{ok:false,output:[{text:'(no scripts ran)',cls:'term-warn'}]};return{ok:false,output:[{text:'Failed to resolve target.',cls:'term-err'}]};}},
+'nmap-ch2':{answer:'nmap -sV --script=vuln 10.10.10.5',hints:['Use `--script=` to call a category. Combine with version detection.','Category name is `vuln`. Pair with `-sV`.','Answer: <code>nmap -sV --script=vuln 10.10.10.5</code>'],validate(cmd){if(!cmd.startsWith('nmap'))return{ok:false,output:[{text:'bash: command not found',cls:'term-err'}]};const hasSv=/-sV/.test(cmd);const hasVuln=/--script[= ]vuln/.test(cmd);const hasIp=/10\.10\.10\.5/.test(cmd);if(hasSv&&hasVuln&&hasIp)return{ok:true,output:[{text:'| smb-vuln-ms17-010:'},{text:'|   VULNERABLE:',cls:'term-err'},{text:'|   CVE: CVE-2017-0143',cls:'term-err'},{text:'|   Risk factor: HIGH',cls:'term-err'}]};if(!hasVuln)return{ok:false,output:[{text:'(missing --script=vuln)',cls:'term-warn'}]};return{ok:false,output:[{text:'Failed to resolve target.',cls:'term-err'}]};}},
+'nmap-ch3':{answer:'nmap -p 445 --script=smb-vuln-* 10.10.10.5',hints:['Three things: port 445, wildcard script name, target IP.','`-p 445`, `--script=smb-vuln-*`. Quote the * if your shell expands it.','Answer: <code>nmap -p 445 --script=smb-vuln-* 10.10.10.5</code>'],validate(cmd){if(!cmd.startsWith('nmap'))return{ok:false,output:[{text:'bash: command not found',cls:'term-err'}]};const hasP=/-p\s*445/.test(cmd);const hasSmb=/--script[= ]["']?smb-vuln-\*/.test(cmd);const hasIp=/10\.10\.10\.5/.test(cmd);if(hasP&&hasSmb&&hasIp)return{ok:true,output:[{text:'445/tcp open microsoft-ds'},{text:'| smb-vuln-ms17-010:'},{text:'|   VULNERABLE: EternalBlue',cls:'term-err'},{text:'|_smb-vuln-ms10-061: false',cls:'term-ok'}]};if(!hasP)return{ok:false,output:[{text:'(slow — specify -p 445)',cls:'term-warn'}]};return{ok:false,output:[{text:'(no SMB vuln scripts ran)',cls:'term-warn'}]};}},
+'nmap-ch4':{answer:'nmap --script-help=http-shellshock',hints:['You want docs, not a run.','The flag is `--script-help=` followed by script name.','Answer: <code>nmap --script-help=http-shellshock</code>'],validate(cmd){if(!cmd.startsWith('nmap'))return{ok:false,output:[{text:'bash: command not found',cls:'term-err'}]};if(/--script-help[= ]http-shellshock/.test(cmd))return{ok:true,output:[{text:'http-shellshock'},{text:'Categories: exploit vuln intrusive'},{text:'Detects Shellshock vulnerability (CVE-2014-6271)'}]};return{ok:false,output:[{text:'Usage: nmap --script-help=<name>',cls:'term-err'}]};}},
+'les-ch1':{answer:'chmod +x linux-exploit-suggester.sh && ./linux-exploit-suggester.sh',hints:['Two steps: make executable, then run from current directory.','`chmod +x` to set the bit, then `./` prefix. Chain with `&&`.','Answer: <code>chmod +x linux-exploit-suggester.sh &amp;&amp; ./linux-exploit-suggester.sh</code>'],validate(cmd){const hasChmod=/chmod\s+\+x\s+(\.\/)?linux-exploit-suggester\.sh/.test(cmd);const hasRun=/\.\/linux-exploit-suggester\.sh/.test(cmd);const hasChain=/&&|;/.test(cmd);if(hasChmod&&hasRun&&hasChain)return{ok:true,output:[{text:'Kernel: 4.4.0-116-generic | ubuntu 16.04'},{text:'[+] [CVE-2017-16995] eBPF_verifier'},{text:'   Exposure: highly probable',cls:'term-err'},{text:'[+] [CVE-2016-5195] dirtycow'},{text:'   Exposure: probable',cls:'term-warn'}]};if(hasRun&&!hasChmod)return{ok:false,output:[{text:'bash: ./linux-exploit-suggester.sh: Permission denied',cls:'term-err'}]};return{ok:false,output:[{text:'(missing chmod or execution step)',cls:'term-err'}]};}},
+'les-ch2':{answer:'./linux-exploit-suggester.sh -k 4.4.0-116-generic',hints:['There\'s a flag to override the detected kernel.','It\'s `-k` followed by the version string.','Answer: <code>./linux-exploit-suggester.sh -k 4.4.0-116-generic</code>'],validate(cmd){if(!/linux-exploit-suggester\.sh/.test(cmd))return{ok:false,output:[{text:'bash: command not found',cls:'term-err'}]};if(/-k\s+\S+/.test(cmd)&&/4\.4\.0-116/.test(cmd))return{ok:true,output:[{text:'Forced kernel: 4.4.0-116-generic',cls:'term-info'},{text:'[+] [CVE-2017-16995] eBPF_verifier - highly probable',cls:'term-err'},{text:'[+] [CVE-2016-5195] dirtycow - probable',cls:'term-warn'}]};if(!/-k/.test(cmd))return{ok:false,output:[{text:'(no -k flag — would scan live host)',cls:'term-warn'}]};return{ok:false,output:[{text:'Usage: ./linux-exploit-suggester.sh -k <version>',cls:'term-err'}]};}},
+'les-ch3':{answer:'./linux-exploit-suggester.sh -c /usr/local/bin/myapp',hints:['There\'s a checksec-style mode for binary mitigations.','`-c` followed by the binary path.','Answer: <code>./linux-exploit-suggester.sh -c /usr/local/bin/myapp</code>'],validate(cmd){if(!/linux-exploit-suggester\.sh/.test(cmd))return{ok:false,output:[{text:'bash: command not found',cls:'term-err'}]};if(/(\s-c\s|\s--checksec\s)/.test(cmd+' ')&&/\/usr\/local\/bin\/myapp/.test(cmd))return{ok:true,output:[{text:'RELRO:        Partial RELRO',cls:'term-warn'},{text:'Stack canary:  No canary found',cls:'term-err'},{text:'NX:           NX enabled',cls:'term-ok'},{text:'PIE:          No PIE',cls:'term-err'},{text:'[!] Good candidate for memory-corruption exploitation.',cls:'term-warn'}]};return{ok:false,output:[{text:'(missing -c flag or binary path)',cls:'term-warn'}]};}},
+'ssl-ch1':{answer:'sslscan example.com',hints:['Default port is 443 — no need to specify it.','Just the binary and the host.','Answer: <code>sslscan example.com</code>'],validate(cmd){if(!cmd.startsWith('sslscan'))return{ok:false,output:[{text:'bash: command not found',cls:'term-err'}]};if(/example\.com/.test(cmd))return{ok:true,output:[{text:'SSLv2/3   disabled',cls:'term-ok'},{text:'TLSv1.2   enabled',cls:'term-ok'},{text:'TLSv1.3   enabled',cls:'term-ok'},{text:'Preferred TLS_AES_256_GCM_SHA384'}]};return{ok:false,output:[{text:'sslscan: missing host',cls:'term-err'}]};}},
+'ssl-ch2':{answer:'sslscan --no-ciphersuites --show-certificate internal.lab:8443',hints:['Want cert details but skip cipher enumeration. Two flags.','`--no-ciphersuites` and `--show-certificate`. Then host:port.','Answer: <code>sslscan --no-ciphersuites --show-certificate internal.lab:8443</code>'],validate(cmd){if(!cmd.startsWith('sslscan'))return{ok:false,output:[{text:'bash: command not found',cls:'term-err'}]};const hasNoCS=/--no-ciphersuites/.test(cmd);const hasCert=/--show-certificate/.test(cmd);const hasHost=/internal\.lab/.test(cmd)&&/8443/.test(cmd);if(hasNoCS&&hasCert&&hasHost)return{ok:true,output:[{text:'Subject: internal.lab'},{text:'Issuer:  Corp Internal CA'},{text:'Not valid after: Mar 14 2026 GMT'},{text:'(cipher enum skipped)',cls:'term-info'}]};if(!hasNoCS)return{ok:false,output:[{text:'(running slow full cipher scan — use --no-ciphersuites)',cls:'term-warn'}]};return{ok:false,output:[{text:'sslscan: missing host:port',cls:'term-err'}]};}},
+'ssl-ch3':{answer:'sslscan --starttls-smtp mail.corp.local:587',hints:['SMTP submission uses STARTTLS, not implicit TLS. There\'s a flag.','`--starttls-smtp` plus host:port.','Answer: <code>sslscan --starttls-smtp mail.corp.local:587</code>'],validate(cmd){if(!cmd.startsWith('sslscan'))return{ok:false,output:[{text:'bash: command not found',cls:'term-err'}]};if(/--starttls-smtp/.test(cmd)&&/mail\.corp\.local/.test(cmd)&&/587/.test(cmd))return{ok:true,output:[{text:'STARTTLS-SMTP mode',cls:'term-info'},{text:'TLSv1.0   enabled',cls:'term-warn'},{text:'TLSv1.2   enabled',cls:'term-ok'},{text:'Subject: mail.corp.local'}]};if(!(/--starttls-smtp/.test(cmd)))return{ok:false,output:[{text:'ERROR: host returned plaintext — you need STARTTLS',cls:'term-err'}]};return{ok:false,output:[{text:'sslscan: missing host',cls:'term-err'}]};}},
+'ssl-ch4':{answer:'sslscan --tls12 --xml=tls12.xml secure.lab',hints:['Two flags: limit to TLS 1.2 version and XML output.','`--tls12` restricts protocol. `--xml=tls12.xml` saves report.','Answer: <code>sslscan --tls12 --xml=tls12.xml secure.lab</code>'],validate(cmd){if(!cmd.startsWith('sslscan'))return{ok:false,output:[{text:'bash: command not found',cls:'term-err'}]};const hasTls=/--tls12/.test(cmd);const hasXml=/--xml[= ]tls12\.xml/.test(cmd);const hasHost=/secure\.lab/.test(cmd);if(hasTls&&hasXml&&hasHost)return{ok:true,output:[{text:'TLSv1.2   enabled (only protocol tested)',cls:'term-ok'},{text:'Preferred ECDHE-RSA-AES256-GCM-SHA384',cls:'term-ok'},{text:'XML report written to: tls12.xml',cls:'term-ok'}]};if(!hasTls)return{ok:false,output:[{text:'(scanned all protocols — use --tls12)',cls:'term-warn'}]};return{ok:false,output:[{text:'sslscan: missing host',cls:'term-err'}]};}}
+};
+
+function setupChallenge(id){
+  const input=document.getElementById(id+'-in');
+  const out=document.getElementById(id+'-out');
+  const verdict=document.getElementById(id+'-v');
+  if(!input)return;
+  let history=[],hidx=-1;
+  input.addEventListener('keydown',(e)=>{
+    if(e.key==='Enter'){
+      const cmd=input.value.trim();if(!cmd)return;
+      history.unshift(cmd);hidx=-1;
+      out.innerHTML+=`<div class="term-line">${prompt()}<span class="term-cmd">${escapeHtml(cmd)}</span></div>`;
+      if(cmd==='clear'){out.innerHTML='';input.value='';return;}
+      if(cmd==='help'){out.innerHTML+=`<div class="term-line term-info">Type the objective command. Use hint buttons if stuck.</div>`;out.scrollTop=out.scrollHeight;input.value='';return;}
+      const result=CH[id].validate(cmd);
+      for(const line of result.output){out.innerHTML+=`<div class="term-line ${line.cls||'term-out'}">${line.text}</div>`;}
+      out.scrollTop=out.scrollHeight;
+      if(result.ok){verdict.className='verdict ok show';verdict.innerHTML='✓ <strong>OBJECTIVE COMPLETE</strong>';if(!state.completed[id]){state.completed[id]=true;saveState();updateProgress();toast('Challenge complete: '+id);}}
+      else{verdict.className='verdict err show';verdict.innerHTML='✗ Not quite — review output and try again.';}
+      input.value='';
+    }else if(e.key==='ArrowUp'){e.preventDefault();if(history.length&&hidx<history.length-1){hidx++;input.value=history[hidx];}}
+    else if(e.key==='ArrowDown'){e.preventDefault();if(hidx>0){hidx--;input.value=history[hidx];}else if(hidx===0){hidx=-1;input.value='';}}
+  });
+}
+
+function hint(id,level){
+  const h=CH[id]?.hints;if(!h)return;
+  const box=document.getElementById(id+'-hint');
+  box.style.display='block';
+  const labels=['// HINT 01','// HINT 02','// REVEALED ANSWER'];
+  box.innerHTML=`<span class="label">${labels[level]}</span>${h[level]}`;
+  state.hintsUsed=(state.hintsUsed||0)+1;saveState();updateProgress();
+}
+
+document.querySelectorAll('.nav-item').forEach(b=>{
+  b.addEventListener('click',()=>{
+    const target=b.dataset.target;
+    document.querySelectorAll('.module-content').forEach(s=>s.style.display='none');
+    document.getElementById(target).style.display='block';
+    document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+});
+
+function updateProgress(){
+  let totalDone=0,totalAll=0;
+  for(const mod of MODULES){
+    const ids=CHALLENGES[mod];const done=ids.filter(i=>state.completed[i]).length;
+    totalDone+=done;totalAll+=ids.length;
+    const pct=Math.round((done/ids.length)*100);
+    const pctEl=document.querySelector(`[data-pct="${mod}"]`);
+    const barEl=document.querySelector(`[data-bar="${mod}"]`);
+    if(pctEl)pctEl.textContent=pct+'%';if(barEl)barEl.style.width=pct+'%';
+  }
+  document.getElementById('totalChallenges').textContent=`${totalDone}/${totalAll}`;
+  document.getElementById('hintsUsed').textContent=state.hintsUsed||0;
+  document.getElementById('overallPct').textContent=Math.round((totalDone/totalAll)*100)+'%';
+  renderDashboard();
+}
+
+function renderDashboard(){
+  const grid=document.getElementById('dashGrid');if(!grid)return;
+  const meta={searchsploit:{num:'01',name:'searchsploit',desc:'Search the local Exploit-DB archive for public exploits.'},searchscan:{num:'02',name:'searchscan workflow',desc:'Auto-correlate nmap XML results against Exploit-DB.'},cvebintool:{num:'03',name:'cve-bin-tool',desc:'Scan binaries and SBOMs for known vulnerable components.'},nmap:{num:'04',name:'nmap NSE',desc:'~600 scripts for service interrogation and vuln checks.'},les:{num:'05',name:'linux-exploit-suggester',desc:'Map a Linux host to public privilege-escalation exploits.'},sslscan:{num:'06',name:'sslscan',desc:'Inspect TLS endpoints: protocols, ciphers, certificates.'}};
+  grid.innerHTML=MODULES.map(m=>{const ids=CHALLENGES[m];const done=ids.filter(i=>state.completed[i]).length;const pct=Math.round((done/ids.length)*100);return`<div class="dash-card" onclick="document.querySelector('[data-target=m-${m}]').click();"><div class="num">// ${meta[m].num}</div><div class="name">${meta[m].name}</div><div class="desc">${meta[m].desc}</div><div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div><div class="progress-text"><span>${done}/${ids.length} challenges</span><span>${pct}%</span></div></div>`;}).join('');
+}
+
+document.getElementById('btnExport').addEventListener('click',()=>{
+  const m=document.getElementById('modal');document.getElementById('modalTitle').textContent='// EXPORT PROGRESS';document.getElementById('modalDesc').textContent='Copy this string to resume on another device.';
+  const text=btoa(JSON.stringify(state));document.getElementById('modalText').value=text;
+  const btn=document.getElementById('modalAction');btn.textContent='Copy to clipboard';
+  btn.onclick=()=>{navigator.clipboard.writeText(text).then(()=>toast('Copied.')).catch(()=>{document.getElementById('modalText').select();toast('Select all and press Ctrl+C.');});};
+  m.classList.add('show');
+});
+document.getElementById('btnImport').addEventListener('click',()=>{
+  const m=document.getElementById('modal');document.getElementById('modalTitle').textContent='// IMPORT PROGRESS';document.getElementById('modalDesc').textContent='Paste exported string. This replaces current progress.';document.getElementById('modalText').value='';
+  const btn=document.getElementById('modalAction');btn.textContent='Load progress';
+  btn.onclick=()=>{try{const obj=JSON.parse(atob(document.getElementById('modalText').value.trim()));if(obj&&typeof obj==='object'){state=obj;if(!state.completed)state.completed={};saveState();updateProgress();toast('Progress imported.');m.classList.remove('show');}}catch(e){toast('Could not parse — check the string.');}};
+  m.classList.add('show');
+});
+document.getElementById('btnReset').addEventListener('click',()=>{if(confirm('Reset ALL progress? Cannot be undone.')){state={completed:{},hintsUsed:0};saveState();updateProgress();document.querySelectorAll('.verdict').forEach(v=>{v.className='verdict';v.innerHTML='';});document.querySelectorAll('.hint-box').forEach(h=>{h.style.display='none';h.innerHTML='';});toast('Progress cleared.');}});
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2200);}
+
+Object.keys(CH).forEach(setupChallenge);
+updateProgress();
+</script>
+</body>
+</html>
