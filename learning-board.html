@@ -251,7 +251,7 @@
     <li><a href="events.html">Events</a></li>
     <li><a href="resources.html">Resources</a></li>
     <li><a href="trainings.html">Trainings</a></li>
-    <li><a href="learning-board.html" class="active">Learn Requests</a></li>
+    <li><a href="learning-board.html" class="active">Request a Topic</a></li>
     <li><a href="https://discord.gg/BPTcKqK" target="_blank" class="nav-discord">Discord</a></li>
     <li><a href="https://sites.google.com/view/palomarcyberclub?utm_source=ig&utm_medium=social&utm_content=link_in_bio" target="_blank" class="nav-join">Join the Club</a></li>
   </ul>
@@ -260,7 +260,7 @@
 <div class="board-hero">
   <p class="section-label accent-green" style="justify-content:center;display:flex;">// community driven</p>
   <h1 class="page-hero-title">Learning <span class="accent-blue">Requests</span></h1>
-  <p class="page-hero-sub">Submit topics you want to learn · upvote what others request · officers prioritize by demand</p>
+  <p class="page-hero-sub">Browse and upvote what others want to learn · submit your own request at the bottom</p>
 </div>
 
 <main class="section">
@@ -294,6 +294,27 @@
     ============================================================
     -->
 
+    <!-- BOARD CONTROLS -->
+    <div class="board-controls">
+      <span class="control-label">Sort:</span>
+      <button class="filter-btn active" data-sort="votes">▲ Most Votes</button>
+      <button class="filter-btn" data-sort="newest">🕐 Newest</button>
+      <span class="control-label" style="margin-left:0.5rem;">Filter:</span>
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="pending">Pending</button>
+      <button class="filter-btn" data-filter="planned">Planned</button>
+      <button class="filter-btn" data-filter="completed">Completed</button>
+      <span class="control-label" style="margin-left:auto;" id="requestCount"></span>
+    </div>
+
+    <!-- REQUESTS LIST -->
+    <div class="requests-list" id="requestsList"></div>
+
+    <!-- SUBMIT FORM (moved to bottom so recommendations show first) -->
+    <div style="margin-top:3.5rem;padding-top:2rem;border-top:1px solid var(--border);text-align:center;margin-bottom:1.5rem;">
+      <h2 style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.6rem;text-transform:uppercase;letter-spacing:0.04em;">Don't see your <span class="accent-green">topic?</span></h2>
+      <p style="font-family:'Share Tech Mono',monospace;font-size:0.82rem;color:var(--muted);margin-top:0.4rem;">Add it below and let others upvote it</p>
+    </div>
     <!-- SUBMIT FORM -->
     <div class="submit-section fade-up">
       <div class="section-label accent-green" style="margin-bottom:1rem;">// submit a request</div>
@@ -320,21 +341,6 @@
       <p class="anon-note">🔒 Fully anonymous · No name or login required · You have 5 minutes after posting to edit or delete your submission</p>
     </div>
 
-    <!-- BOARD CONTROLS -->
-    <div class="board-controls">
-      <span class="control-label">Sort:</span>
-      <button class="filter-btn active" data-sort="votes">▲ Most Votes</button>
-      <button class="filter-btn" data-sort="newest">🕐 Newest</button>
-      <span class="control-label" style="margin-left:0.5rem;">Filter:</span>
-      <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="pending">Pending</button>
-      <button class="filter-btn" data-filter="planned">Planned</button>
-      <button class="filter-btn" data-filter="completed">Completed</button>
-      <span class="control-label" style="margin-left:auto;" id="requestCount"></span>
-    </div>
-
-    <!-- REQUESTS LIST -->
-    <div class="requests-list" id="requestsList"></div>
 
   </div>
 </main>
@@ -352,7 +358,7 @@
       <a href="events.html">Events</a>
       <a href="resources.html">Resources</a>
       <a href="trainings.html">Trainings</a>
-      <a href="learning-board.html">Learn Requests</a>
+      <a href="learning-board.html">Request a Topic</a>
     </nav>
   </div>
 </footer>
