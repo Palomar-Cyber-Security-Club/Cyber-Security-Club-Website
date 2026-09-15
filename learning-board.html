@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learning Board | Palomar CSC</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .board-hero {
+    padding: calc(var(--nav-h) + 4rem) 1.5rem 3rem;
+    text-align: center;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .board-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,200,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,200,255,0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+  .admin-info-box {
+    background: rgba(0,200,255,0.05);
+    border: 1px solid rgba(0,200,255,0.2);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+  .admin-info-box strong { color: var(--blue); }
+  .admin-info-box code {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    color: var(--green);
+  }
+  .submit-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin-bottom: 2.5rem;
+    position: relative;
+  }
+  .submit-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--green), var(--blue));
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+  .form-input, .form-select, .form-textarea {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    font-size: 0.95rem;
+    padding: 0.65rem 0.9rem;
+    transition: border-color 0.2s;
+    outline: none;
+    width: 100%;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 2px rgba(0,200,255,0.08);
+  }
+  .form-select { cursor: pointer; }
+  .form-select option { background: #111827; }
+  .form-textarea { resize: vertical; min-height: 90px; }
+  .submit-btn {
+    background: var(--green);
+    color: #0b0f1a;
+    border: none;
+    border-radius: var(--radius);
+    padding: 0.75rem 2rem;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 0 16px var(--green-glow);
+  }
+  .submit-btn:hover { background: #50ff2a; box-shadow: 0 0 28px var(--green-glow); transform: translateY(-2px); }
+  .anon-note { font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; color: var(--muted); margin-top: 0.75rem; }
+  .board-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .control-label { font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap; }
+  .filter-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--muted);
+    padding: 0.3rem 0.9rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .filter-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .filter-btn.active { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
+  .requests-list { display: flex; flex-direction: column; gap: 1rem; }
+  .request-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.25rem;
+    align-items: start;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .request-card:hover { border-color: rgba(0,200,255,0.3); background: var(--card-hover); }
+  .request-card.mine { border-color: rgba(57,255,20,0.25); }
+  .upvote-col { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; min-width: 48px; }
+  .upvote-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    width: 44px; height: 38px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .upvote-btn:hover { border-color: var(--green); color: var(--green); }
+  .upvote-btn.voted { border-color: var(--green); color: var(--green); background: var(--green-dim); box-shadow: 0 0 8px var(--green-glow); }
+  .upvote-count { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.1rem; color: var(--text); line-height: 1; }
+  .upvote-label { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  .request-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.4rem; flex-wrap: wrap; }
+  .request-topic { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.15rem; color: var(--text); }
+  .level-badge, .status-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.15rem 0.55rem;
+    border-radius: 4px;
+  }
+  .level-beginner    { background: rgba(57,255,20,0.12);  color: var(--green); border: 1px solid rgba(57,255,20,0.3); }
+  .level-intermediate{ background: rgba(0,200,255,0.1);   color: var(--blue);  border: 1px solid rgba(0,200,255,0.3); }
+  .level-advanced    { background: rgba(255,107,53,0.1);  color: #ff6b35;      border: 1px solid rgba(255,107,53,0.3); }
+  .level-any         { background: rgba(150,150,150,0.1); color: var(--muted); border: 1px solid rgba(150,150,150,0.2); }
+  .status-pending    { background: rgba(150,150,150,0.1); color: var(--muted); border: 1px solid rgba(150,150,150,0.2); }
+  .status-planned    { background: rgba(0,200,255,0.1);   color: var(--blue);  border: 1px solid rgba(0,200,255,0.3); }
+  .status-completed  { background: rgba(57,255,20,0.12);  color: var(--green); border: 1px solid rgba(57,255,20,0.3); }
+  .request-desc { font-size: 0.88rem; color: var(--text); opacity: 0.78; line-height: 1.6; margin-top: 0.25rem; }
+  .request-meta { font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; color: var(--muted); margin-top: 0.5rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+  .mine-tag { color: var(--green); }
+
+  /* timer + owner actions */
+  .owner-actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap; align-items: center; }
+  .timer-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--amber, #ffb454);
+    background: rgba(255,180,84,0.08);
+    border: 1px solid rgba(255,180,84,0.25);
+    border-radius: 4px;
+    padding: 0.15rem 0.5rem;
+  }
+  .owner-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--muted);
+    padding: 0.25rem 0.65rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .owner-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .owner-btn.danger:hover { border-color: #ff5b5b; color: #ff5b5b; }
+
+  .empty-state { text-align: center; padding: 4rem 2rem; border: 1px dashed var(--border); border-radius: var(--radius); }
+  .empty-state .icon { font-size: 2.5rem; margin-bottom: 1rem; }
+  .empty-state h3 { font-family: 'Rajdhani', sans-serif; font-size: 1.3rem; margin-bottom: 0.5rem; color: var(--text); }
+  .empty-state p { font-size: 0.88rem; color: var(--muted); }
+
+  /* edit modal */
+  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; }
+  .modal-bg.show { display: flex; }
+  .modal-box { background: var(--bg2); border: 1px solid var(--blue); border-radius: var(--radius); padding: 2rem; max-width: 500px; width: 90%; box-shadow: 0 0 40px var(--blue-glow); }
+  .modal-box h3 { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.15rem; color: var(--blue); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1.25rem; }
+  .modal-btns { display: flex; gap: 0.75rem; margin-top: 1.25rem; }
+  .modal-btn { flex: 1; padding: 0.65rem; border-radius: var(--radius); font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.06em; cursor: pointer; transition: all 0.2s; }
+  .modal-btn.primary { background: var(--blue); color: #0b0f1a; border: none; }
+  .modal-btn.primary:hover { background: #00b8e6; }
+  .modal-btn.secondary { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+
+  .toast-msg { position: fixed; bottom: 2rem; right: 1.5rem; background: var(--card); border: 1px solid var(--green); color: var(--green); padding: 0.65rem 1.25rem; font-family: 'Share Tech Mono', monospace; font-size: 0.78rem; border-radius: var(--radius); box-shadow: 0 0 16px var(--green-glow); transform: translateX(120%); transition: transform 0.3s; z-index: 999; }
+  .toast-msg.show { transform: none; }
+
+  @media (max-width: 640px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .board-controls { gap: 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-brand">
+    <img src="logo.png" alt="CSC Logo" class="nav-logo">
+    <span class="nav-title">Palomar <span class="accent-blue">CSC</span></span>
+  </div>
+  <button class="hamburger" id="hamburger">&#9776;</button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="tools.html">Hack Tools</a></li>
+    <li><a href="events.html">Events</a></li>
+    <li><a href="resources.html">Resources</a></li>
+    <li><a href="trainings.html">Trainings</a></li>
+    <li><a href="learning-board.html" class="active">Learn Requests</a></li>
+    <li><a href="https://discord.gg/BPTcKqK" target="_blank" class="nav-discord">Discord</a></li>
+    <li><a href="https://sites.google.com/view/palomarcyberclub?utm_source=ig&utm_medium=social&utm_content=link_in_bio" target="_blank" class="nav-join">Join the Club</a></li>
+  </ul>
+</nav>
+
+<div class="board-hero">
+  <p class="section-label accent-green" style="justify-content:center;display:flex;">// community driven</p>
+  <h1 class="page-hero-title">Learning <span class="accent-blue">Requests</span></h1>
+  <p class="page-hero-sub">Submit topics you want to learn · upvote what others request · officers prioritize by demand</p>
+</div>
+
+<main class="section">
+  <div class="container">
+
+    <!--
+    ============================================================
+    ADMIN / GITHUB OWNER — HOW TO DELETE REQUESTS
+    ============================================================
+    All submissions are stored in the visitor's browser under
+    localStorage key: "csc-learn-board"
+
+    TO DELETE A SPECIFIC REQUEST:
+    1. Open the site in Chrome or Firefox
+    2. Press F12 to open DevTools
+    3. Go to Application tab → Local Storage → click the site URL
+    4. Click on "csc-learn-board" to see all submissions (JSON)
+    5. Copy the value, edit it in any text editor,
+       remove the object(s) you want deleted, paste back & save
+       — OR —
+    6. Delete the entire "csc-learn-board" key to wipe ALL requests
+
+    TO DELETE FROM CONSOLE (fastest):
+    - Open DevTools → Console tab
+    - To wipe ALL:   localStorage.removeItem('csc-learn-board')
+    - To delete ONE: paste this and replace ID with the request id:
+        var d=JSON.parse(localStorage.getItem('csc-learn-board'));
+        d=d.filter(r=>r.id!=='PASTE-ID-HERE');
+        localStorage.setItem('csc-learn-board',JSON.stringify(d));
+        location.reload();
+    ============================================================
+    -->
+
+    <!-- SUBMIT FORM -->
+    <div class="submit-section fade-up">
+      <div class="section-label accent-green" style="margin-bottom:1rem;">// submit a request</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="topicInput">Topic / Tool / Concept</label>
+          <input class="form-input" id="topicInput" type="text" placeholder="e.g. Buffer overflows, Wireshark, CTF forensics..." maxlength="80" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="levelSelect">Skill Level</label>
+          <select class="form-select" id="levelSelect">
+            <option value="any">Any level</option>
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label class="form-label" for="descInput">Description <span style="opacity:0.5;">(optional)</span></label>
+          <textarea class="form-textarea" id="descInput" placeholder="What specifically do you want to learn? Any context helps officers plan a better session..." maxlength="400"></textarea>
+        </div>
+      </div>
+      <button class="submit-btn" id="submitBtn">&#43; Submit Request</button>
+      <p class="anon-note">🔒 Fully anonymous · No name or login required · You have 5 minutes after posting to edit or delete your submission</p>
+    </div>
+
+    <!-- BOARD CONTROLS -->
+    <div class="board-controls">
+      <span class="control-label">Sort:</span>
+      <button class="filter-btn active" data-sort="votes">▲ Most Votes</button>
+      <button class="filter-btn" data-sort="newest">🕐 Newest</button>
+      <span class="control-label" style="margin-left:0.5rem;">Filter:</span>
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="pending">Pending</button>
+      <button class="filter-btn" data-filter="planned">Planned</button>
+      <button class="filter-btn" data-filter="completed">Completed</button>
+      <span class="control-label" style="margin-left:auto;" id="requestCount"></span>
+    </div>
+
+    <!-- REQUESTS LIST -->
+    <div class="requests-list" id="requestsList"></div>
+
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <img src="logo.png" alt="CSC Logo" class="footer-logo">
+    <div class="footer-text">
+      <p class="footer-name">Palomar Cyber Security Club</p>
+      <p class="footer-copy">&copy; 2026 &bull; <a href="https://www.palomar.edu" target="_blank" style="color:var(--blue);text-decoration:none;">Palomar College</a> &bull; San Marcos, CA</p>
+    </div>
+    <nav class="footer-nav">
+      <a href="index.html">Home</a>
+      <a href="tools.html">Hack Tools</a>
+      <a href="events.html">Events</a>
+      <a href="resources.html">Resources</a>
+      <a href="trainings.html">Trainings</a>
+      <a href="learning-board.html">Learn Requests</a>
+    </nav>
+  </div>
+</footer>
+
+<!-- EDIT MODAL -->
+<div class="modal-bg" id="editModal">
+  <div class="modal-box">
+    <h3>// Edit Your Request</h3>
+    <input type="hidden" id="editId">
+    <div class="form-group" style="margin-bottom:1rem;">
+      <label class="form-label">Topic</label>
+      <input class="form-input" id="editTopic" maxlength="80" autocomplete="off">
+    </div>
+    <div class="form-group" style="margin-bottom:1rem;">
+      <label class="form-label">Skill Level</label>
+      <select class="form-select" id="editLevel">
+        <option value="any">Any level</option>
+        <option value="beginner">Beginner</option>
+        <option value="intermediate">Intermediate</option>
+        <option value="advanced">Advanced</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea class="form-textarea" id="editDesc" maxlength="400"></textarea>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-btn primary" id="editSaveBtn">Save Changes</button>
+      <button class="modal-btn secondary" id="editCancelBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-msg" id="toast"></div>
+
+<script src="main.js"></script>
+<script>
+/* ============================================================
+   PALOMAR CSC — LEARNING BOARD
+   Storage key: "csc-learn-board"
+   Vote tracking: "csc-learn-voted"
+   Owner tokens: "csc-learn-mine"
+   5-minute edit/delete window tracked per submission token
+   ============================================================ */
+
+const STORAGE_KEY = 'csc-learn-board';   // all submissions stored here
+const VOTE_KEY    = 'csc-learn-voted';   // tracks which IDs this browser upvoted
+const MINE_KEY    = 'csc-learn-mine';    // tracks submission tokens for edit window
+const EDIT_WINDOW = 5 * 60 * 1000;      // 5 minutes in ms
+
+let requests      = load(STORAGE_KEY) || [];
+let currentSort   = 'votes';
+let currentFilter = 'all';
+
+// -- storage helpers --
+function load(key)  { try { return JSON.parse(localStorage.getItem(key)); } catch(e) { return null; } }
+function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {} }
+
+// -- vote helpers --
+function getVoted()     { return load(VOTE_KEY) || []; }
+function hasVoted(id)   { return getVoted().includes(id); }
+function addVote(id)    { const v = getVoted(); if (!v.includes(id)) { v.push(id); save(VOTE_KEY, v); } }
+function removeVote(id) { save(VOTE_KEY, getVoted().filter(x => x !== id)); }
+
+// -- ownership helpers (5-min window) --
+function getMine()    { return load(MINE_KEY) || {}; }
+function canEdit(id)  { const m = getMine(); return m[id] && (Date.now() - m[id]) < EDIT_WINDOW; }
+function timeLeft(id) { const m = getMine(); if (!m[id]) return 0; return Math.max(0, EDIT_WINDOW - (Date.now() - m[id])); }
+function registerMine(id) { const m = getMine(); m[id] = Date.now(); save(MINE_KEY, m); }
+
+// -- render --
+function render() {
+  const list    = document.getElementById('requestsList');
+  const countEl = document.getElementById('requestCount');
+
+  let filtered = requests.filter(r => currentFilter === 'all' || r.status === currentFilter);
+  let sorted   = [...filtered].sort((a, b) =>
+    currentSort === 'votes' ? (b.votes - a.votes) : (b.ts - a.ts)
+  );
+
+  countEl.textContent = `${filtered.length} request${filtered.length !== 1 ? 's' : ''}`;
+
+  if (sorted.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">📋</div>
+        <h3>No requests yet</h3>
+        <p>Be the first to submit a topic you want to learn!</p>
+      </div>`;
+    return;
+  }
+
+  const levelLabel = { any: 'Any Level', beginner: 'Beginner', intermediate: 'Intermediate', advanced: 'Advanced' };
+  const statusLabel = { pending: 'Pending', planned: 'Planned', completed: 'Completed' };
+
+  list.innerHTML = sorted.map(r => {
+    const voted   = hasVoted(r.id);
+    const mine    = canEdit(r.id);
+    const secs    = mine ? Math.ceil(timeLeft(r.id) / 1000) : 0;
+    const mins    = Math.floor(secs / 60);
+    const remSecs = secs % 60;
+    const date    = new Date(r.ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+    return `
+    <div class="request-card ${mine ? 'mine' : ''}" id="card-${r.id}">
+      <div class="upvote-col">
+        <button class="upvote-btn ${voted ? 'voted' : ''}" onclick="toggleVote('${r.id}')" title="${voted ? 'Remove vote' : 'Upvote'}">▲</button>
+        <span class="upvote-count" id="vc-${r.id}">${r.votes}</span>
+        <span class="upvote-label">votes</span>
+      </div>
+      <div class="request-content">
+        <div class="request-header">
+          <span class="request-topic">${esc(r.topic)}</span>
+          <span class="level-badge level-${r.level}">${levelLabel[r.level] || r.level}</span>
+          <span class="status-badge status-${r.status}">${statusLabel[r.status] || r.status}</span>
+          ${mine ? '<span class="mine-tag">✎ your post</span>' : ''}
+        </div>
+        ${r.desc ? `<p class="request-desc">${esc(r.desc)}</p>` : ''}
+        <div class="request-meta">
+          <span>Submitted ${date}</span>
+          ${mine ? `
+          <div class="owner-actions">
+            <span class="timer-badge" id="timer-${r.id}">⏱ ${mins}:${String(remSecs).padStart(2,'0')} to edit</span>
+            <button class="owner-btn" onclick="openEdit('${r.id}')">✎ Edit</button>
+            <button class="owner-btn danger" onclick="ownerDelete('${r.id}')">🗑 Delete</button>
+          </div>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// -- upvote --
+function toggleVote(id) {
+  const req = requests.find(r => r.id === id);
+  if (!req) return;
+  if (hasVoted(id)) { req.votes = Math.max(0, req.votes - 1); removeVote(id); }
+  else              { req.votes++; addVote(id); }
+  save(STORAGE_KEY, requests);
+  render();
+}
+
+// -- owner delete (within window) --
+function ownerDelete(id) {
+  if (!canEdit(id)) { toast('Edit window has expired.'); return; }
+  if (!confirm('Delete your request?')) return;
+  requests = requests.filter(r => r.id !== id);
+  save(STORAGE_KEY, requests);
+  toast('Your request was deleted.');
+  render();
+}
+
+// -- edit modal --
+function openEdit(id) {
+  if (!canEdit(id)) { toast('Edit window has expired.'); return; }
+  const req = requests.find(r => r.id === id);
+  if (!req) return;
+  document.getElementById('editId').value    = id;
+  document.getElementById('editTopic').value = req.topic;
+  document.getElementById('editLevel').value = req.level;
+  document.getElementById('editDesc').value  = req.desc || '';
+  document.getElementById('editModal').classList.add('show');
+}
+
+document.getElementById('editSaveBtn').addEventListener('click', () => {
+  const id    = document.getElementById('editId').value;
+  const topic = document.getElementById('editTopic').value.trim();
+  if (!topic) return;
+  if (!canEdit(id)) { toast('Edit window has expired.'); document.getElementById('editModal').classList.remove('show'); return; }
+  const req = requests.find(r => r.id === id);
+  if (!req) return;
+  req.topic = topic;
+  req.level = document.getElementById('editLevel').value;
+  req.desc  = document.getElementById('editDesc').value.trim();
+  save(STORAGE_KEY, requests);
+  document.getElementById('editModal').classList.remove('show');
+  toast('Request updated!');
+  render();
+});
+
+document.getElementById('editCancelBtn').addEventListener('click', () => {
+  document.getElementById('editModal').classList.remove('show');
+});
+
+// -- submit --
+document.getElementById('submitBtn').addEventListener('click', () => {
+  const topic = document.getElementById('topicInput').value.trim();
+  const level = document.getElementById('levelSelect').value;
+  const desc  = document.getElementById('descInput').value.trim();
+  if (!topic) {
+    const inp = document.getElementById('topicInput');
+    inp.style.borderColor = '#ff5b5b';
+    inp.focus();
+    setTimeout(() => inp.style.borderColor = '', 1500);
+    return;
+  }
+  const id = Math.random().toString(36).slice(2, 11);
+  const newReq = { id, topic, level, desc, votes: 0, status: 'pending', ts: Date.now() };
+  requests.unshift(newReq);
+  save(STORAGE_KEY, requests);
+  registerMine(id);
+  document.getElementById('topicInput').value = '';
+  document.getElementById('levelSelect').value = 'any';
+  document.getElementById('descInput').value = '';
+  toast('Request submitted! You have 5 minutes to edit or delete it.');
+  render();
+});
+
+// -- sort / filter --
+document.querySelectorAll('[data-sort]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentSort = btn.dataset.sort;
+    document.querySelectorAll('[data-sort]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render();
+  });
+});
+document.querySelectorAll('[data-filter]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentFilter = btn.dataset.filter;
+    document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render();
+  });
+});
+
+// -- live countdown timer --
+setInterval(() => {
+  const mine = getMine();
+  Object.keys(mine).forEach(id => {
+    const el = document.getElementById(`timer-${id}`);
+    if (!el) return;
+    const left = Math.max(0, EDIT_WINDOW - (Date.now() - mine[id]));
+    if (left === 0) { render(); return; }
+    const m = Math.floor(left / 60000);
+    const s = Math.floor((left % 60000) / 1000);
+    el.textContent = `⏱ ${m}:${String(s).padStart(2,'0')} to edit`;
+  });
+}, 1000);
+
+// -- toast --
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+render();
+</script>
+</body>
+</html>
